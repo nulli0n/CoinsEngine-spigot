@@ -41,8 +41,6 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
             }
         }
 
-        this.plugin.getData().migrateOldPoints();
-
         this.getVaultCurrency().ifPresent(currency -> {
             if (Hooks.hasVault()) {
                 VaultEconomyHook.setup(this.plugin, currency);

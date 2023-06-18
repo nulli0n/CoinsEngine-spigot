@@ -6,13 +6,16 @@ import su.nexmedia.engine.hooks.Hooks;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.migration.impl.AbstractDataConverter;
+import su.nightexpress.coinsengine.migration.impl.GamePointsConverter;
 import su.nightexpress.coinsengine.migration.impl.PlayerPointsConverter;
 
 import java.util.stream.Stream;
 
 public enum MigrationPlugin {
 
-    PLAYER_POINTS("PlayerPoints", PlayerPointsConverter.class);
+    PLAYER_POINTS("PlayerPoints", PlayerPointsConverter.class),
+    GAME_POINTS("GamePoints", GamePointsConverter.class)
+    ;
 
     private final String                                 pluginName;
     private final Class<? extends AbstractDataConverter> clazz;

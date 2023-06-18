@@ -7,7 +7,6 @@ import su.nexmedia.engine.api.data.sql.SQLColumn;
 import su.nexmedia.engine.api.data.sql.SQLValue;
 import su.nexmedia.engine.api.data.sql.column.ColumnType;
 import su.nexmedia.engine.api.data.sql.executor.SelectQueryExecutor;
-import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
@@ -23,7 +22,6 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
 
     private final Function<ResultSet, CoinsUser> userFunction;
 
-    private static final SQLColumn COLUMN_BALANCE   = SQLColumn.of("balance", ColumnType.INTEGER);
     private static final SQLColumn COLUMN_BALANCES = SQLColumn.of("balances", ColumnType.STRING);
 
     DataHandler(@NotNull CoinsEngine plugin) {
@@ -71,53 +69,12 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
         this.addColumn(this.tableUsers, COLUMN_BALANCES.toValue("{}"));
     }
 
-    public void migrateOldPoints() {
-        if (this.hasColumn(this.tableUsers, COLUMN_BALANCE)) {
-            this.plugin().getCurrencyManager().getCurrencies().stream().findAny().ifPresent(currency -> {
-                this.plugin.info("Started data migration from GamePoints into new one. This may take a while...");
-
-                Map<String, Integer> balanceOld = this.getOldBalances();
-                List<CoinsUser> users = this.getUsers();
-
-                users.forEach(user -> {
-                    user.setBalance(currency, balanceOld.getOrDefault(user.getName(), 0));
-                    this.saveUser(user);
-                });
-                this.dropColumn(this.tableUsers, COLUMN_BALANCE);
-                this.plugin.info("GamePoints migration completed for " + balanceOld.size() + " users!");
-            });
-        }
-    }
-
     public void updateUserBalance(@NotNull CoinsUser user) {
         CoinsUser fromDb = this.getUser(user.getId());
         if (fromDb == null) return;
 
         user.getBalanceMap().clear();
         user.getBalanceMap().putAll(fromDb.getBalanceMap());
-    }
-
-    @NotNull
-    private Map<String, Integer> getOldBalances() {
-        Map<String, Integer> map = new HashMap<>();
-
-        Function<ResultSet, Void> function = resultSet -> {
-            try {
-                String name = resultSet.getString(COLUMN_USER_NAME.getName());
-                int balance = resultSet.getInt(COLUMN_BALANCE.getName());
-
-                map.put(name, balance);
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return null;
-        };
-
-        SelectQueryExecutor.builder(this.tableUsers, function)
-            .columns(COLUMN_USER_NAME, COLUMN_BALANCE)
-            .execute(this.getConnector());
-        return map;
     }
 
     @NotNull
@@ -143,7 +100,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
             .columns(COLUMN_USER_NAME, COLUMN_BALANCES)
             .execute(this.getConnector());
 
-        map.values().forEach(data -> {
+        /*map.values().forEach(data -> {
             data.put("MoonBunny", Rnd.getDouble(500));
             data.put("7teen", Rnd.getDouble(1200));
             data.put("har1us", Rnd.getDouble(2000));
@@ -153,7 +110,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
             data.put("S_T_I_N_O_L", Rnd.getDouble(400));
             data.put("konoos", Rnd.getDouble(100));
             data.put("Noob_Perforator", Rnd.getDouble(80));
-        });
+        });*/
 
         return map;
     }
