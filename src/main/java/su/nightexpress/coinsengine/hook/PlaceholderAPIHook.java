@@ -85,14 +85,6 @@ public class PlaceholderAPIHook {
 
             CoinsUser user = plugin.getUserManager().getUserData(player);
 
-            // balance_coins
-            if (holder.startsWith("balance_")) {
-                String currencyId = holder.substring("balance_".length()); // coins
-                Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
-                if (currency == null) return null;
-
-                return currency.format(user.getBalance(currency));
-            }
             if (holder.startsWith("balance_raw_")) {
                 String currencyId = holder.substring("balance_raw_".length()); // coins
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
@@ -107,6 +99,14 @@ public class PlaceholderAPIHook {
 
                 NumberFormat format = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
                 return format.format(currency.fine(user.getBalance(currency)));
+            }
+            // balance_coins
+            if (holder.startsWith("balance_")) {
+                String currencyId = holder.substring("balance_".length()); // coins
+                Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
+                if (currency == null) return null;
+
+                return currency.format(user.getBalance(currency));
             }
 
             return null;
