@@ -14,6 +14,7 @@ import su.nightexpress.coinsengine.command.currency.impl.TopCommand;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.currency.impl.ConfigCurrency;
 import su.nightexpress.coinsengine.currency.listener.CurrencyListener;
+import su.nightexpress.coinsengine.currency.task.BalanceUpdateTask;
 import su.nightexpress.coinsengine.hook.VaultEconomyHook;
 
 import java.util.*;
@@ -23,6 +24,8 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
 
     private final Map<String, Currency>                     currencyMap;
     private final Map<Currency, List<Pair<String, Double>>> balanceMap;
+
+    private BalanceUpdateTask balanceUpdateTask;
 
     public CurrencyManager(@NotNull CoinsEngine plugin) {
         super(plugin);
@@ -53,14 +56,17 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
         });
 
         this.addListener(new CurrencyListener(this));
+
+        this.balanceUpdateTask = new BalanceUpdateTask(this.plugin);
+        this.balanceUpdateTask.start();
     }
 
     @Override
     protected void onShutdown() {
+        if (this.balanceUpdateTask != null) this.balanceUpdateTask.stop();
         if (Hooks.hasVault()) {
             VaultEconomyHook.shutdown();
         }
-
         this.currencyMap.clear();
     }
 

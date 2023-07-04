@@ -55,7 +55,10 @@ public class MigrateCommand extends AbstractCommand<CoinsEngine> {
             return;
         }
 
-        converter.migrate(currency);
-        this.plugin.getMessage(Lang.COMMAND_MIGRATE_DONE).replace(Placeholders.GENERIC_NAME, converter.getPluginName()).send(sender);
+        this.plugin.runTaskAsync(task -> {
+            this.plugin.getMessage(Lang.COMMAND_MIGRATE_START).replace(Placeholders.GENERIC_NAME, converter.getPluginName()).send(sender);
+            converter.migrate(currency);
+            this.plugin.getMessage(Lang.COMMAND_MIGRATE_DONE).replace(Placeholders.GENERIC_NAME, converter.getPluginName()).send(sender);
+        });
     }
 }

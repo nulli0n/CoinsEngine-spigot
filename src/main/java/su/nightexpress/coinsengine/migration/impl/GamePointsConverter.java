@@ -20,12 +20,22 @@ public class GamePointsConverter extends AbstractDataConverter {
         GamePointsAPI.PLUGIN.getData().getUsers().forEach(pointUser -> {
             UUID uuid = pointUser.getId();
 
-            if (this.plugin.getData().isUserExists(uuid)) return;
+            CoinsUser user = this.plugin.getData().getUser(uuid);
+            if (user == null) {
+                user = new CoinsUser(plugin, uuid, pointUser.getName());
+                plugin.getData().addUser(user);
+            }
 
-            CoinsUser user = new CoinsUser(plugin, uuid, pointUser.getName());
+            //CoinsUser user = new CoinsUser(plugin, uuid, pointUser.getName());
             user.setBalance(currency, pointUser.getBalance());
+            plugin.getData().saveUser(user);
 
-            plugin.getData().addUser(user);
+            /*if (this.plugin.getData().isUserExists(uuid)) {
+
+            }
+            else {
+                plugin.getData().addUser(user);
+            }*/
         });
     }
 }

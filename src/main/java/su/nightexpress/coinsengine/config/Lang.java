@@ -10,6 +10,7 @@ public class Lang extends EngineLang implements LangColors {
     public static final LangKey COMMAND_MIGRATE_DESC         = LangKey.of("Command.Migrate.Desc", "Migrate data from other plugin(s).");
     public static final LangKey COMMAND_MIGRATE_USAGE        = LangKey.of("Command.Migrate.Usage", "<plugin> <currency>");
     public static final LangKey COMMAND_MIGRATE_ERROR_PLUGIN = LangKey.of("Command.Migrate.Error.Plugin", RED + "Plugin is not supported or installed!");
+    public static final LangKey COMMAND_MIGRATE_START         = LangKey.of("Command.Migrate.Start", LIGHT_YELLOW + "Started data migration from the " + ORANGE + Placeholders.GENERIC_NAME + LIGHT_YELLOW + "! This may take a while.");
     public static final LangKey COMMAND_MIGRATE_DONE         = LangKey.of("Command.Migrate.Done", LIGHT_YELLOW + "Migrated data from the " + ORANGE + Placeholders.GENERIC_NAME + LIGHT_YELLOW + "!");
 
     public static final LangKey COMMAND_RESET_DESC         = LangKey.of("Command.Reset.Desc", "Reset player's balances.");
