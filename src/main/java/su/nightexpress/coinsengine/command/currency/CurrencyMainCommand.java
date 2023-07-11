@@ -27,6 +27,6 @@ public class CurrencyMainCommand extends GeneralCommand<CoinsEngine> {
 
     @Override
     protected void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
-        super.onExecute(sender, result);
+
     }
 }

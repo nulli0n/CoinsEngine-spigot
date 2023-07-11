@@ -2,7 +2,7 @@ package su.nightexpress.coinsengine.migration;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nexmedia.engine.hooks.Hooks;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.migration.impl.AbstractDataConverter;
@@ -44,7 +44,7 @@ public enum MigrationPlugin {
     @Nullable
     public static AbstractDataConverter getConverter(@NotNull String pluginName) {
         return Stream.of(values())
-            .filter(type -> Hooks.hasPlugin(type.getPluginName()))
+            .filter(type -> EngineUtils.hasPlugin(type.getPluginName()))
             .filter(type -> type.getPluginName().equalsIgnoreCase(pluginName))
             .map(MigrationPlugin::getConverter).findFirst().orElse(null);
     }

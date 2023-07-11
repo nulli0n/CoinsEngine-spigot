@@ -78,7 +78,7 @@ public class SendCommand extends CurrencySubCommand {
             .replace(currency.replacePlaceholders())
             .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
             .replace(Placeholders.GENERIC_BALANCE, userFrom.getBalance(currency))
-            .replace(Placeholders.Player.NAME, userTarget.getName())
+            .replace(Placeholders.PLAYER_NAME, userTarget.getName())
             .send(sender);
 
         Player pTarget = plugin.getServer().getPlayer(userTarget.getName());
@@ -87,7 +87,7 @@ public class SendCommand extends CurrencySubCommand {
                 .replace(currency.replacePlaceholders())
                 .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
                 .replace(Placeholders.GENERIC_BALANCE, userTarget.getBalance(currency))
-                .replace(Placeholders.Player.NAME, userFrom.getName())
+                .replace(Placeholders.PLAYER_NAME, userFrom.getName())
                 .send(pTarget);
         }
     }

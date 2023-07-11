@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.api.config.JYML;
 import su.nexmedia.engine.api.manager.AbstractManager;
-import su.nexmedia.engine.hooks.Hooks;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nexmedia.engine.utils.Pair;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
@@ -45,7 +45,7 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
         }
 
         this.getVaultCurrency().ifPresent(currency -> {
-            if (Hooks.hasVault()) {
+            if (EngineUtils.hasVault()) {
                 VaultEconomyHook.setup(this.plugin, currency);
                 this.plugin.getCommandManager().registerCommand(new BalanceCommand(plugin, currency));
                 this.plugin.getCommandManager().registerCommand(new TopCommand(plugin, currency));
@@ -64,7 +64,7 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
     @Override
     protected void onShutdown() {
         if (this.balanceUpdateTask != null) this.balanceUpdateTask.stop();
-        if (Hooks.hasVault()) {
+        if (EngineUtils.hasVault()) {
             VaultEconomyHook.shutdown();
         }
         this.currencyMap.clear();

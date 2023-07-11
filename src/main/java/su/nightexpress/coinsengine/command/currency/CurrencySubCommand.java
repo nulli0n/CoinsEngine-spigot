@@ -6,7 +6,7 @@ import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 
-public class CurrencySubCommand extends GeneralCommand<CoinsEngine> {
+public abstract class CurrencySubCommand extends GeneralCommand<CoinsEngine> {
 
     protected final Currency currency;
 

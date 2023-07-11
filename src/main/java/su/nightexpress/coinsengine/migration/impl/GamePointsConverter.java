@@ -3,11 +3,7 @@ package su.nightexpress.coinsengine.migration.impl;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.migration.MigrationPlugin;
-import su.nightexpress.gamepoints.api.GamePointsAPI;
-
-import java.util.UUID;
 
 public class GamePointsConverter extends AbstractDataConverter {
 
@@ -17,7 +13,7 @@ public class GamePointsConverter extends AbstractDataConverter {
 
     @Override
     public void migrate(@NotNull Currency currency) {
-        GamePointsAPI.PLUGIN.getData().getUsers().forEach(pointUser -> {
+        /*GamePointsAPI.PLUGIN.getData().getUsers().forEach(pointUser -> {
             UUID uuid = pointUser.getId();
 
             CoinsUser user = this.plugin.getData().getUser(uuid);
@@ -35,7 +31,7 @@ public class GamePointsConverter extends AbstractDataConverter {
             }
             else {
                 plugin.getData().addUser(user);
-            }*/
-        });
+            }
+        });*/
     }
 }

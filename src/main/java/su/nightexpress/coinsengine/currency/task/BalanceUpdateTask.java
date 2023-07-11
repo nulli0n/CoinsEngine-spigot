@@ -29,6 +29,6 @@ public class BalanceUpdateTask extends AbstractTask<CoinsEngine> {
                 balanceMap.computeIfAbsent(currency, k -> new ArrayList<>()).add(Pair.of(name, balance));
             });
         });
-        plugin.info("Balance top updated!");
+        //plugin.info("Balance top updated!");
     }
 }

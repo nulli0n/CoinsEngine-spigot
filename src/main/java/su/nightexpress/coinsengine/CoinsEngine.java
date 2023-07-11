@@ -5,7 +5,7 @@ import su.nexmedia.engine.NexPlugin;
 import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.data.UserDataHolder;
 import su.nexmedia.engine.command.list.ReloadSubCommand;
-import su.nexmedia.engine.hooks.Hooks;
+import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.coinsengine.command.MigrateCommand;
 import su.nightexpress.coinsengine.command.ResetCommand;
 import su.nightexpress.coinsengine.config.Config;
@@ -34,14 +34,14 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
         this.currencyManager = new CurrencyManager(this);
         this.currencyManager.setup();
 
-        if (Hooks.hasPlaceholderAPI()) {
+        if (EngineUtils.hasPlaceholderAPI()) {
             PlaceholderAPIHook.setup();
         }
     }
 
     @Override
     public void disable() {
-        if (Hooks.hasPlaceholderAPI()) {
+        if (EngineUtils.hasPlaceholderAPI()) {
             PlaceholderAPIHook.shutdown();
         }
         if (this.currencyManager != null) {

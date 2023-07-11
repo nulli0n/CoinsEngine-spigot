@@ -59,7 +59,7 @@ public class GiveCommand extends CurrencySubCommand {
 
             plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_DONE)
                 .replace(currency.replacePlaceholders())
-                .replace(Placeholders.Player.NAME, user.getName())
+                .replace(Placeholders.PLAYER_NAME, user.getName())
                 .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
                 .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
                 .send(sender);

@@ -5,7 +5,7 @@ import su.nightexpress.coinsengine.Placeholders;
 
 public class Perms {
 
-    private static final String PREFIX = "gamepoints.";
+    private static final String PREFIX = "coinsengine.";
     private static final String PREFIX_COMMAND = PREFIX + "command.";
 
     public static final String PREFIX_CURRENCY = PREFIX + "currency.";
