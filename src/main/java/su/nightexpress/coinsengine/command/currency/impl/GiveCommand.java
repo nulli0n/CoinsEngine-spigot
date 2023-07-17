@@ -8,9 +8,11 @@ import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
+import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.util.CoinsLogger;
 
 import java.util.Arrays;
@@ -22,6 +24,7 @@ public class GiveCommand extends CurrencySubCommand {
         super(plugin, currency, new String[]{"give"}, Perms.COMMAND_CURRENCY_ADD);
         this.setDescription(plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_USAGE));
+        this.addFlag(CommandFlags.SILENT);
     }
 
     @Override
@@ -52,7 +55,8 @@ public class GiveCommand extends CurrencySubCommand {
                 return;
             }
 
-            user.addBalance(this.currency, amount);
+            CurrencyData data = user.getCurrencyData(this.currency);
+            data.addBalance(amount);
             user.saveData(this.plugin);
 
             CoinsLogger.logGive(user, currency, amount, sender);
@@ -61,8 +65,17 @@ public class GiveCommand extends CurrencySubCommand {
                 .replace(currency.replacePlaceholders())
                 .replace(Placeholders.PLAYER_NAME, user.getName())
                 .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
                 .send(sender);
+
+            Player target = user.getPlayer();
+            if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
+                plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_NOTIFY)
+                    .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
+                    .send(sender);
+            }
         });
     }
 }

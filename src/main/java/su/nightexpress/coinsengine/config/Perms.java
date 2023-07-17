@@ -17,6 +17,8 @@ public class Perms {
     public static final JPermission COMMAND_CURRENCY_ADD            = new JPermission(PREFIX_COMMAND + "currency.add");
     public static final JPermission COMMAND_CURRENCY_BALANCE        = new JPermission(PREFIX_COMMAND + "currency.balance");
     public static final JPermission COMMAND_CURRENCY_BALANCE_OTHERS = new JPermission(PREFIX_COMMAND + "currency.balance.others");
+    public static final JPermission COMMAND_CURRENCY_PAYMENTS        = new JPermission(PREFIX_COMMAND + "currency.payments");
+    public static final JPermission COMMAND_CURRENCY_PAYMENTS_OTHERS = new JPermission(PREFIX_COMMAND + "currency.payments.others");
     public static final JPermission COMMAND_CURRENCY_TOP            = new JPermission(PREFIX_COMMAND + "currency.top");
     public static final JPermission COMMAND_CURRENCY_SEND           = new JPermission(PREFIX_COMMAND + "currency.send");
     public static final JPermission COMMAND_CURRENCY_SET            = new JPermission(PREFIX_COMMAND + "currency.set");
@@ -32,6 +34,7 @@ public class Perms {
         COMMAND.addChildren(
             COMMAND_RELOAD, COMMAND_RESET, COMMAND_MIGRATE,
             COMMAND_CURRENCY_ADD, COMMAND_CURRENCY_BALANCE, COMMAND_CURRENCY_BALANCE_OTHERS,
+            COMMAND_CURRENCY_PAYMENTS, COMMAND_CURRENCY_PAYMENTS_OTHERS,
             COMMAND_CURRENCY_SEND, COMMAND_CURRENCY_SET, COMMAND_CURRENCY_TAKE, COMMAND_CURRENCY_TOP
         );
     }

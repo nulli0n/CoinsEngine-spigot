@@ -20,23 +20,32 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_CURRENCY_BALANCE_DESC  = LangKey.of("Command.Currency.Balance.Desc", "Check [player's] currency balance.");
     public static final LangKey COMMAND_CURRENCY_BALANCE_DONE  = LangKey.of("Command.Currency.Balance.Done", GREEN + Placeholders.PLAYER_NAME + GRAY + "'s balance: " + GREEN + Placeholders.GENERIC_BALANCE + GRAY + ".");
 
-    public static final LangKey COMMAND_CURRENCY_GIVE_USAGE = LangKey.of("Command.Currency.Give.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_CURRENCY_GIVE_USAGE = LangKey.of("Command.Currency.Give.Usage", "<player> <amount> [-s]");
     public static final LangKey COMMAND_CURRENCY_GIVE_DESC  = LangKey.of("Command.Currency.Give.Desc", "Add currency to a player.");
     public static final LangKey COMMAND_CURRENCY_GIVE_DONE  = LangKey.of("Command.Currency.Give.Done", LIGHT_YELLOW + "Added " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " to " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance. New balance: " + ORANGE + Placeholders.GENERIC_BALANCE + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_CURRENCY_GIVE_NOTIFY  = LangKey.of("Command.Currency.Give.Notify", ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " has been added to your account!");
 
-    public static final LangKey COMMAND_CURRENCY_TAKE_USAGE = LangKey.of("Command.Currency.Take.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_CURRENCY_TAKE_USAGE = LangKey.of("Command.Currency.Take.Usage", "<player> <amount> [-s]");
     public static final LangKey COMMAND_CURRENCY_TAKE_DESC  = LangKey.of("Command.Currency.Take.Desc", "Take player's currency.");
     public static final LangKey COMMAND_CURRENCY_TAKE_DONE  = LangKey.of("Command.Currency.Take.Done", LIGHT_YELLOW + "Taken " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " from " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s balance. New balance: " + ORANGE + Placeholders.GENERIC_BALANCE + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_CURRENCY_TAKE_NOTIFY  = LangKey.of("Command.Currency.Take.Notify", ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " has been taken from your account!");
 
-    public static final LangKey COMMAND_CURRENCY_SET_USAGE = LangKey.of("Command.Currency.Set.Usage", "<player> <amount>");
+    public static final LangKey COMMAND_CURRENCY_SET_USAGE = LangKey.of("Command.Currency.Set.Usage", "<player> <amount> [-s]");
     public static final LangKey COMMAND_CURRENCY_SET_DESC  = LangKey.of("Command.Currency.Set.Desc", "Set player's currency balance.");
     public static final LangKey COMMAND_CURRENCY_SET_DONE  = LangKey.of("Command.Currency.Set.Done", LIGHT_YELLOW + "Set " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "'s " + Placeholders.CURRENCY_NAME + " balance to " + ORANGE + Placeholders.GENERIC_BALANCE + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_CURRENCY_SET_NOTIFY  = LangKey.of("Command.Currency.Set.Notify", LIGHT_YELLOW + "Your " + ORANGE + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + " balance has been set to " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + ".");
 
     public static final LangKey COMMAND_CURRENCY_SEND_USAGE            = LangKey.of("Command.Currency.Send.Usage", "<player> <amount>");
     public static final LangKey COMMAND_CURRENCY_SEND_DESC             = LangKey.of("Command.Currency.Send.Desc", "Transfer currency to a player.");
     public static final LangKey COMMAND_CURRENCY_SEND_ERROR_NOT_ENOUGH = LangKey.of("Command.Currency.Send.Error.NotEnough", LIGHT_YELLOW + "You don't have enought " + RED + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + "!");
+    public static final LangKey COMMAND_CURRENCY_SEND_ERROR_NO_PAYMENTS = LangKey.of("Command.Currency.Send.Error.NoPayments", RED + Placeholders.PLAYER_NAME + LIGHT_YELLOW + " does not accept " + RED + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + "!");
     public static final LangKey COMMAND_CURRENCY_SEND_DONE_SENDER      = LangKey.of("Command.Currency.Send.Done.Sender", LIGHT_YELLOW + "You sent " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " to " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "!");
     public static final LangKey COMMAND_CURRENCY_SEND_DONE_NOTIFY      = LangKey.of("Command.Currency.Send.Done.Notify", LIGHT_YELLOW + "You received " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " from " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "!");
+
+    public static final LangKey COMMAND_CURRENCY_PAYMENTS_USAGE  = LangKey.of("Command.Currency.Payments.Usage", "[player] [-s]");
+    public static final LangKey COMMAND_CURRENCY_PAYMENTS_DESC   = LangKey.of("Command.Currency.Payments.Desc", "Toggle payments acception from other players.");
+    public static final LangKey COMMAND_CURRENCY_PAYMENTS_TOGGLE = LangKey.of("Command.Currency.Payments.Toggle", ORANGE + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + " payments acception: " + ORANGE + Placeholders.GENERIC_STATE + LIGHT_YELLOW + ".");
+    public static final LangKey COMMAND_CURRENCY_PAYMENTS_TARGET = LangKey.of("Command.Currency.Payments.Target", ORANGE + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + " payments acception for " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + ": " + ORANGE + Placeholders.GENERIC_STATE + LIGHT_YELLOW + ".");
 
     public static final LangKey COMMAND_CURRENCY_TOP_USAGE = LangKey.of("Command.Currency.Top.Usage", "[page]");
     public static final LangKey COMMAND_CURRENCY_TOP_DESC  = LangKey.of("Command.Currency.Top.Desc", "List of players with the most balance.");

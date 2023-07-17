@@ -69,7 +69,7 @@ public class PlayerPointsConverter extends AbstractDataConverter {
             String name = nameMap.get(uuid);
 
             CoinsUser user = new CoinsUser(plugin, uuid, name);
-            user.setBalance(currency, points);
+            user.getCurrencyData(currency).setBalance(points);
 
             plugin.getData().addUser(user);
         });

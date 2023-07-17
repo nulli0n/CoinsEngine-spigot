@@ -16,19 +16,19 @@ public class CoinsEngineAPI {
     public static final CoinsEngine PLUGIN = CoinsEngine.getPlugin(CoinsEngine.class);
 
     public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
-        return getUserData(player).getBalance(currency);
+        return getUserData(player).getCurrencyData(currency).getBalance();
     }
 
     public static void addBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        getUserData(player).addBalance(currency, amount);
+        getUserData(player).getCurrencyData(currency).addBalance(amount);
     }
 
     public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        getUserData(player).setBalance(currency, amount);
+        getUserData(player).getCurrencyData(currency).setBalance(amount);
     }
 
     public static void removeBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        getUserData(player).removeBalance(currency, amount);
+        getUserData(player).getCurrencyData(currency).removeBalance(amount);
     }
 
     @NotNull

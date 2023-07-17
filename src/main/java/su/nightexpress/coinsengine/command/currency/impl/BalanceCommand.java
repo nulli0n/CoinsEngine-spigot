@@ -11,6 +11,7 @@ import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
+import su.nightexpress.coinsengine.data.impl.CurrencyData;
 
 import java.util.List;
 
@@ -51,10 +52,11 @@ public class BalanceCommand extends CurrencySubCommand {
                 return;
             }
 
+            CurrencyData data = user.getCurrencyData(this.currency);
             plugin.getMessage(Lang.COMMAND_CURRENCY_BALANCE_DONE)
                 .replace(currency.replacePlaceholders())
                 .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
                 .send(sender);
         });
     }

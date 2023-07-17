@@ -1,4 +1,4 @@
-package su.nightexpress.coinsengine.command;
+package su.nightexpress.coinsengine.command.base;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

@@ -1,5 +1,6 @@
 package su.nightexpress.coinsengine.data;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUserDataHandler;
@@ -10,6 +11,8 @@ import su.nexmedia.engine.api.data.sql.executor.SelectQueryExecutor;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
+import su.nightexpress.coinsengine.data.impl.CurrencyData;
+import su.nightexpress.coinsengine.data.serialize.CurrencyDataSerializer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,6 +26,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     private final Function<ResultSet, CoinsUser> userFunction;
 
     private static final SQLColumn COLUMN_BALANCES = SQLColumn.of("balances", ColumnType.STRING);
+    private static final SQLColumn COLUMN_CURRENCY_DATA = SQLColumn.of("currencyData", ColumnType.STRING);
 
     DataHandler(@NotNull CoinsEngine plugin) {
         super(plugin, plugin);
@@ -34,9 +38,24 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
                 long dateCreated = resultSet.getLong(COLUMN_USER_DATE_CREATED.getName());
                 long lastOnline = resultSet.getLong(COLUMN_USER_LAST_ONLINE.getName());
 
-                Map<String, Double> balanceMap = gson.fromJson(resultSet.getString(COLUMN_BALANCES.getName()), new TypeToken<Map<String, Double>>(){}.getType());
+                Set<CurrencyData> curDatas = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
+                if (curDatas == null) curDatas = new HashSet<>();
 
-                return new CoinsUser(plugin, uuid, name, dateCreated, lastOnline, balanceMap);
+                Map<String, Double> balanceMap = gson.fromJson(resultSet.getString(COLUMN_BALANCES.getName()), new TypeToken<Map<String, Double>>(){}.getType());
+                if (!balanceMap.isEmpty()) {
+                    Set<CurrencyData> finalCurDatas = curDatas;
+                    balanceMap.forEach((id, balance) -> {
+                        Currency currency = plugin.getCurrencyManager().getCurrency(id);
+                        if (currency == null) return;
+
+                        CurrencyData data = CurrencyData.create(currency);
+                        data.setBalance(balance);
+                        finalCurDatas.add(data);
+                    });
+                    curDatas.addAll(finalCurDatas);
+                }
+
+                return new CoinsUser(plugin, uuid, name, dateCreated, lastOnline, curDatas);
             }
             catch (SQLException e) {
                 return null;
@@ -53,6 +72,13 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     }
 
     @Override
+    @NotNull
+    protected GsonBuilder registerAdapters(@NotNull GsonBuilder builder) {
+        return super.registerAdapters(builder)
+            .registerTypeAdapter(CurrencyData.class, new CurrencyDataSerializer());
+    }
+
+    @Override
     protected void onShutdown() {
         super.onShutdown();
         instance = null;
@@ -66,15 +92,15 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     @Override
     protected void createUserTable() {
         super.createUserTable();
-        this.addColumn(this.tableUsers, COLUMN_BALANCES.toValue("{}"));
+        this.addColumn(this.tableUsers, COLUMN_CURRENCY_DATA.toValue("[]"));
     }
 
     public void updateUserBalance(@NotNull CoinsUser user) {
         CoinsUser fromDb = this.getUser(user.getId());
         if (fromDb == null) return;
 
-        user.getBalanceMap().clear();
-        user.getBalanceMap().putAll(fromDb.getBalanceMap());
+        user.getCurrencyDataMap().clear();
+        user.getCurrencyDataMap().putAll(fromDb.getCurrencyDataMap());
     }
 
     @NotNull
@@ -84,10 +110,9 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
         Function<ResultSet, Void> function = resultSet -> {
             try {
                 String name = resultSet.getString(COLUMN_USER_NAME.getName());
-                Map<String, Double> balanceMap = gson.fromJson(resultSet.getString(COLUMN_BALANCES.getName()), new TypeToken<Map<String, Double>>(){}.getType());
-
-                this.plugin.getCurrencyManager().getCurrencies().forEach(currency -> {
-                    map.computeIfAbsent(currency, k -> new HashMap<>()).put(name, balanceMap.getOrDefault(currency.getId(), 0D));
+                Set<CurrencyData> currencyData = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
+                currencyData.forEach(data -> {
+                    map.computeIfAbsent(data.getCurrency(), k -> new HashMap<>()).put(name, data.getBalance());
                 });
             }
             catch (SQLException e) {
@@ -97,7 +122,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
         };
 
         SelectQueryExecutor.builder(this.tableUsers, function)
-            .columns(COLUMN_USER_NAME, COLUMN_BALANCES)
+            .columns(COLUMN_USER_NAME, COLUMN_CURRENCY_DATA)
             .execute(this.getConnector());
 
         /*map.values().forEach(data -> {
@@ -118,14 +143,15 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     @Override
     @NotNull
     protected List<SQLColumn> getExtraColumns() {
-        return Arrays.asList(COLUMN_BALANCES);
+        return Arrays.asList(COLUMN_CURRENCY_DATA);
     }
 
     @Override
     @NotNull
     protected List<SQLValue> getSaveColumns(@NotNull CoinsUser user) {
         return Arrays.asList(
-            COLUMN_BALANCES.toValue(this.gson.toJson(user.getBalanceMap()))
+            COLUMN_BALANCES.toValue("{}"),
+            COLUMN_CURRENCY_DATA.toValue(this.gson.toJson(user.getCurrencyDataMap().values()))
         );
     }
 

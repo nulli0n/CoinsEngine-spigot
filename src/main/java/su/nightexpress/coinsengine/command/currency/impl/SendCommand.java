@@ -12,6 +12,7 @@ import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
+import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.util.CoinsLogger;
 
 import java.util.Arrays;
@@ -62,13 +63,25 @@ public class SendCommand extends CurrencySubCommand {
 
         Player from = (Player) sender;
         CoinsUser userFrom = plugin.getUserManager().getUserData(from);
-        if (amount > userFrom.getBalance(currency)) {
-            plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_ERROR_NOT_ENOUGH).send(from);
+        CurrencyData dataFrom = userFrom.getCurrencyData(this.currency);
+        if (amount > dataFrom.getBalance()) {
+            plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_ERROR_NOT_ENOUGH)
+                .replace(this.currency.replacePlaceholders())
+                .send(from);
             return;
         }
 
-        userTarget.addBalance(currency, amount);
-        userFrom.removeBalance(currency, amount);
+        CurrencyData dataTarget = userTarget.getCurrencyData(this.currency);
+        if (!dataTarget.isPaymentsEnabled()) {
+            plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_ERROR_NO_PAYMENTS)
+                .replace(Placeholders.PLAYER_NAME, userTarget.getName())
+                .replace(this.currency.replacePlaceholders())
+                .send(from);
+            return;
+        }
+
+        dataTarget.addBalance(amount);
+        dataFrom.removeBalance(amount);
         userTarget.saveData(this.plugin);
         userFrom.saveData(this.plugin);
 
@@ -77,7 +90,7 @@ public class SendCommand extends CurrencySubCommand {
         plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_DONE_SENDER)
             .replace(currency.replacePlaceholders())
             .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-            .replace(Placeholders.GENERIC_BALANCE, userFrom.getBalance(currency))
+            .replace(Placeholders.GENERIC_BALANCE, dataFrom.getBalance())
             .replace(Placeholders.PLAYER_NAME, userTarget.getName())
             .send(sender);
 
@@ -86,7 +99,7 @@ public class SendCommand extends CurrencySubCommand {
             plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_DONE_NOTIFY)
                 .replace(currency.replacePlaceholders())
                 .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, userTarget.getBalance(currency))
+                .replace(Placeholders.GENERIC_BALANCE, dataTarget.getBalance())
                 .replace(Placeholders.PLAYER_NAME, userFrom.getName())
                 .send(pTarget);
         }

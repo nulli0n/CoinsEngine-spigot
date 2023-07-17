@@ -1,4 +1,4 @@
-package su.nightexpress.coinsengine.command;
+package su.nightexpress.coinsengine.command.base;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -43,7 +43,7 @@ public class ResetCommand extends AbstractCommand<CoinsEngine> {
                 return;
             }
 
-            user.getBalanceMap().clear();
+            user.getCurrencyDataMap().clear();
             user.saveData(this.plugin);
 
             this.plugin.getMessage(Lang.COMMAND_RESET_DONE)

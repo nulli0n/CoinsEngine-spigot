@@ -16,19 +16,19 @@ public class CoinsLogger {
 
     public static void logGive(@NotNull CoinsUser user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
         String text = user.getName() + " received " + currency.formatValue(amount) + " " + currency.getName()
-            + " from " + from.getName() + ". New balance: " + currency.format(user.getBalance(currency));
+            + " from " + from.getName() + ". New balance: " + currency.format(user.getCurrencyData(currency).getBalance());
         log(text);
     }
 
     public static void logSet(@NotNull CoinsUser user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
         String text = user.getName() + "'s " + currency.getName() + " balance set to " + currency.formatValue(amount)
-            + " by " + from.getName() + ". New balance: " + currency.format(user.getBalance(currency));
+            + " by " + from.getName() + ". New balance: " + currency.format(user.getCurrencyData(currency).getBalance());
         log(text);
     }
 
     public static void logTake(@NotNull CoinsUser user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
         String text = user.getName() + " lost " + currency.formatValue(amount) + " " + currency.getName()
-            + " by " + from.getName() + ". New balance: " + currency.format(user.getBalance(currency));
+            + " by " + from.getName() + ". New balance: " + currency.format(user.getCurrencyData(currency).getBalance());
         log(text);
     }
 

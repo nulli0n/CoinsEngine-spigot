@@ -3,6 +3,7 @@ package su.nightexpress.coinsengine.hook;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.Pair;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.coinsengine.CoinsEngine;
@@ -11,6 +12,7 @@ import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,6 +58,15 @@ public class PlaceholderAPIHook {
         public String onPlaceholderRequest(Player player, String holder) {
             CoinsEngine plugin = CoinsEngineAPI.PLUGIN;
 
+            if (holder.startsWith("server_balance_")) {
+                String curId = holder.substring("server_balance_".length());
+                Currency currency = plugin.getCurrencyManager().getCurrency(curId);
+                if (currency == null) return null;
+
+                return currency.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
+                    .stream().mapToDouble(Pair::getSecond).sum());
+            }
+
             // top_balance_coins_1
             // top_player_coins_1
             if (holder.startsWith("top_")) {
@@ -90,7 +101,14 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return String.valueOf(currency.fine(user.getBalance(currency)));
+                return String.valueOf(currency.fine(user.getCurrencyData(currency).getBalance()));
+            }
+            if (holder.startsWith("balance_rounded_")) {
+                String currencyId = holder.substring("balance_rounded_".length()); // coins
+                Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
+                if (currency == null) return null;
+
+                return NumberUtil.format(currency.fine(user.getCurrencyData(currency).getBalance()));
             }
             if (holder.startsWith("balance_short_")) {
                 String currencyId = holder.substring("balance_short_".length()); // coins
@@ -98,7 +116,7 @@ public class PlaceholderAPIHook {
                 if (currency == null) return null;
 
                 NumberFormat format = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
-                return format.format(currency.fine(user.getBalance(currency)));
+                return format.format(currency.fine(user.getCurrencyData(currency).getBalance()));
             }
             // balance_coins
             if (holder.startsWith("balance_")) {
@@ -106,7 +124,7 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return currency.format(user.getBalance(currency));
+                return currency.format(user.getCurrencyData(currency).getBalance());
             }
 
             return null;

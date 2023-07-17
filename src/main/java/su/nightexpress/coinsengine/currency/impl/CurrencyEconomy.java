@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
+import su.nightexpress.coinsengine.data.impl.CurrencyData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public double getBalance(OfflinePlayer player) {
         CoinsUser user = this.plugin.getUserManager().getUserData(player.getUniqueId());
-        return user == null ? 0D : user.getBalance(this.currency);
+        return user == null ? 0D : user.getCurrencyData(this.currency).getBalance();
     }
 
     @Override
@@ -82,7 +83,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Deprecated
     public double getBalance(String playerName) {
         CoinsUser user = this.plugin.getUserManager().getUserData(playerName);
-        return user == null ? 0D : user.getBalance(this.currency);
+        return user == null ? 0D : user.getCurrencyData(this.currency).getBalance();
     }
 
     @Override
@@ -115,7 +116,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public boolean has(OfflinePlayer player, double amount) {
         CoinsUser user = this.plugin.getUserManager().getUserData(player.getUniqueId());
-        return user != null && user.getBalance(this.currency) >= amount;
+        return user != null && user.getCurrencyData(this.currency).getBalance() >= amount;
     }
 
     @Override
@@ -128,7 +129,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Deprecated
     public boolean has(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getUserData(playerName);
-        return user != null && user.getBalance(this.currency) >= amount;
+        return user != null && user.getCurrencyData(this.currency).getBalance() >= amount;
     }
 
     @Override
@@ -143,9 +144,10 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        user.addBalance(this.currency, amount);
+        CurrencyData data = user.getCurrencyData(this.currency);
+        data.addBalance(amount);
         user.saveData(this.plugin);
-        double balance = user.getBalance(this.currency);
+        double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
     }
@@ -164,9 +166,10 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        user.addBalance(this.currency, amount);
+        CurrencyData data = user.getCurrencyData(this.currency);
+        data.addBalance(amount);
         user.saveData(this.plugin);
-        double balance = user.getBalance(this.currency);
+        double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
     }
@@ -183,9 +186,10 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        user.removeBalance(this.currency, amount);
+        CurrencyData data = user.getCurrencyData(this.currency);
+        data.removeBalance(amount);
         user.saveData(this.plugin);
-        double balance = user.getBalance(this.currency);
+        double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
     }
@@ -204,9 +208,10 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        user.removeBalance(this.currency, amount);
+        CurrencyData data = user.getCurrencyData(this.currency);
+        data.removeBalance(amount);
         user.saveData(this.plugin);
-        double balance = user.getBalance(this.currency);
+        double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
     }
