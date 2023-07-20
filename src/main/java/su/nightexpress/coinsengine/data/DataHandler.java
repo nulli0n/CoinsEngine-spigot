@@ -92,6 +92,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     @Override
     protected void createUserTable() {
         super.createUserTable();
+        this.addColumn(this.tableUsers, COLUMN_BALANCES.toValue("{}"));
         this.addColumn(this.tableUsers, COLUMN_CURRENCY_DATA.toValue("[]"));
     }
 
@@ -143,7 +144,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     @Override
     @NotNull
     protected List<SQLColumn> getExtraColumns() {
-        return Arrays.asList(COLUMN_CURRENCY_DATA);
+        return Arrays.asList(COLUMN_BALANCES, COLUMN_CURRENCY_DATA);
     }
 
     @Override

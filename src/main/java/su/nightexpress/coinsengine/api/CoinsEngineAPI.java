@@ -10,6 +10,7 @@ import su.nightexpress.coinsengine.data.UserManager;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class CoinsEngineAPI {
 
@@ -20,15 +21,21 @@ public class CoinsEngineAPI {
     }
 
     public static void addBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        getUserData(player).getCurrencyData(currency).addBalance(amount);
+        CoinsUser user = getUserData(player);
+        user.getCurrencyData(currency).addBalance(amount);
+        user.saveData(PLUGIN);
     }
 
     public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        getUserData(player).getCurrencyData(currency).setBalance(amount);
+        CoinsUser user = getUserData(player);
+        user.getCurrencyData(currency).setBalance(amount);
+        user.saveData(PLUGIN);
     }
 
     public static void removeBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        getUserData(player).getCurrencyData(currency).removeBalance(amount);
+        CoinsUser user = getUserData(player);
+        user.getCurrencyData(currency).removeBalance(amount);
+        user.saveData(PLUGIN);
     }
 
     @NotNull
@@ -41,9 +48,19 @@ public class CoinsEngineAPI {
         return PLUGIN.getUserManager().getUserData(name);
     }
 
+    @NotNull
+    public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull String name) {
+        return PLUGIN.getUserManager().getUserDataAsync(name);
+    }
+
     @Nullable
     public static CoinsUser getUserData(@NotNull UUID uuid) {
         return PLUGIN.getUserManager().getUserData(uuid);
+    }
+
+    @NotNull
+    public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull UUID uuid) {
+        return PLUGIN.getUserManager().getUserDataAsync(uuid);
     }
 
     @Nullable
