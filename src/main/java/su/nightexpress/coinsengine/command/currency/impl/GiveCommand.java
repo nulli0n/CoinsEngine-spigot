@@ -74,7 +74,7 @@ public class GiveCommand extends CurrencySubCommand {
                     .replace(currency.replacePlaceholders())
                     .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
                     .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
-                    .send(sender);
+                    .send(target);
             }
         });
     }

@@ -40,6 +40,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
 
                 Set<CurrencyData> curDatas = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
                 if (curDatas == null) curDatas = new HashSet<>();
+                curDatas.removeIf(Objects::isNull);
 
                 Map<String, Double> balanceMap = gson.fromJson(resultSet.getString(COLUMN_BALANCES.getName()), new TypeToken<Map<String, Double>>(){}.getType());
                 if (!balanceMap.isEmpty()) {
@@ -112,6 +113,9 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
             try {
                 String name = resultSet.getString(COLUMN_USER_NAME.getName());
                 Set<CurrencyData> currencyData = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
+                if (currencyData == null) currencyData = new HashSet<>();
+                currencyData.removeIf(Objects::isNull);
+
                 currencyData.forEach(data -> {
                     map.computeIfAbsent(data.getCurrency(), k -> new HashMap<>()).put(name, data.getBalance());
                 });

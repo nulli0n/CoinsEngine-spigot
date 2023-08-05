@@ -70,7 +70,7 @@ public class PaymentsCommand extends CurrencySubCommand {
                 plugin.getMessage(Lang.COMMAND_CURRENCY_PAYMENTS_TOGGLE)
                     .replace(currency.replacePlaceholders())
                     .replace(Placeholders.GENERIC_STATE, LangManager.getBoolean(data.isPaymentsEnabled()))
-                    .send(sender);
+                    .send(target);
             }
         });
     }
