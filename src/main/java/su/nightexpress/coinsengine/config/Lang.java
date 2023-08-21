@@ -16,6 +16,11 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_RESET_USAGE        = LangKey.of("Command.Reset.Usage", "<player>");
     public static final LangKey COMMAND_RESET_DONE         = LangKey.of("Command.Reset.Done", LIGHT_YELLOW + "Reset all currency balances for " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "!");
 
+    public static final LangKey COMMAND_WIPE_DESC   = LangKey.of("Command.Wipe.Desc", "Reset all currencies for all users.");
+    public static final LangKey COMMAND_WIPE_USAGE  = LangKey.of("Command.Wipe.Usage", "<currency>");
+    public static final LangKey COMMAND_WIPE_START  = LangKey.of("Command.Wipe.Start", LIGHT_YELLOW + "Started currency data wipe for " + ORANGE + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + ". This may take a while...");
+    public static final LangKey COMMAND_WIPE_FINISH = LangKey.of("Command.Wipe.Finish", LIGHT_YELLOW + "Finished currency data wipe for " + ORANGE + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + ".");
+
     public static final LangKey COMMAND_CURRENCY_BALANCE_USAGE = LangKey.of("Command.Currency.Balance.Usage", "[player]");
     public static final LangKey COMMAND_CURRENCY_BALANCE_DESC  = LangKey.of("Command.Currency.Balance.Desc", "Check [player's] currency balance.");
     public static final LangKey COMMAND_CURRENCY_BALANCE_DONE  = LangKey.of("Command.Currency.Balance.Done", GREEN + Placeholders.PLAYER_NAME + GRAY + "'s balance: " + GREEN + Placeholders.GENERIC_BALANCE + GRAY + ".");
@@ -38,6 +43,7 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_CURRENCY_SEND_USAGE            = LangKey.of("Command.Currency.Send.Usage", "<player> <amount>");
     public static final LangKey COMMAND_CURRENCY_SEND_DESC             = LangKey.of("Command.Currency.Send.Desc", "Transfer currency to a player.");
     public static final LangKey COMMAND_CURRENCY_SEND_ERROR_NOT_ENOUGH = LangKey.of("Command.Currency.Send.Error.NotEnough", LIGHT_YELLOW + "You don't have enought " + RED + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + "!");
+    public static final LangKey COMMAND_CURRENCY_SEND_ERROR_TOO_LOW = LangKey.of("Command.Currency.Send.Error.TooLow", LIGHT_YELLOW + "You can not send smaller than " + RED + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + "!");
     public static final LangKey COMMAND_CURRENCY_SEND_ERROR_NO_PAYMENTS = LangKey.of("Command.Currency.Send.Error.NoPayments", RED + Placeholders.PLAYER_NAME + LIGHT_YELLOW + " does not accept " + RED + Placeholders.CURRENCY_NAME + LIGHT_YELLOW + "!");
     public static final LangKey COMMAND_CURRENCY_SEND_DONE_SENDER      = LangKey.of("Command.Currency.Send.Done.Sender", LIGHT_YELLOW + "You sent " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " to " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "!");
     public static final LangKey COMMAND_CURRENCY_SEND_DONE_NOTIFY      = LangKey.of("Command.Currency.Send.Done.Notify", LIGHT_YELLOW + "You received " + ORANGE + Placeholders.GENERIC_AMOUNT + LIGHT_YELLOW + " from " + ORANGE + Placeholders.PLAYER_NAME + LIGHT_YELLOW + "!");

@@ -8,6 +8,7 @@ import su.nexmedia.engine.command.list.ReloadSubCommand;
 import su.nexmedia.engine.utils.EngineUtils;
 import su.nightexpress.coinsengine.command.base.MigrateCommand;
 import su.nightexpress.coinsengine.command.base.ResetCommand;
+import su.nightexpress.coinsengine.command.base.WipeCommand;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
@@ -72,10 +73,11 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
     }
 
     @Override
-    public void registerCommands(@NotNull GeneralCommand<CoinsEngine> mainCommand) {
-        mainCommand.addChildren(new ReloadSubCommand<>(this, Perms.COMMAND_RELOAD));
-        mainCommand.addChildren(new ResetCommand(this));
-        mainCommand.addChildren(new MigrateCommand(this));
+    public void registerCommands(@NotNull GeneralCommand<CoinsEngine> generalCommand) {
+        generalCommand.addChildren(new ReloadSubCommand<>(this, Perms.COMMAND_RELOAD));
+        generalCommand.addChildren(new ResetCommand(this));
+        generalCommand.addChildren(new WipeCommand(this));
+        generalCommand.addChildren(new MigrateCommand(this));
     }
 
     @Override

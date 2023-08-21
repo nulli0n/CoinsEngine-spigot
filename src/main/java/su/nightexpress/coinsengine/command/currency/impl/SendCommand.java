@@ -55,6 +55,13 @@ public class SendCommand extends CurrencySubCommand {
         double amount = result.getDouble(2, 0);
         if (amount <= 0) return;
 
+        if (this.currency.getMinTransferAmount() > 0 && amount < this.currency.getMinTransferAmount()) {
+            this.plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_ERROR_TOO_LOW)
+                .replace(Placeholders.GENERIC_AMOUNT, this.currency.format(this.currency.getMinTransferAmount()))
+                .send(sender);
+            return;
+        }
+
         CoinsUser userTarget = plugin.getUserManager().getUserData(userName);
         if (userTarget == null) {
             this.errorPlayer(sender);

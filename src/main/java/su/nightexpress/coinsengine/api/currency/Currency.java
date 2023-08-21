@@ -1,5 +1,6 @@
 package su.nightexpress.coinsengine.api.currency;
 
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.utils.NumberUtil;
@@ -61,6 +62,8 @@ public interface Currency extends Placeholder {
 
     @NotNull String[] getCommandAliases();
 
+    @NotNull ItemStack getIcon();
+
     //void setCommandAliases(@NotNull String... aliases);
 
     boolean isDecimal();
@@ -72,6 +75,8 @@ public interface Currency extends Placeholder {
     //void setPermissionRequired(boolean permissionRequired);
 
     boolean isTransferAllowed();
+
+    double getMinTransferAmount();
 
     //void setTransferAllowed(boolean transferAllowed);
 

@@ -1,0 +1,31 @@
+Title: '&lCrate Keys Store'
+Size: 36
+Inventory_Type: CHEST
+Use_Mini_Message: false
+Permission_Required: false
+Pages: 1
+
+Items:
+  vip:
+    Name: 'Rank: VIP'
+    Description:
+      - '&7Gives you key for the &aVote Crate&7.'
+    Priority: 10
+    Inheritance:
+      Rewards: []
+      Price: []
+    Icon:
+      Material: LIME_DYE
+      Enchants:
+        fortune: 1
+      Item_Flags:
+        - '*'
+    Purchase:
+      Currency: coins
+      Price: 25
+      Cooldown: 86400
+      Commands:
+        - 'crate givekey %player% vote'
+    Menu:
+      Page: 1
+      Slot: 11

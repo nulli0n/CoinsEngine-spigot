@@ -26,13 +26,14 @@ public class Perms {
 
     public static final JPermission COMMAND_RELOAD  = new JPermission(PREFIX_COMMAND + "reload");
     public static final JPermission COMMAND_RESET   = new JPermission(PREFIX_COMMAND + "reset");
+    public static final JPermission COMMAND_WIPE = new JPermission(PREFIX_COMMAND + "wipe");
     public static final JPermission COMMAND_MIGRATE = new JPermission(PREFIX_COMMAND + "migrate");
 
     static {
         PLUGIN.addChildren(COMMAND, CURRENCY);
 
         COMMAND.addChildren(
-            COMMAND_RELOAD, COMMAND_RESET, COMMAND_MIGRATE,
+            COMMAND_RELOAD, COMMAND_RESET, COMMAND_WIPE, COMMAND_MIGRATE,
             COMMAND_CURRENCY_ADD, COMMAND_CURRENCY_BALANCE, COMMAND_CURRENCY_BALANCE_OTHERS,
             COMMAND_CURRENCY_PAYMENTS, COMMAND_CURRENCY_PAYMENTS_OTHERS,
             COMMAND_CURRENCY_SEND, COMMAND_CURRENCY_SET, COMMAND_CURRENCY_TAKE, COMMAND_CURRENCY_TOP

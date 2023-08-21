@@ -67,7 +67,7 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
         if (EngineUtils.hasVault()) {
             VaultEconomyHook.shutdown();
         }
-        this.currencyMap.clear();
+        this.getCurrencyMap().clear();
     }
 
     @NotNull
@@ -82,12 +82,12 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
 
     public void registerCurrency(@NotNull Currency currency) {
         this.plugin.getCommandManager().registerCommand(new CurrencyMainCommand(plugin, currency));
-        this.currencyMap.put(currency.getId(), currency);
+        this.getCurrencyMap().put(currency.getId(), currency);
         this.plugin.info("Currency registered: '" + currency.getId() + "'!");
     }
 
     public void unregisterCurrency(@NotNull Currency currency) {
-        Currency del = this.currencyMap.remove(currency.getId());
+        Currency del = this.getCurrencyMap().remove(currency.getId());
         if (del == null) return;
 
         this.plugin.getCommandManager().unregisterCommand(currency.getCommandAliases()[0]);
@@ -96,7 +96,12 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
 
     @Nullable
     public Currency getCurrency(@NotNull String id) {
-        return this.currencyMap.get(id.toLowerCase());
+        return this.getCurrencyMap().get(id.toLowerCase());
+    }
+
+    @NotNull
+    public Map<String, Currency> getCurrencyMap() {
+        return currencyMap;
     }
 
     @NotNull
@@ -106,6 +111,6 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
 
     @NotNull
     public Collection<Currency> getCurrencies() {
-        return this.currencyMap.values();
+        return this.getCurrencyMap().values();
     }
 }

@@ -55,6 +55,11 @@ public class PlaceholderAPIHook {
         }
 
         @Override
+        public boolean persist() {
+            return true;
+        }
+
+        @Override
         public String onPlaceholderRequest(Player player, String holder) {
             CoinsEngine plugin = CoinsEngineAPI.PLUGIN;
 
