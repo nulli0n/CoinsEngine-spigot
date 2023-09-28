@@ -57,7 +57,7 @@ public class TakeCommand extends CurrencySubCommand {
 
             CurrencyData data = user.getCurrencyData(this.currency);
             data.removeBalance(amount);
-            user.saveData(this.plugin);
+            this.plugin.getUserManager().saveUser(user);
 
             CoinsLogger.logTake(user, currency, amount, sender);
 

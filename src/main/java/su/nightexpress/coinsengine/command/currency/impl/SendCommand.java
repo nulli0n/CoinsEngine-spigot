@@ -89,8 +89,8 @@ public class SendCommand extends CurrencySubCommand {
 
         dataTarget.addBalance(amount);
         dataFrom.removeBalance(amount);
-        userTarget.saveData(this.plugin);
-        userFrom.saveData(this.plugin);
+        this.plugin.getUserManager().saveUser(userTarget);
+        this.plugin.getUserManager().saveUser(userFrom);
 
         CoinsLogger.logGive(userTarget, currency, amount, from);
 

@@ -55,7 +55,7 @@ public class PaymentsCommand extends CurrencySubCommand {
 
             CurrencyData data = user.getCurrencyData(this.currency);
             data.setPaymentsEnabled(!data.isPaymentsEnabled());
-            user.saveData(this.plugin);
+            this.plugin.getUserManager().saveUser(user);
 
             if (!user.getName().equalsIgnoreCase(sender.getName())) {
                 plugin.getMessage(Lang.COMMAND_CURRENCY_PAYMENTS_TARGET)

@@ -57,7 +57,7 @@ public class SetCommand extends CurrencySubCommand {
 
             CurrencyData data = user.getCurrencyData(this.currency);
             data.setBalance(amount);
-            user.saveData(this.plugin);
+            this.plugin.getUserManager().saveUser(user);
 
             CoinsLogger.logSet(user, currency, amount, sender);
 

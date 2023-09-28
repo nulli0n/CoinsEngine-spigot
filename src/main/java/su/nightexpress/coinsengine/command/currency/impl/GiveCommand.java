@@ -57,7 +57,7 @@ public class GiveCommand extends CurrencySubCommand {
 
             CurrencyData data = user.getCurrencyData(this.currency);
             data.addBalance(amount);
-            user.saveData(this.plugin);
+            this.plugin.getUserManager().saveUser(user);
 
             CoinsLogger.logGive(user, currency, amount, sender);
 

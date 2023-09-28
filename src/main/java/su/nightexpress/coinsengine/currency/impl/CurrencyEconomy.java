@@ -74,13 +74,11 @@ public class CurrencyEconomy extends AbstractEconomy {
     }
 
     @Override
-    @Deprecated
     public double getBalance(String playerName, String world) {
         return this.getBalance(playerName);
     }
 
     @Override
-    @Deprecated
     public double getBalance(String playerName) {
         CoinsUser user = this.plugin.getUserManager().getUserData(playerName);
         return user == null ? 0D : user.getCurrencyData(this.currency).getBalance();
@@ -97,13 +95,11 @@ public class CurrencyEconomy extends AbstractEconomy {
     }
 
     @Override
-    @Deprecated
     public boolean hasAccount(String playerName, String worldName) {
         return this.hasAccount(playerName);
     }
 
     @Override
-    @Deprecated
     public boolean hasAccount(String playerName) {
         return this.plugin.getData().isUserExists(playerName);
     }
@@ -120,13 +116,11 @@ public class CurrencyEconomy extends AbstractEconomy {
     }
 
     @Override
-    @Deprecated
     public boolean has(String playerName, String worldName, double amount) {
         return this.has(playerName, amount);
     }
 
     @Override
-    @Deprecated
     public boolean has(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getUserData(playerName);
         return user != null && user.getCurrencyData(this.currency).getBalance() >= amount;
@@ -146,20 +140,18 @@ public class CurrencyEconomy extends AbstractEconomy {
 
         CurrencyData data = user.getCurrencyData(this.currency);
         data.addBalance(amount);
-        user.saveData(this.plugin);
+        this.plugin.getUserManager().saveUser(user);
         double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
-    @Deprecated
     public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
         return this.depositPlayer(playerName, amount);
     }
 
     @Override
-    @Deprecated
     public EconomyResponse depositPlayer(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getUserData(playerName);
         if (user == null) {
@@ -168,7 +160,7 @@ public class CurrencyEconomy extends AbstractEconomy {
 
         CurrencyData data = user.getCurrencyData(this.currency);
         data.addBalance(amount);
-        user.saveData(this.plugin);
+        this.plugin.getUserManager().saveUser(user);
         double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -188,20 +180,18 @@ public class CurrencyEconomy extends AbstractEconomy {
 
         CurrencyData data = user.getCurrencyData(this.currency);
         data.removeBalance(amount);
-        user.saveData(this.plugin);
+        this.plugin.getUserManager().saveUser(user);
         double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
-    @Deprecated
     public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
         return this.withdrawPlayer(playerName, amount);
     }
 
     @Override
-    @Deprecated
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getUserData(playerName);
         if (user == null) {
@@ -210,7 +200,7 @@ public class CurrencyEconomy extends AbstractEconomy {
 
         CurrencyData data = user.getCurrencyData(this.currency);
         data.removeBalance(amount);
-        user.saveData(this.plugin);
+        this.plugin.getUserManager().saveUser(user);
         double balance = data.getBalance();
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);

@@ -44,8 +44,8 @@ public class ResetCommand extends AbstractCommand<CoinsEngine> {
             }
 
             user.getCurrencyDataMap().clear();
-            user.saveData(this.plugin);
 
+            this.plugin.getUserManager().saveUser(user);
             this.plugin.getMessage(Lang.COMMAND_RESET_DONE)
                 .replace(Placeholders.PLAYER_NAME, user.getName())
                 .send(sender);
