@@ -58,6 +58,8 @@ public class ConfigCurrency extends AbstractConfigHolder<CoinsEngine> implements
         this.startValue = cfg.getDouble("Start_Value", 0D);
         this.maxValue = cfg.getDouble("Max_Value", 0D);
         this.vaultEconomy = cfg.getBoolean("Economy.Vault");
+
+        this.cfg.saveChanges();
         return true;
     }
 

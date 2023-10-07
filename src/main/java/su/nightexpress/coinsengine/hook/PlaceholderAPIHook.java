@@ -120,8 +120,12 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                NumberFormat format = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
-                return format.format(currency.fine(user.getCurrencyData(currency).getBalance()));
+                double balance = currency.fine(user.getCurrencyData(currency).getBalance());
+
+                NumberFormat fmt = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
+                fmt.setMinimumFractionDigits(1);
+                fmt.setMaximumFractionDigits(2);
+                return fmt.format(balance);
             }
             // balance_coins
             if (holder.startsWith("balance_")) {

@@ -3,6 +3,7 @@ package su.nightexpress.coinsengine.command.currency.impl;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.api.command.CommandFlag;
 import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nightexpress.coinsengine.CoinsEngine;
@@ -12,8 +13,10 @@ import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
+import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.util.CoinsUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +27,7 @@ public class GiveCommand extends CurrencySubCommand {
         super(plugin, currency, new String[]{"give"}, Perms.COMMAND_CURRENCY_ADD);
         this.setDescription(plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_USAGE));
-        this.addFlag(CommandFlags.SILENT);
+        this.addFlag(CommandFlags.SILENT, CommandFlags.NO_SAVE);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class GiveCommand extends CurrencySubCommand {
             return;
         }
 
-        double amount = result.getDouble(2, 0D);
+        double amount = CoinsUtils.getAmountFromInput(result.getArg(2));
         if (amount <= 0) return;
 
         this.plugin.getUserManager().getUserDataAsync(result.getArg(1)).thenAccept(user -> {
@@ -57,7 +60,10 @@ public class GiveCommand extends CurrencySubCommand {
 
             CurrencyData data = user.getCurrencyData(this.currency);
             data.addBalance(amount);
-            this.plugin.getUserManager().saveUser(user);
+
+            if (!result.hasFlag(CommandFlags.NO_SAVE)) {
+                this.plugin.getUserManager().saveUser(user);
+            }
 
             CoinsLogger.logGive(user, currency, amount, sender);
 

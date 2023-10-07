@@ -14,6 +14,7 @@ import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.util.CoinsUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +25,7 @@ public class TakeCommand extends CurrencySubCommand {
         super(plugin, currency, new String[]{"take"}, Perms.COMMAND_CURRENCY_TAKE);
         this.setDescription(plugin.getMessage(Lang.COMMAND_CURRENCY_TAKE_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_CURRENCY_TAKE_USAGE));
-        this.addFlag(CommandFlags.SILENT);
+        this.addFlag(CommandFlags.SILENT, CommandFlags.NO_SAVE);
     }
 
     @Override
@@ -46,7 +47,7 @@ public class TakeCommand extends CurrencySubCommand {
             return;
         }
 
-        double amount = result.getDouble(2, 0D);
+        double amount = CoinsUtils.getAmountFromInput(result.getArg(2));
         if (amount <= 0D) return;
 
         this.plugin.getUserManager().getUserDataAsync(result.getArg(1)).thenAccept(user -> {
@@ -57,7 +58,10 @@ public class TakeCommand extends CurrencySubCommand {
 
             CurrencyData data = user.getCurrencyData(this.currency);
             data.removeBalance(amount);
-            this.plugin.getUserManager().saveUser(user);
+
+            if (!result.hasFlag(CommandFlags.NO_SAVE)) {
+                this.plugin.getUserManager().saveUser(user);
+            }
 
             CoinsLogger.logTake(user, currency, amount, sender);
 

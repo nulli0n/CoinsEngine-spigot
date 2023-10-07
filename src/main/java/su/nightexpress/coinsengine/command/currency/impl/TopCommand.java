@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopCommand extends CurrencySubCommand {
 
-    public TopCommand(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
-        super(plugin, currency, new String[]{"top"}, Perms.COMMAND_CURRENCY_TOP);
+    public TopCommand(@NotNull CoinsEngine plugin, @NotNull Currency currency, @NotNull String... aliases) {
+        super(plugin, currency, aliases, Perms.COMMAND_CURRENCY_TOP);
         this.setDescription(plugin.getMessage(Lang.COMMAND_CURRENCY_TOP_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_CURRENCY_TOP_USAGE));
     }

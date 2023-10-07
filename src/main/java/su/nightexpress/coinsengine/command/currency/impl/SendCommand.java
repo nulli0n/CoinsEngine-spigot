@@ -14,6 +14,7 @@ import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.util.CoinsUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,18 +42,20 @@ public class SendCommand extends CurrencySubCommand {
 
     @Override
     protected void onExecute(@NotNull CommandSender sender, @NotNull CommandResult result) {
-        if (result.length() < 3) {
+        int indexOff = this.getParent() == null ? 1 : 0;
+
+        if (result.length() < 3 - indexOff) {
             this.printUsage(sender);
             return;
         }
 
-        String userName = result.getArg(1);
+        String userName = result.getArg(1 - indexOff);
         if (userName.equalsIgnoreCase(sender.getName())) {
             plugin.getMessage(Lang.ERROR_COMMAND_SELF).send(sender);
             return;
         }
 
-        double amount = result.getDouble(2, 0);
+        double amount = CoinsUtils.getAmountFromInput(result.getArg(2 - indexOff));
         if (amount <= 0) return;
 
         if (this.currency.getMinTransferAmount() > 0 && amount < this.currency.getMinTransferAmount()) {

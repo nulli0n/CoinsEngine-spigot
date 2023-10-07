@@ -16,7 +16,7 @@ public class CurrencyMainCommand extends GeneralCommand<CoinsEngine> {
 
         this.addChildren(new HelpSubCommand<>(plugin));
         this.addDefaultCommand(new BalanceCommand(plugin, currency));
-        this.addChildren(new TopCommand(plugin, currency));
+        this.addChildren(new TopCommand(plugin, currency, "top"));
         this.addChildren(new GiveCommand(plugin, currency));
         this.addChildren(new SetCommand(plugin, currency));
         this.addChildren(new TakeCommand(plugin, currency));

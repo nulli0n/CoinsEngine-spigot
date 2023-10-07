@@ -10,6 +10,7 @@ import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.currency.CurrencyMainCommand;
 import su.nightexpress.coinsengine.command.currency.impl.BalanceCommand;
+import su.nightexpress.coinsengine.command.currency.impl.SendCommand;
 import su.nightexpress.coinsengine.command.currency.impl.TopCommand;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.currency.impl.ConfigCurrency;
@@ -47,8 +48,11 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
         this.getVaultCurrency().ifPresent(currency -> {
             if (EngineUtils.hasVault()) {
                 VaultEconomyHook.setup(this.plugin, currency);
-                this.plugin.getCommandManager().registerCommand(new BalanceCommand(plugin, currency));
-                this.plugin.getCommandManager().registerCommand(new TopCommand(plugin, currency));
+                if (Config.ECONOMY_COMMAND_SHORTCUTS_ENABLED.get()) {
+                    this.plugin.getCommandManager().registerCommand(new BalanceCommand(plugin, currency));
+                    this.plugin.getCommandManager().registerCommand(new SendCommand(plugin, currency));
+                    this.plugin.getCommandManager().registerCommand(new TopCommand(plugin, currency, "baltop"));
+                }
             }
             else {
                 this.plugin.error("Found Vault Economy currency, but Vault is not installed!");
