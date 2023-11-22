@@ -23,44 +23,44 @@ public class CoinsEngineAPI {
     public static void addBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         CoinsUser user = getUserData(player);
         user.getCurrencyData(currency).addBalance(amount);
-        PLUGIN.getUserManager().saveUser(user);
+        getUserManager().saveUser(user);
     }
 
     public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         CoinsUser user = getUserData(player);
         user.getCurrencyData(currency).setBalance(amount);
-        PLUGIN.getUserManager().saveUser(user);
+        getUserManager().saveUser(user);
     }
 
     public static void removeBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         CoinsUser user = getUserData(player);
         user.getCurrencyData(currency).removeBalance(amount);
-        PLUGIN.getUserManager().saveUser(user);
+        getUserManager().saveUser(user);
     }
 
     @NotNull
     public static CoinsUser getUserData(@NotNull Player player) {
-        return PLUGIN.getUserManager().getUserData(player);
+        return getUserManager().getUserData(player);
     }
 
     @Nullable
     public static CoinsUser getUserData(@NotNull String name) {
-        return PLUGIN.getUserManager().getUserData(name);
+        return getUserManager().getUserData(name);
     }
 
     @NotNull
     public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull String name) {
-        return PLUGIN.getUserManager().getUserDataAsync(name);
+        return getUserManager().getUserDataAsync(name);
     }
 
     @Nullable
     public static CoinsUser getUserData(@NotNull UUID uuid) {
-        return PLUGIN.getUserManager().getUserData(uuid);
+        return getUserManager().getUserData(uuid);
     }
 
     @NotNull
     public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull UUID uuid) {
-        return PLUGIN.getUserManager().getUserDataAsync(uuid);
+        return getUserManager().getUserDataAsync(uuid);
     }
 
     @Nullable

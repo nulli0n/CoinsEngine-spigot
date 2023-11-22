@@ -24,6 +24,9 @@ public class CurrencyMainCommand extends GeneralCommand<CoinsEngine> {
             this.addChildren(new SendCommand(plugin, currency));
             this.addChildren(new PaymentsCommand(plugin, currency));
         }
+        if (currency.isExchangeAllowed()) {
+            this.addChildren(new ExchangeCommand(plugin, currency));
+        }
     }
 
     @Override

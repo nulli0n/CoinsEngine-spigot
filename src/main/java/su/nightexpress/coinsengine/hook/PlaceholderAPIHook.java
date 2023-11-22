@@ -7,10 +7,10 @@ import su.nexmedia.engine.utils.NumberUtil;
 import su.nexmedia.engine.utils.Pair;
 import su.nexmedia.engine.utils.StringUtil;
 import su.nightexpress.coinsengine.CoinsEngine;
-import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
@@ -20,9 +20,9 @@ public class PlaceholderAPIHook {
 
     private static PointsExpansion expansion;
 
-    public static void setup() {
+    public static void setup(@NotNull CoinsEngine plugin) {
         if (expansion == null) {
-            expansion = new PointsExpansion();
+            expansion = new PointsExpansion(plugin);
             expansion.register();
         }
     }
@@ -36,22 +36,28 @@ public class PlaceholderAPIHook {
 
     private static class PointsExpansion extends PlaceholderExpansion {
 
+        private final CoinsEngine plugin;
+
+        public PointsExpansion(@NotNull CoinsEngine plugin) {
+            this.plugin = plugin;
+        }
+
         @Override
         @NotNull
         public String getAuthor() {
-            return CoinsEngineAPI.PLUGIN.getDescription().getAuthors().get(0);
+            return this.plugin.getDescription().getAuthors().get(0);
         }
 
         @Override
         @NotNull
         public String getIdentifier() {
-            return CoinsEngineAPI.PLUGIN.getDescription().getName().toLowerCase();
+            return this.plugin.getDescription().getName().toLowerCase();
         }
 
         @Override
         @NotNull
         public String getVersion() {
-            return CoinsEngineAPI.PLUGIN.getDescription().getVersion();
+            return this.plugin.getDescription().getVersion();
         }
 
         @Override
@@ -61,14 +67,23 @@ public class PlaceholderAPIHook {
 
         @Override
         public String onPlaceholderRequest(Player player, String holder) {
-            CoinsEngine plugin = CoinsEngineAPI.PLUGIN;
-
             if (holder.startsWith("server_balance_")) {
                 String curId = holder.substring("server_balance_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
                 return currency.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
+                    .stream().mapToDouble(Pair::getSecond).sum());
+            }
+            if (holder.startsWith("server_balance_raw_")) {
+                String curId = holder.substring("server_balance_raw_".length());
+                Currency currency = plugin.getCurrencyManager().getCurrency(curId);
+                if (currency == null) return null;
+
+                DecimalFormat format = new DecimalFormat("#");
+                format.setMaximumFractionDigits(8);
+
+                return format.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
                     .stream().mapToDouble(Pair::getSecond).sum());
             }
 
@@ -106,7 +121,10 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return String.valueOf(currency.fine(user.getCurrencyData(currency).getBalance()));
+                DecimalFormat format = new DecimalFormat("#");
+                format.setMaximumFractionDigits(8);
+
+                return format.format(currency.fine(user.getCurrencyData(currency).getBalance()));
             }
             if (holder.startsWith("balance_rounded_")) {
                 String currencyId = holder.substring("balance_rounded_".length()); // coins

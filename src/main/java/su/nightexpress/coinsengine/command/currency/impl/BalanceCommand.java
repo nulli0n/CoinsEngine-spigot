@@ -52,9 +52,10 @@ public class BalanceCommand extends CurrencySubCommand {
                 return;
             }
 
+            boolean isOwn = user.getName().equalsIgnoreCase(sender.getName());
             CurrencyData data = user.getCurrencyData(this.currency);
-            plugin.getMessage(Lang.COMMAND_CURRENCY_BALANCE_DONE)
-                .replace(currency.replacePlaceholders())
+            this.plugin.getMessage(isOwn ? Lang.CURRENCY_BALANCE_DISPLAY_OWN : Lang.CURRENCY_BALANCE_DISPLAY_OTHERS)
+                .replace(this.currency.replacePlaceholders())
                 .replace(Placeholders.PLAYER_NAME, user.getName())
                 .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
                 .send(sender);

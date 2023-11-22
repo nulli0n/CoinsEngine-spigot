@@ -1,6 +1,5 @@
 Plugin:
   Command_Aliases: 'coinsengine,coen,coe'
-  Language: 'en'
 
 Database:
   Table_Prefix: 'coinsengine'

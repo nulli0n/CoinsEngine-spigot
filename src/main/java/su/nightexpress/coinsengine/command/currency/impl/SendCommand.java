@@ -13,7 +13,7 @@ import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
-import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.util.Logger;
 import su.nightexpress.coinsengine.util.CoinsUtils;
 
 import java.util.Arrays;
@@ -95,7 +95,7 @@ public class SendCommand extends CurrencySubCommand {
         this.plugin.getUserManager().saveUser(userTarget);
         this.plugin.getUserManager().saveUser(userFrom);
 
-        CoinsLogger.logGive(userTarget, currency, amount, from);
+        Logger.logGive(userTarget, currency, amount, from);
 
         plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_DONE_SENDER)
             .replace(currency.replacePlaceholders())

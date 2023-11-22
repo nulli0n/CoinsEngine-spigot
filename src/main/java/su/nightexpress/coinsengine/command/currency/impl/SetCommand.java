@@ -13,7 +13,7 @@ import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
-import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.util.Logger;
 import su.nightexpress.coinsengine.util.CoinsUtils;
 
 import java.util.Arrays;
@@ -56,30 +56,32 @@ public class SetCommand extends CurrencySubCommand {
                 return;
             }
 
-            CurrencyData data = user.getCurrencyData(this.currency);
-            data.setBalance(amount);
+            this.plugin.runTask(task -> {
+                CurrencyData data = user.getCurrencyData(this.currency);
+                data.setBalance(amount);
 
-            if (!result.hasFlag(CommandFlags.NO_SAVE)) {
-                this.plugin.getUserManager().saveUser(user);
-            }
+                if (!result.hasFlag(CommandFlags.NO_SAVE)) {
+                    this.plugin.getUserManager().saveUser(user);
+                }
 
-            CoinsLogger.logSet(user, currency, amount, sender);
+                Logger.logSet(user, currency, amount, sender);
 
-            plugin.getMessage(Lang.COMMAND_CURRENCY_SET_DONE)
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
-                .send(sender);
-
-            Player target = user.getPlayer();
-            if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
-                plugin.getMessage(Lang.COMMAND_CURRENCY_SET_NOTIFY)
+                plugin.getMessage(Lang.COMMAND_CURRENCY_SET_DONE)
                     .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
                     .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
                     .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
-                    .send(target);
-            }
+                    .send(sender);
+
+                Player target = user.getPlayer();
+                if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
+                    plugin.getMessage(Lang.COMMAND_CURRENCY_SET_NOTIFY)
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                        .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
+                        .send(target);
+                }
+            });
         });
     }
 }

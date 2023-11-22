@@ -21,12 +21,12 @@ import java.util.function.Function;
 
 public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser> {
 
+    private static final SQLColumn COLUMN_BALANCES = SQLColumn.of("balances", ColumnType.STRING);
+    private static final SQLColumn COLUMN_CURRENCY_DATA = SQLColumn.of("currencyData", ColumnType.STRING);
+
     private static DataHandler instance;
 
     private final Function<ResultSet, CoinsUser> userFunction;
-
-    private static final SQLColumn COLUMN_BALANCES = SQLColumn.of("balances", ColumnType.STRING);
-    private static final SQLColumn COLUMN_CURRENCY_DATA = SQLColumn.of("currencyData", ColumnType.STRING);
 
     DataHandler(@NotNull CoinsEngine plugin) {
         super(plugin, plugin);
@@ -42,7 +42,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
                 if (curDatas == null) curDatas = new HashSet<>();
                 curDatas.removeIf(Objects::isNull);
 
-                Map<String, Double> balanceMap = gson.fromJson(resultSet.getString(COLUMN_BALANCES.getName()), new TypeToken<Map<String, Double>>(){}.getType());
+                /*Map<String, Double> balanceMap = gson.fromJson(resultSet.getString(COLUMN_BALANCES.getName()), new TypeToken<Map<String, Double>>(){}.getType());
                 if (!balanceMap.isEmpty()) {
                     Set<CurrencyData> finalCurDatas = curDatas;
                     balanceMap.forEach((id, balance) -> {
@@ -54,11 +54,12 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
                         finalCurDatas.add(data);
                     });
                     curDatas.addAll(finalCurDatas);
-                }
+                }*/
 
                 return new CoinsUser(plugin, uuid, name, dateCreated, lastOnline, curDatas);
             }
-            catch (SQLException e) {
+            catch (SQLException exception) {
+                exception.printStackTrace();
                 return null;
             }
         };
@@ -93,9 +94,15 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     @Override
     protected void createUserTable() {
         super.createUserTable();
+        this.dropColumn(this.tableUsers, COLUMN_BALANCES);
+    }
+
+    /*@Override
+    protected void createUserTable() {
+        super.createUserTable();
         this.addColumn(this.tableUsers, COLUMN_BALANCES.toValue("{}"));
         this.addColumn(this.tableUsers, COLUMN_CURRENCY_DATA.toValue("[]"));
-    }
+    }*/
 
     public void updateUserBalance(@NotNull CoinsUser user) {
         CoinsUser fromDb = this.getUser(user.getId());
@@ -148,15 +155,20 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     @Override
     @NotNull
     protected List<SQLColumn> getExtraColumns() {
-        return Arrays.asList(COLUMN_BALANCES, COLUMN_CURRENCY_DATA);
+        return Arrays.asList(/*COLUMN_BALANCES, */COLUMN_CURRENCY_DATA);
     }
 
     @Override
     @NotNull
     protected List<SQLValue> getSaveColumns(@NotNull CoinsUser user) {
+        /*if (!user.isRecentlyCreated() && user.getCurrencyDataMap().isEmpty()) {
+            this.plugin.warn("Empty currency data save for '" + user.getName() + "'. UUID: " + user.getId());
+            new Throwable().printStackTrace();
+        }*/
+
         return Arrays.asList(
-            COLUMN_BALANCES.toValue("{}"),
-            COLUMN_CURRENCY_DATA.toValue(this.gson.toJson(user.getCurrencyDataMap().values()))
+            //COLUMN_BALANCES.toValue("{}"),
+            COLUMN_CURRENCY_DATA.toValue(this.gson.toJson(new HashSet<>(user.getCurrencyDataMap().values())))
         );
     }
 

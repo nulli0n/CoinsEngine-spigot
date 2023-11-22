@@ -25,7 +25,6 @@ public class Lang extends EngineLang {
 
     public static final LangKey COMMAND_CURRENCY_BALANCE_USAGE = LangKey.of("Command.Currency.Balance.Usage", "[player]");
     public static final LangKey COMMAND_CURRENCY_BALANCE_DESC  = LangKey.of("Command.Currency.Balance.Desc", "Check [player's] currency balance.");
-    public static final LangKey COMMAND_CURRENCY_BALANCE_DONE  = LangKey.of("Command.Currency.Balance.Done", GREEN + PLAYER_NAME + GRAY + "'s balance: " + GREEN + GENERIC_BALANCE + GRAY + ".");
 
     public static final LangKey COMMAND_CURRENCY_GIVE_USAGE  = LangKey.of("Command.Currency.Give.Usage", "<player> <amount> [-s]");
     public static final LangKey COMMAND_CURRENCY_GIVE_DESC   = LangKey.of("Command.Currency.Give.Desc", "Add currency to a player.");
@@ -55,17 +54,29 @@ public class Lang extends EngineLang {
     public static final LangKey COMMAND_CURRENCY_PAYMENTS_TOGGLE = LangKey.of("Command.Currency.Payments.Toggle", ORANGE + CURRENCY_NAME + LIGHT_YELLOW + " payments acception: " + ORANGE + GENERIC_STATE + LIGHT_YELLOW + ".");
     public static final LangKey COMMAND_CURRENCY_PAYMENTS_TARGET = LangKey.of("Command.Currency.Payments.Target", ORANGE + CURRENCY_NAME + LIGHT_YELLOW + " payments acception for " + ORANGE + PLAYER_NAME + LIGHT_YELLOW + ": " + ORANGE + GENERIC_STATE + LIGHT_YELLOW + ".");
 
+    public static final LangKey COMMAND_CURRENCY_EXCHANGE_USAGE             = LangKey.of("Command.Currency.Exchange.Usage", "<currency> <amount>");
+    public static final LangKey COMMAND_CURRENCY_EXCHANGE_DESC              = LangKey.of("Command.Currency.Exchange.Desc", "Exchange currency.");
+
     public static final LangKey COMMAND_CURRENCY_TOP_USAGE = LangKey.of("Command.Currency.Top.Usage", "[page]");
     public static final LangKey COMMAND_CURRENCY_TOP_DESC  = LangKey.of("Command.Currency.Top.Desc", "List of players with the most balance.");
     public static final LangKey COMMAND_CURRENCY_TOP_LIST  = LangKey.of("Command.Currency.Top.List",
         "<! prefix:\"false\" !>" +
             "\n" + CYAN +
-            "\n" + CYAN + "&l" + CURRENCY_NAME + " Top:" +
+            "\n" + CYAN + BOLD + CURRENCY_NAME + " Top:" +
             "\n" + CYAN +
             "\n" + CYAN + GENERIC_POS + ". " + GRAY + PLAYER_NAME + ": " + CYAN + GENERIC_BALANCE +
             "\n" + CYAN +
             "\n" + GRAY + "Page " + CYAN + GENERIC_CURRENT + GRAY + " of " + CYAN + GENERIC_MAX + GRAY + "." +
             "\n" + CYAN);
+
+    public static final LangKey CURRENCY_BALANCE_DISPLAY_OWN    = LangKey.of("Currency.Balance.Display.Own", LIGHT_YELLOW + "Balance: " + ORANGE + GENERIC_BALANCE + LIGHT_YELLOW + ".");
+    public static final LangKey CURRENCY_BALANCE_DISPLAY_OTHERS = LangKey.of("Currency.Balance.Display.Others", ORANGE + PLAYER_NAME + LIGHT_YELLOW + "'s balance: " + ORANGE + GENERIC_BALANCE + LIGHT_YELLOW + ".");
+
+    public static final LangKey CURRENCY_EXCHANGE_ERROR_DISABLED   = LangKey.of("Currency.Exchange.Error.Disabled", ORANGE + CURRENCY_NAME + RED + " can not be exchanged!");
+    public static final LangKey CURRENCY_EXCHANGE_ERROR_NO_RATE    = LangKey.of("Currency.Exchange.Error.NoRate", ORANGE + CURRENCY_NAME + RED + " can not be exchanged for " + ORANGE + GENERIC_NAME + RED + "!");
+    public static final LangKey CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT = LangKey.of("Currency.Exchange.Error.LowAmount", ORANGE + CURRENCY_NAME + RED + " amount is too low for exchange!");
+    public static final LangKey CURRENCY_EXCHANGE_ERROR_LOW_BALANCE = LangKey.of("Currency.Exchange.Error.LowBalance", RED + "You don't have " + ORANGE + GENERIC_AMOUNT + RED + " for exchange!");
+    public static final LangKey CURRENCY_EXCHANGE_SUCCESS          = LangKey.of("Currency.Exchange.Success", LIGHT_YELLOW + "You exchanged " + ORANGE + GENERIC_BALANCE + LIGHT_YELLOW + " for " + GENERIC_AMOUNT + LIGHT_YELLOW + "!");
 
     public static final LangKey CURRENCY_ERROR_INVALID = LangKey.of("Currency.Error.Invalid", RED + "Invalid currency!");
 }

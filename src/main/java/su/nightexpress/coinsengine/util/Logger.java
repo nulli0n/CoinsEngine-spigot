@@ -2,6 +2,7 @@ package su.nightexpress.coinsengine.util;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import su.nexmedia.engine.utils.NumberUtil;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.config.Config;
@@ -12,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-public class CoinsLogger {
+public class Logger {
 
     public static void logGive(@NotNull CoinsUser user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
         String text = user.getName() + " received " + currency.formatValue(amount) + " " + currency.getName()
@@ -29,6 +30,13 @@ public class CoinsLogger {
     public static void logTake(@NotNull CoinsUser user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
         String text = user.getName() + " lost " + currency.formatValue(amount) + " " + currency.getName()
             + " by " + from.getName() + ". New balance: " + currency.format(user.getCurrencyData(currency).getBalance());
+        log(text);
+    }
+
+    public static void logExchange(@NotNull CoinsUser user, @NotNull Currency from, @NotNull Currency to, double amount, double result) {
+        String text = user.getName() + " exchanged x" + NumberUtil.format(amount) + " " + from.getName()
+            + " to x" + NumberUtil.format(result) + " " + to.getName()
+            + ". New balance: " + from.format(user.getCurrencyData(from).getBalance()) + " and " + to.format(user.getCurrencyData(to).getBalance());
         log(text);
     }
 

@@ -3,7 +3,6 @@ package su.nightexpress.coinsengine.command.currency.impl;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nexmedia.engine.api.command.CommandFlag;
 import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.CollectionsUtil;
 import su.nightexpress.coinsengine.CoinsEngine;
@@ -13,9 +12,8 @@ import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
-import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.util.Logger;
 import su.nightexpress.coinsengine.util.CoinsUtils;
 
 import java.util.Arrays;
@@ -58,30 +56,32 @@ public class GiveCommand extends CurrencySubCommand {
                 return;
             }
 
-            CurrencyData data = user.getCurrencyData(this.currency);
-            data.addBalance(amount);
+            this.plugin.runTask(task -> {
+                CurrencyData data = user.getCurrencyData(this.currency);
+                data.addBalance(amount);
 
-            if (!result.hasFlag(CommandFlags.NO_SAVE)) {
-                this.plugin.getUserManager().saveUser(user);
-            }
+                if (!result.hasFlag(CommandFlags.NO_SAVE)) {
+                    this.plugin.getUserManager().saveUser(user);
+                }
 
-            CoinsLogger.logGive(user, currency, amount, sender);
+                Logger.logGive(user, currency, amount, sender);
 
-            plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_DONE)
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
-                .send(sender);
-
-            Player target = user.getPlayer();
-            if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
-                plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_NOTIFY)
+                plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_DONE)
                     .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
                     .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
                     .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
-                    .send(target);
-            }
+                    .send(sender);
+
+                Player target = user.getPlayer();
+                if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
+                    plugin.getMessage(Lang.COMMAND_CURRENCY_GIVE_NOTIFY)
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                        .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
+                        .send(target);
+                }
+            });
         });
     }
 }

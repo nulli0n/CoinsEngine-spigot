@@ -7,6 +7,7 @@ import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CoinsUser extends AbstractUser<CoinsEngine> {
 
@@ -26,7 +27,7 @@ public class CoinsUser extends AbstractUser<CoinsEngine> {
             @NotNull Set<CurrencyData> currencyDatas
     ) {
         super(plugin, uuid, name, dateCreated, lastLogin);
-        this.currencyDataMap = new HashMap<>();
+        this.currencyDataMap = new ConcurrentHashMap<>();
         currencyDatas.forEach(data -> this.getCurrencyDataMap().put(data.getCurrency().getId(), data));
         this.plugin.getCurrencyManager().getCurrencies().forEach(this::getCurrencyData);
     }
