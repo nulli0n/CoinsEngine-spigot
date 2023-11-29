@@ -67,14 +67,6 @@ public class PlaceholderAPIHook {
 
         @Override
         public String onPlaceholderRequest(Player player, String holder) {
-            if (holder.startsWith("server_balance_")) {
-                String curId = holder.substring("server_balance_".length());
-                Currency currency = plugin.getCurrencyManager().getCurrency(curId);
-                if (currency == null) return null;
-
-                return currency.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
-                    .stream().mapToDouble(Pair::getSecond).sum());
-            }
             if (holder.startsWith("server_balance_raw_")) {
                 String curId = holder.substring("server_balance_raw_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
@@ -84,6 +76,14 @@ public class PlaceholderAPIHook {
                 format.setMaximumFractionDigits(8);
 
                 return format.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
+                    .stream().mapToDouble(Pair::getSecond).sum());
+            }
+            if (holder.startsWith("server_balance_")) {
+                String curId = holder.substring("server_balance_".length());
+                Currency currency = plugin.getCurrencyManager().getCurrency(curId);
+                if (currency == null) return null;
+
+                return currency.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
                     .stream().mapToDouble(Pair::getSecond).sum());
             }
 
