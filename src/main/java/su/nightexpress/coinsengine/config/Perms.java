@@ -20,6 +20,7 @@ public class Perms {
     public static final JPermission COMMAND_CURRENCY_PAYMENTS        = new JPermission(PREFIX_COMMAND + "currency.payments");
     public static final JPermission COMMAND_CURRENCY_PAYMENTS_OTHERS = new JPermission(PREFIX_COMMAND + "currency.payments.others");
     public static final JPermission COMMAND_CURRENCY_TOP             = new JPermission(PREFIX_COMMAND + "currency.top");
+    public static final JPermission COMMAND_CURRENCY_TOTAL             = new JPermission(PREFIX_COMMAND + "currency.total");
     public static final JPermission COMMAND_CURRENCY_SEND            = new JPermission(PREFIX_COMMAND + "currency.send");
     public static final JPermission COMMAND_CURRENCY_SET             = new JPermission(PREFIX_COMMAND + "currency.set");
     public static final JPermission COMMAND_CURRENCY_TAKE            = new JPermission(PREFIX_COMMAND + "currency.take");

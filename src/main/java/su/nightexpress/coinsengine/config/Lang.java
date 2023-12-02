@@ -69,6 +69,8 @@ public class Lang extends EngineLang {
             "\n" + GRAY + "Page " + CYAN + GENERIC_CURRENT + GRAY + " of " + CYAN + GENERIC_MAX + GRAY + "." +
             "\n" + CYAN);
 
+    public static final LangKey COMMAND_CURRENCY_TOTAL_TOP_DESC = LangKey.of("Command.Currency.Total.Desc", "Check total currency assets.");
+    public static final LangKey COMMAND_CURRENCY_TOTAL_TOP_DONE = LangKey.of("Command.Currency.Total.Done", LIGHT_YELLOW + "Total " + CURRENCY_NAME + ": " + ORANGE + GENERIC_TOTAL_BALANCE);
     public static final LangKey CURRENCY_BALANCE_DISPLAY_OWN    = LangKey.of("Currency.Balance.Display.Own", LIGHT_YELLOW + "Balance: " + ORANGE + GENERIC_BALANCE + LIGHT_YELLOW + ".");
     public static final LangKey CURRENCY_BALANCE_DISPLAY_OTHERS = LangKey.of("Currency.Balance.Display.Others", ORANGE + PLAYER_NAME + LIGHT_YELLOW + "'s balance: " + ORANGE + GENERIC_BALANCE + LIGHT_YELLOW + ".");
 
