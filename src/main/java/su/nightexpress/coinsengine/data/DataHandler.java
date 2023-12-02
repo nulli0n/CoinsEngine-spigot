@@ -1,7 +1,14 @@
 package su.nightexpress.coinsengine.data;
 
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUserDataHandler;
 import su.nexmedia.engine.api.data.sql.SQLColumn;
@@ -14,12 +21,14 @@ import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.data.serialize.CurrencyDataSerializer;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser> {
+public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser> implements PluginMessageListener {
 
     private static final SQLColumn COLUMN_BALANCES = SQLColumn.of("balances", ColumnType.STRING);
     private static final SQLColumn COLUMN_CURRENCY_DATA = SQLColumn.of("currencyData", ColumnType.STRING);
@@ -27,6 +36,56 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEngine, CoinsUser>
     private static DataHandler instance;
 
     private final Function<ResultSet, CoinsUser> userFunction;
+
+    @Override
+    public void saveUser(@NotNull CoinsUser user) {
+        super.saveUser(user);
+
+        // For some reason, NexEngine doesn't return SQL execution result.
+        // I can't detect if it actually updates the player data. Just add a slight delay here.
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("name", user.getName());
+            map.put("uuid", user.getId().toString());
+
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Forward");
+            out.writeUTF("ALL");
+            out.writeUTF("CoinsEngine:RefreshUserBalance");
+            out.writeUTF(new Gson().toJson(map));
+
+            Bukkit.getServer().sendPluginMessage(this.plugin, "BungeeCord", out.toByteArray());
+        }, 1L);
+    }
+
+    @Override
+    public void onPluginMessageReceived(@NotNull String channel, Player player, byte[] message) {
+        if (!"BungeeCord".equals(channel)) {
+            return;
+        }
+
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        String subChannel = in.readUTF();
+        if (subChannel.startsWith("CoinsEngine:")) {
+            if (subChannel.endsWith("RefreshUserBalance")) {
+                String content = in.readUTF();
+                Type typeToken = new TypeToken<Map<String, String>>() {
+                }.getType();
+                Map<String, String> map = new Gson().fromJson(content, typeToken);
+
+                CompletableFuture<CoinsUser> coinsUserCompletableFuture;
+                try {
+                    UUID uuid = UUID.fromString(map.get("uuid"));
+                    coinsUserCompletableFuture = this.plugin.getUserManager().getUserDataAsync(uuid);
+                } catch (IllegalArgumentException e) {
+                    String name = map.get("name");
+                    coinsUserCompletableFuture = this.plugin.getUserManager().getUserDataAsync(name);
+                }
+                // Refresh player balance due to other server notifications
+                coinsUserCompletableFuture.thenAcceptAsync(this::updateUserBalance);
+            }
+        }
+    }
 
     DataHandler(@NotNull CoinsEngine plugin) {
         super(plugin, plugin);
