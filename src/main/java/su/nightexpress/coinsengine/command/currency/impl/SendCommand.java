@@ -104,14 +104,11 @@ public class SendCommand extends CurrencySubCommand {
             .replace(Placeholders.PLAYER_NAME, userTarget.getName())
             .send(sender);
 
-        Player pTarget = plugin.getServer().getPlayer(userTarget.getName());
-        if (pTarget != null) {
-            plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_DONE_NOTIFY)
+        plugin.getMessage(Lang.COMMAND_CURRENCY_SEND_DONE_NOTIFY)
                 .replace(currency.replacePlaceholders())
                 .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
                 .replace(Placeholders.GENERIC_BALANCE, dataTarget.getBalance())
                 .replace(Placeholders.PLAYER_NAME, userFrom.getName())
-                .send(pTarget);
-        }
+                .send(userTarget.getName());
     }
 }

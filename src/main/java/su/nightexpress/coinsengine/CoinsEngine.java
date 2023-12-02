@@ -116,6 +116,9 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
             this.currencyManager.shutdown();
             this.currencyManager = null;
         }
+
+        this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
+        this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
     }
 
     @Override
@@ -125,6 +128,9 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
 
         this.userManager = new UserManager(this);
         this.userManager.setup();
+
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this.dataHandler);
 
         return true;
     }
