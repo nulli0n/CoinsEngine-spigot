@@ -6,7 +6,10 @@ import su.nexmedia.engine.api.data.AbstractUser;
 import su.nightexpress.coinsengine.CoinsEngine;
 import su.nightexpress.coinsengine.api.currency.Currency;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CoinsUser extends AbstractUser<CoinsEngine> {
@@ -45,5 +48,21 @@ public class CoinsUser extends AbstractUser<CoinsEngine> {
     @Nullable
     public CurrencyData getCurrencyData(@NotNull String id) {
         return this.getCurrencyDataMap().get(id.toLowerCase());
+    }
+
+    public double getBalance(@NotNull Currency currency) {
+        return this.getCurrencyData(currency).getBalance();
+    }
+
+    public void addBalance(@NotNull Currency currency, double amount) {
+        this.getCurrencyData(currency).addBalance(amount);
+    }
+
+    public void setBalance(@NotNull Currency currency, double amount) {
+        this.getCurrencyData(currency).setBalance(amount);
+    }
+
+    public void removeBalance(@NotNull Currency currency, double amount) {
+        this.getCurrencyData(currency).removeBalance(amount);
     }
 }

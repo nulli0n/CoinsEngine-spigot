@@ -50,13 +50,13 @@ public class GiveCommand extends CurrencySubCommand {
         double amount = CoinsUtils.getAmountFromInput(result.getArg(2));
         if (amount <= 0) return;
 
-        this.plugin.getUserManager().getUserDataAsync(result.getArg(1)).thenAccept(user -> {
+        this.plugin.getUserManager().getUserDataAndPerform(result.getArg(1), user -> {
             if (user == null) {
                 this.errorPlayer(sender);
                 return;
             }
 
-            this.plugin.runTask(task -> {
+            //this.plugin.runTask(task -> {
                 CurrencyData data = user.getCurrencyData(this.currency);
                 data.addBalance(amount);
 
@@ -81,7 +81,7 @@ public class GiveCommand extends CurrencySubCommand {
                         .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
                         .send(target);
                 }
-            });
+            //});
         });
     }
 }

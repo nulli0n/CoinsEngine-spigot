@@ -2,7 +2,6 @@ package su.nightexpress.coinsengine.hook;
 
 import fun.lewisdev.deluxecoinflip.api.DeluxeCoinflipAPI;
 import fun.lewisdev.deluxecoinflip.economy.provider.EconomyProvider;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +12,7 @@ import su.nightexpress.coinsengine.data.impl.CoinsUser;
 public class DeluxeCoinflipHook {
 
     public static void setup(@NotNull CoinsEngine plugin) {
-        DeluxeCoinflipAPI api = (DeluxeCoinflipAPI) Bukkit.getPluginManager().getPlugin(HookId.DELUXE_COINFLIP);
+        DeluxeCoinflipAPI api = (DeluxeCoinflipAPI) plugin.getPluginManager().getPlugin(HookId.DELUXE_COINFLIP);
         if (api == null) return;
 
         plugin.getCurrencyManager().getCurrencies().forEach(currency -> {

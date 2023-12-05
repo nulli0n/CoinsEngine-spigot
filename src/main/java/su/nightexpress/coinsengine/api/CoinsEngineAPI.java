@@ -16,6 +16,16 @@ public class CoinsEngineAPI {
 
     public static final CoinsEngine PLUGIN = CoinsEngine.getPlugin(CoinsEngine.class);
 
+    @NotNull
+    public static UserManager getUserManager() {
+        return PLUGIN.getUserManager();
+    }
+
+    @NotNull
+    public static CurrencyManager getCurrencyManager() {
+        return PLUGIN.getCurrencyManager();
+    }
+
     public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
         return getUserData(player).getCurrencyData(currency).getBalance();
     }
@@ -48,14 +58,14 @@ public class CoinsEngineAPI {
         return getUserManager().getUserData(name);
     }
 
-    @NotNull
-    public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull String name) {
-        return getUserManager().getUserDataAsync(name);
-    }
-
     @Nullable
     public static CoinsUser getUserData(@NotNull UUID uuid) {
         return getUserManager().getUserData(uuid);
+    }
+
+    @NotNull
+    public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull String name) {
+        return getUserManager().getUserDataAsync(name);
     }
 
     @NotNull
@@ -72,13 +82,7 @@ public class CoinsEngineAPI {
         return getCurrency(id) != null;
     }
 
-    @NotNull
-    public static UserManager getUserManager() {
-        return PLUGIN.getUserManager();
-    }
-
-    @NotNull
-    public static CurrencyManager getCurrencyManager() {
-        return PLUGIN.getCurrencyManager();
+    public static void regsiterCurrency(@NotNull Currency currency) {
+        getCurrencyManager().registerCurrency(currency);
     }
 }

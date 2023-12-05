@@ -113,17 +113,24 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
     }
 
     public void registerCurrency(@NotNull Currency currency) {
+        this.unregisterCurrency(currency);
+
         this.plugin.getCommandManager().registerCommand(new CurrencyMainCommand(plugin, currency));
         this.getCurrencyMap().put(currency.getId(), currency);
         this.plugin.info("Currency registered: '" + currency.getId() + "'!");
     }
 
-    public void unregisterCurrency(@NotNull Currency currency) {
-        Currency del = this.getCurrencyMap().remove(currency.getId());
-        if (del == null) return;
+    public boolean unregisterCurrency(@NotNull Currency currency) {
+        return this.unregisterCurrency(currency.getId());
+    }
+
+    public boolean unregisterCurrency(@NotNull String id) {
+        Currency currency = this.getCurrencyMap().remove(id);
+        if (currency == null) return false;
 
         this.plugin.getCommandManager().unregisterCommand(currency.getCommandAliases()[0]);
-        this.plugin.info("Currency unregistered: '" + del.getId() + "'!");
+        this.plugin.info("Currency unregistered: '" + currency.getId() + "'!");
+        return true;
     }
 
     @Nullable

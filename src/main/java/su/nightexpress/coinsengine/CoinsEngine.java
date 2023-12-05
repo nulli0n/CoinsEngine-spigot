@@ -1,6 +1,5 @@
 package su.nightexpress.coinsengine;
 
-import fun.lewisdev.deluxecoinflip.api.DeluxeCoinflipAPI;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.NexPlugin;
 import su.nexmedia.engine.api.command.GeneralCommand;
@@ -102,8 +101,11 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
         if (EngineUtils.hasPlaceholderAPI()) {
             PlaceholderAPIHook.setup(this);
         }
+
         if (EngineUtils.hasPlugin(HookId.DELUXE_COINFLIP)) {
-            DeluxeCoinflipHook.setup(this);
+            this.runTask(task -> {
+                DeluxeCoinflipHook.setup(this);
+            });
         }
     }
 
