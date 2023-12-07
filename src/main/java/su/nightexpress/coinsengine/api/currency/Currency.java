@@ -4,6 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.placeholder.Placeholder;
 import su.nexmedia.engine.utils.NumberUtil;
+import su.nexmedia.engine.utils.Pair;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.config.Perms;
 
@@ -58,6 +59,19 @@ public interface Currency extends Placeholder {
         return this.replacePlaceholders().apply(this.getFormat()).replace(Placeholders.GENERIC_AMOUNT, this.formatValue(balance));
     }
 
+    @NotNull
+    default Pair<String, String> formatCompactValue(double balance) {
+        return NumberUtil.formatCompact(this.fine(balance));
+    }
+
+    @NotNull
+    default String formatCompact(double balance) {
+        Pair<String, String> compact = this.formatCompactValue(balance);
+        return this.replacePlaceholders().apply(this.getFormatShort())
+                .replace(Placeholders.GENERIC_AMOUNT, compact.getFirst())
+                .replace(Placeholders.CURRENCY_SHORT_SYMBOL, compact.getSecond());
+    }
+
     @NotNull String getId();
 
     @NotNull String getName();
@@ -70,7 +84,11 @@ public interface Currency extends Placeholder {
 
     @NotNull String getFormat();
 
+    @NotNull String getFormatShort();
+
     void setFormat(@NotNull String format);
+
+    void setFormatShort(@NotNull String formatShort);
 
     @NotNull String[] getCommandAliases();
 
