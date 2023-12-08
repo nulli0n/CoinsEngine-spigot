@@ -20,6 +20,8 @@ import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 
+import java.util.logging.Level;
+
 public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolder<CoinsEngine, CoinsUser> {
 
     private CurrencyManager currencyManager;
@@ -35,7 +37,11 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
     @Override
     public void enable() {
         this.currencyManager = new CurrencyManager(this);
-        this.currencyManager.setup();
+        try {
+            this.currencyManager.setup();
+        } catch (Exception ex) {
+            getLogger().log(Level.WARNING, "Failed to setup currency manager", ex);
+        }
 
         /*this.getCurrencyManager().getVaultCurrency().ifPresent((currency) -> {
             int count = 0;
@@ -99,12 +105,20 @@ public class CoinsEngine extends NexPlugin<CoinsEngine> implements UserDataHolde
         }*/
 
         if (EngineUtils.hasPlaceholderAPI()) {
-            PlaceholderAPIHook.setup(this);
+            try {
+                PlaceholderAPIHook.setup(this);
+            } catch (Exception ex) {
+                getLogger().log(Level.WARNING, "Failed to hook into PlaceholderAPI", ex);
+            }
         }
 
         if (EngineUtils.hasPlugin(HookId.DELUXE_COINFLIP)) {
             this.runTask(task -> {
-                DeluxeCoinflipHook.setup(this);
+                try {
+                    DeluxeCoinflipHook.setup(this);
+                } catch (Exception ex) {
+                    getLogger().log(Level.WARNING, "Failed to hook into DeluxeCoin", ex);
+                }
             });
         }
     }

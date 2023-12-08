@@ -1,7 +1,7 @@
 package su.nightexpress.coinsengine.hook;
 
-import fun.lewisdev.deluxecoinflip.api.DeluxeCoinflipAPI;
-import fun.lewisdev.deluxecoinflip.economy.provider.EconomyProvider;
+import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
+import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +39,11 @@ public class DeluxeCoinflipHook {
         @Nullable
         private CoinsUser getUser(@NotNull OfflinePlayer offlinePlayer) {
             return this.plugin.getUserManager().getUserData(offlinePlayer.getUniqueId());
+        }
+
+        @Override
+        public void onEnable() {
+            this.plugin.getLogger().info("Enabled!");
         }
 
         @Override
