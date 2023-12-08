@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.github.ItsLewizzz</groupId>
             <artifactId>DeluxeCoinflipAPI</artifactId>
-            <version>1.0.2</version>
+            <version>master</version>
         </dependency>
     </dependencies>
 
