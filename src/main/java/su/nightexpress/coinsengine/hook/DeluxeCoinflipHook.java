@@ -1,7 +1,7 @@
 package su.nightexpress.coinsengine.hook;
 
-import fun.lewisdev.deluxecoinflip.api.DeluxeCoinflipAPI;
-import fun.lewisdev.deluxecoinflip.economy.provider.EconomyProvider;
+import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
+import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
