@@ -1,0 +1,80 @@
+Command:
+  Migrate:
+    Desc: 从其他插件迁移数据
+    Usage: <插件> <货币>
+    Error:
+      Plugin: "#fd5e5e插件不受支持或未安装！"
+    Start: "#ffeea2开始从 #fdba5e%name%#ffeea2 迁移数据！这可能需要一段时间"
+    Done: "#ffeea2已从 #fdba5e%name%#ffeea2 迁移数据！"
+  Reset:
+    Desc: 重置玩家的余额
+    Usage: <玩家>
+    Done: "#ffeea2已重置 #fdba5e%player_name%#ffeea2 的所有货币余额！"
+  Wipe:
+    Desc: 重置所有用户的所有货币
+    Usage: <货币>
+    Start: "#ffeea2开始为 #fdba5e%currency_name%#ffeea2 清除货币数据。这可能需要一段时间..."
+    Finish: "#ffeea2已完成对 #fdba5e%currency_name%#ffeea2 的货币数据清除"
+  Currency:
+    Balance:
+      Usage: "[玩家]"
+      Desc: 检查 [玩家的] 货币余额
+    Give:
+      Usage: <玩家> <数量> [-s]
+      Desc: 向玩家添加货币
+      Done: "#ffeea2已向 #fdba5e%player_name%#ffeea2 的余额中添加 #fdba5e%amount%#ffeea2。当前余额: #fdba5e%balance%#ffeea2"
+      Notify: "#fdba5e%amount%#ffeea2 已添加到您的账户！"
+    Take:
+      Usage: <玩家> <数量> [-s]
+      Desc: 取走玩家的货币
+      Done: "#ffeea2已从 #fdba5e%player_name%#ffeea2 的余额中取走 #fdba5e%amount%#ffeea2。当前余额: #fdba5e%balance%#ffeea2"
+      Notify: "#fdba5e%amount%#ffeea2 已从您的账户中扣除！"
+    Set:
+      Usage: <玩家> <数量> [-s]
+      Desc: 设置玩家的货币余额
+      Done: "#ffeea2已将 #fdba5e%player_name%#ffeea2 的 %currency_name% 余额设置为 #fdba5e%balance%#ffeea2"
+      Notify: "#ffeea2您的 #fdba5e%currency_name%#ffeea2 余额已设置为 #fdba5e%amount%#ffeea2"
+    Send:
+      Usage: <玩家> <数量>
+      Desc: 向玩家转账货币
+      Error:
+        NotEnough: "#ffeea2您没有足够的 #fd5e5e%currency_name%#ffeea2！"
+        TooLow: "#ffeea2您不能发送小于 #fd5e5e%amount%#ffeea2 的金额！"
+        NoPayments: "#fd5e5e%player_name%#ffeea2 不接受 #fd5e5e%currency_name%#ffeea2！"
+      Done:
+        Sender: "#ffeea2您已向 #fdba5e%player_name%#ffeea2 发送了 #fdba5e%amount%#ffeea2！"
+        Notify: "#ffeea2您已收到来自 #fdba5e%player_name%#ffeea2 的 #fdba5e%amount%#ffeea2！"
+    Payments:
+      Usage: "[玩家] [-s]"
+      Desc: 切换其他玩家的付款接受状态
+      Toggle: "#fdba5e%currency_name%#ffeea2 付款接受状态: #fdba5e%state%#ffeea2"
+      Target: "#fdba5e%currency_name%#ffeea2 对于 #fdba5e%player_name%#ffeea2 的付款接受状态: #fdba5e%state%#ffeea2"
+    Exchange:
+      Usage: <货币> <数量>
+      Desc: 兑换货币
+    Top:
+      Usage: "[页码]"
+      Desc: 余额最多的玩家列表
+      List:
+        - <! prefix:"false" !>
+        - "#5edefd"
+        - "#5edefd&l%currency_name% 排行榜: "
+        - "#5edefd"
+        - "#5edefd%pos%. #d4d9d8%player_name%: #5edefd%balance%"
+        - "#5edefd"
+        - "#d4d9d8第 #5edefd%current%#d4d9d8 页，共 #5edefd%max%#d4d9d8 页"
+        - "#5edefd"
+Currency:
+  Balance:
+    Display:
+      Own: "#ffeea2余额: #fdba5e%balance%#ffeea2"
+      Others: "#fdba5e%player_name%#ffeea2 的余额: #fdba5e%balance%#ffeea2"
+  Exchange:
+    Error:
+      Disabled: "#fdba5e%currency_name%#fd5e5e 不能被兑换！"
+      NoRate: "#fdba5e%currency_name%#fd5e5e 不能被兑换为 #fdba5e%name%#fd5e5e！"
+      LowAmount: "#fdba5e%currency_name%#fd5e5e 的数量对于兑换来说太低了！"
+      LowBalance: "#fd5e5e您没有 #fdba5e%amount%#fd5e5e 可以用于兑换！"
+    Success: "#ffeea2您已经将 #fdba5e%balance%#ffeea2 兑换为 %amount%#ffeea2！"
+  Error:
+    Invalid: "#fd5e5e无效的货币！"
