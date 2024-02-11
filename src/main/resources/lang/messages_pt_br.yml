@@ -1,0 +1,84 @@
+# Here you can create your own custom placeholders to use it in language config.
+# Key = Placeholder, Value = Replacer.
+Placeholders:
+  '%red%': '#fd5e5e'
+  '%gray%': '#d4d9d8'
+  '%green%': '#aefd5e'
+
+Command:
+  Migrate:
+    Desc: Migrar dados de outros plugins.
+    Usage: <plugin> <moeda>
+    Error:
+      Plugin: '#ea3131O plugin não é suportado ou instalado!'
+    Start: '#ead931Iniciada a migração de dados do #ea9631%name%#ead931! Isso pode levar um tempo.'
+    Done: '#ead931Dados migrados do #ea9631%name%#ead931!'
+
+  Reset:
+    Desc: Resetar os saldos do jogador.
+    Usage: <jogador>
+    Done: '#ead931Resetados todos os saldos de moeda para #ea9631%player_name%#ead931!'
+
+  Wipe:
+    Desc: Resetar todas as moedas para todos os usuários.
+    Usage: <moeda>
+    Start: '#ead931Iniciada a limpeza de dados de moeda para #ea9631%currency_name%#ead931. Isso pode levar um tempo...'
+    Finish: '#ead931Limpeza de dados de moeda concluída para #ea9631%currency_name%#ead931.'
+
+  Currency:
+    Balance:
+      Usage: '[jogador]'
+      Desc: Verificar saldo de [jogador].
+      Done: '#74ea31Saldo de #74ea31%player_name%#aaa8a8: #74ea31%balance%#aaa8a8.'
+
+    Give:
+      Usage: <jogador> <quantia> [-s]
+      Desc: Adicionar moeda a um jogador.
+      Done: '#ead931Adicionado #ea9631%amount%#ead931 à conta de #ea9631%player_name%#ead931. Novo saldo: #ea9631%balance%#ead931.'
+      Notify: '#ea9631#quantia# #ead931foi adicionada à sua conta!'
+
+    Take:
+      Usage: <jogador> <quantia> [-s]
+      Desc: Retirar moeda de um jogador.
+      Done: '#ead931Retirado #ea9631%amount%#ead931 da conta de #ea9631%player_name%#ead931. Novo saldo: #ea9631%balance%#ead931.'
+      Notify: '#ea9631#quantia# #ead931foi retirada da sua conta!'
+
+    Set:
+      Usage: <jogador> <quantia> [-s]
+      Desc: Definir o saldo de moeda de um jogador.
+      Done: '#ead931Definido o saldo de #ea9631%player_name%#ead931 para #ea9631%balance%#ead931.'
+      Notify: '#ead931Seu saldo de #ea9631%currency_name%#ead931 foi definido como #ea9631%amount%#ead931.'
+
+    Send:
+      Usage: <jogador> <quantia>
+      Desc: Transferir moeda para um jogador.
+      Error:
+        NotEnough: '#ead931Você não tem moedas suficientes de #ea3131%currency_name%#ead931!'
+        TooLow: '#ead931Você não pode enviar menos que #ea3131%amount%#ead931!'
+        NoPayments: '#ea3131#player_name# #ead931não aceita #ea3131%currency_name%#ead931!'
+      Done:
+        Sender: '#ead931Você enviou #ea9631%amount%#ead931 para #ea9631%player_name%#ead931!'
+        Notify: '#ead931Você recebeu #ea9631%amount%#ead931 de #ea9631%player_name%#ead931!'
+
+    Payments:
+      Usage: '[jogador] [-s]'
+      Desc: Alternar aceitação de pagamentos de outros jogadores.
+      Toggle: '#ea9631Aceitação de pagamentos de #ea9631%currency_name%#ead931: #ea9631%state%#ead931.'
+      Target: '#ea9631Aceitação de pagamentos de #ea9631%currency_name%#ead931 para #ea9631%player_name%#ead931: #ea9631%state%#ead931.'
+
+    Top:
+      Usage: '[página]'
+      Desc: Lista de jogadores com o maior saldo.
+      List:
+      - <! prefix:"false" !>
+      - '#31eace'
+      - '#31eace&l%currency_name% TOP:'
+      - '#31eace'
+      - '#31eace%pos%. #aaa8a8%player_name%: #31eace%balance%'
+      - '#31eace'
+      - '#aaa8a8Página #31eace%current%#aaa8a8 de #31eace%max%#aaa8a8.'
+      - '#31eace'
+
+Currency:
+  Error:
+    Invalid: '#ea3131Moeda inválida!'
