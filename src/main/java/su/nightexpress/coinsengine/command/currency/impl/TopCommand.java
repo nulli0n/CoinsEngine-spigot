@@ -54,9 +54,9 @@ public class TopCommand extends CurrencySubCommand {
             .replace(currency.replacePlaceholders())
             .replace(Placeholders.GENERIC_CURRENT, page + 1)
             .replace(Placeholders.GENERIC_MAX, pages)
-            .replace(str -> str.contains(Placeholders.GENERIC_BALANCE), (line, list1) -> {
+            .replace(Placeholders.GENERIC_ENTRY, list1 -> {
                 for (Pair<String, Double> pair : list) {
-                    list1.add(line
+                    list1.add(Lang.COMMAND_CURRENCY_TOP_ENTRY.getString()
                         .replace(Placeholders.GENERIC_POS, NumberUtil.format(pos.getAndIncrement()))
                         .replace(Placeholders.GENERIC_BALANCE, currency.format(pair.getSecond()))
                         .replace(Placeholders.PLAYER_NAME, pair.getFirst()));

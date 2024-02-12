@@ -1,5 +1,0 @@
-Plugin:
-  Command_Aliases: 'coinsengine,coen,coe'
-
-Database:
-  Table_Prefix: 'coinsengine'
