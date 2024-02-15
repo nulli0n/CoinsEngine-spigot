@@ -3,13 +3,12 @@ package su.nightexpress.coinsengine.currency.impl;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.manager.AbstractFileData;
-import su.nightexpress.nightcore.util.Colorizer;
 import su.nightexpress.nightcore.util.StringUtil;
 import su.nightexpress.nightcore.util.placeholder.PlaceholderMap;
 
@@ -18,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Currency {
+public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implements Currency {
 
     private String name;
     private String symbol;
@@ -37,7 +36,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Cur
 
     private final PlaceholderMap placeholderMap;
 
-    public ConfigCurrency(@NotNull CoinsEngine plugin, @NotNull File file) {
+    public ConfigCurrency(@NotNull CoinsEnginePlugin plugin, @NotNull File file) {
         super(plugin, file);
         this.exchangeRates = new HashMap<>();
         this.placeholderMap = new PlaceholderMap()
@@ -49,18 +48,21 @@ public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Cur
     @Override
     protected boolean onLoad(@NotNull FileConfig cfg) {
         this.setName(ConfigValue.create("Name", StringUtil.capitalizeUnderscored(this.getId()),
-            "Localized currency name."
+            "Localized currency name.",
+            "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
         ).read(cfg));
 
         this.setSymbol(ConfigValue.create("Symbol", this.getName(),
-            "Currency symbol, like '$'."
+            "Currency symbol, like '$'.",
+            "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
         ).read(cfg));
 
         this.setFormat(ConfigValue.create("Format",
             Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SYMBOL,
             "Currency display format.",
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
-            "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS
+            "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS,
+            "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
         ).read(cfg));
 
         this.setCommandAliases(ConfigValue.create("Command_Aliases",
@@ -68,41 +70,50 @@ public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Cur
             "Custom currency commands. Split with commas."
         ).read(cfg));
 
-        this.setIcon(ConfigValue.create("Icon", new ItemStack(Material.GOLD_NUGGET),
+        this.setIcon(ConfigValue.create("Icon",
+            new ItemStack(Material.GOLD_NUGGET),
             "Currency icon."
         ).read(cfg));
 
-        this.setDecimal(ConfigValue.create("Decimal", false,
+        this.setDecimal(ConfigValue.create("Decimal",
+            false,
             "Sets whether or not currency value can have decimals."
         ).read(cfg));
 
-        this.setPermissionRequired(ConfigValue.create("Permission_Required", false,
+        this.setPermissionRequired(ConfigValue.create("Permission_Required",
+            false,
             "Sets whether or not players must have '" + this.getPermission() + "' permission to use this currency."
         ).read(cfg));
 
-        this.setTransferAllowed(ConfigValue.create("Transfer_Allowed", true,
+        this.setTransferAllowed(ConfigValue.create("Transfer_Allowed",
+            true,
             "Sets whether or not players can send this currency to other players."
         ).read(cfg));
 
-        this.setMinTransferAmount(ConfigValue.create("Transfer_Min_Amount", 1D,
+        this.setMinTransferAmount(ConfigValue.create("Transfer_Min_Amount",
+            1D,
             "Sets minimal amount for sending this currency to other players.",
             "Set this to '-1' for no limit."
         ).read(cfg));
 
-        this.setStartValue(ConfigValue.create("Start_Value", 0D,
+        this.setStartValue(ConfigValue.create("Start_Value",
+            0D,
             "How much of this currency new players will have on their balance?"
         ).read(cfg));
 
-        this.setMaxValue(ConfigValue.create("Max_Value", -1D,
+        this.setMaxValue(ConfigValue.create("Max_Value",
+            -1D,
             "Max. possible value that players can have on their balance.",
             "Set this to '-1' to disable."
         ).read(cfg));
 
-        this.setVaultEconomy(ConfigValue.create("Economy.Vault", false,
+        this.setVaultEconomy(ConfigValue.create("Economy.Vault",
+            false,
             "When enabled, uses the Vault API to register the currency as primary server Economy."
         ).read(cfg));
 
-        this.setExchangeAllowed(ConfigValue.create("Exchange.Allowed", true,
+        this.setExchangeAllowed(ConfigValue.create("Exchange.Allowed",
+            true,
             "Sets whether or not this currency can be exchanged for other ones."
         ).read(cfg));
 
@@ -155,7 +166,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Cur
 
     @Override
     public void setName(@NotNull String name) {
-        this.name = Colorizer.apply(name);
+        this.name = name;
     }
 
     @NotNull
@@ -166,7 +177,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Cur
 
     @Override
     public void setSymbol(@NotNull String symbol) {
-        this.symbol = Colorizer.apply(symbol);
+        this.symbol = symbol;
     }
 
     @NotNull
@@ -177,7 +188,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEngine> implements Cur
 
     @Override
     public void setFormat(@NotNull String format) {
-        this.format = Colorizer.apply(format);
+        this.format = format;
     }
 
     @NotNull

@@ -56,8 +56,8 @@ public class Logger {
                 output.newLine();
                 output.close();
             }
-            catch (IOException e) {
-                e.printStackTrace();
+            catch (IOException exception) {
+                exception.printStackTrace();
             }
         }
     }

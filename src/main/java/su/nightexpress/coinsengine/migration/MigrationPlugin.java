@@ -1,26 +1,22 @@
 package su.nightexpress.coinsengine.migration;
 
+import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.coinsengine.CoinsEngine;
-import su.nightexpress.coinsengine.api.CoinsEngineAPI;
-import su.nightexpress.coinsengine.migration.impl.AbstractDataConverter;
-import su.nightexpress.coinsengine.migration.impl.PlayerPointsConverter;
-import su.nightexpress.nightcore.util.Plugins;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
+import su.nightexpress.coinsengine.api.currency.Currency;
 
-import java.util.stream.Stream;
+import java.util.Map;
 
-public enum MigrationPlugin {
+public abstract class MigrationPlugin {
 
-    PLAYER_POINTS("PlayerPoints", PlayerPointsConverter.class),
-    ;
+    protected final CoinsEnginePlugin plugin;
+    protected final String            pluginName;
 
-    private final String                                 pluginName;
-    private final Class<? extends AbstractDataConverter> clazz;
-
-    MigrationPlugin(@NotNull String pluginName, @NotNull Class<? extends AbstractDataConverter> clazz) {
+    public MigrationPlugin(@NotNull CoinsEnginePlugin plugin, @NotNull String pluginName) {
+        this.plugin = plugin;
         this.pluginName = pluginName;
-        this.clazz = clazz;
     }
 
     @NotNull
@@ -29,21 +25,10 @@ public enum MigrationPlugin {
     }
 
     @Nullable
-    public AbstractDataConverter getConverter() {
-        try {
-            return this.clazz.getConstructor(CoinsEngine.class).newInstance(CoinsEngineAPI.PLUGIN);
-        }
-        catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public Plugin getBackendPlugin() {
+        return this.plugin.getPluginManager().getPlugin(this.getPluginName());
     }
 
-    @Nullable
-    public static AbstractDataConverter getConverter(@NotNull String pluginName) {
-        return Stream.of(values())
-            .filter(type -> Plugins.isInstalled(type.getPluginName()))
-            .filter(type -> type.getPluginName().equalsIgnoreCase(pluginName))
-            .map(MigrationPlugin::getConverter).findFirst().orElse(null);
-    }
+    @NotNull
+    public abstract Map<OfflinePlayer, Double> getBalances(@NotNull Currency currency);
 }

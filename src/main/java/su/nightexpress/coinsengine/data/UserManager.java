@@ -1,15 +1,15 @@
 package su.nightexpress.coinsengine.data;
 
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.nightcore.database.AbstractUserManager;
 
 import java.util.UUID;
 
-public class UserManager extends AbstractUserManager<CoinsEngine, CoinsUser> {
+public class UserManager extends AbstractUserManager<CoinsEnginePlugin, CoinsUser> {
 
-    public UserManager(@NotNull CoinsEngine plugin) {
+    public UserManager(@NotNull CoinsEnginePlugin plugin) {
         super(plugin);
     }
 

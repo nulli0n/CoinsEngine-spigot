@@ -5,13 +5,13 @@ import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
 public class DeluxeCoinflipHook {
 
-    public static void setup(@NotNull CoinsEngine plugin) {
+    public static void setup(@NotNull CoinsEnginePlugin plugin) {
         DeluxeCoinflipAPI api = (DeluxeCoinflipAPI) plugin.getPluginManager().getPlugin(HookId.DELUXE_COINFLIP);
         if (api == null) return;
 
@@ -27,10 +27,10 @@ public class DeluxeCoinflipHook {
 
     private static class Provider extends EconomyProvider {
 
-        private final CoinsEngine plugin;
-        private final Currency currency;
+        private final CoinsEnginePlugin plugin;
+        private final Currency          currency;
 
-        public Provider(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
+        public Provider(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
             super("coinsengine_" + currency.getId());
             this.plugin = plugin;
             this.currency = currency;

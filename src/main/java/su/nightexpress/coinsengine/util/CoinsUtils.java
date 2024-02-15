@@ -1,10 +1,3 @@
-/*
- * Decompiled with CFR 0.151.
- *
- * Could not load the following classes:
- *  org.jetbrains.annotations.NotNull
- *  su.nexmedia.engine.utils.StringUtil
- */
 package su.nightexpress.coinsengine.util;
 
 import org.jetbrains.annotations.NotNull;

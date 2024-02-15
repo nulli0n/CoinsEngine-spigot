@@ -2,7 +2,7 @@ package su.nightexpress.coinsengine.data.impl;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.nightcore.database.AbstractUser;
 
@@ -12,17 +12,17 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CoinsUser extends AbstractUser<CoinsEngine> {
+public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
 
     private final Map<String, CurrencyData> currencyDataMap;
 
-    public CoinsUser(@NotNull CoinsEngine plugin, @NotNull UUID uuid, @NotNull String name) {
+    public CoinsUser(@NotNull CoinsEnginePlugin plugin, @NotNull UUID uuid, @NotNull String name) {
         this(plugin, uuid, name, System.currentTimeMillis(), System.currentTimeMillis(),
             new HashSet<>());
     }
 
     public CoinsUser(
-            @NotNull CoinsEngine plugin,
+            @NotNull CoinsEnginePlugin plugin,
             @NotNull UUID uuid,
             @NotNull String name,
             long dateCreated,

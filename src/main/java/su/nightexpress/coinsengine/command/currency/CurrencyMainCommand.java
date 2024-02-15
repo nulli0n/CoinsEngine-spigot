@@ -2,16 +2,16 @@ package su.nightexpress.coinsengine.command.currency;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.currency.impl.*;
 import su.nightexpress.nightcore.command.CommandResult;
 import su.nightexpress.nightcore.command.base.HelpSubCommand;
 import su.nightexpress.nightcore.command.impl.PluginCommand;
 
-public class CurrencyMainCommand extends PluginCommand<CoinsEngine> {
+public class CurrencyMainCommand extends PluginCommand<CoinsEnginePlugin> {
 
-    public CurrencyMainCommand(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
+    public CurrencyMainCommand(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         super(plugin, currency.getCommandAliases(), currency.isPermissionRequired() ? currency.getPermission() : null);
 
         this.addChildren(new HelpSubCommand(plugin));

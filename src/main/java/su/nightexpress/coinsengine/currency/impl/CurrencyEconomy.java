@@ -4,7 +4,7 @@ import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
@@ -14,10 +14,10 @@ import java.util.List;
 
 public class CurrencyEconomy extends AbstractEconomy {
 
-    private final CoinsEngine plugin;
-    private final Currency    currency;
+    private final CoinsEnginePlugin plugin;
+    private final Currency          currency;
 
-    public CurrencyEconomy(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
+    public CurrencyEconomy(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         this.plugin = plugin;
         this.currency = currency;
     }

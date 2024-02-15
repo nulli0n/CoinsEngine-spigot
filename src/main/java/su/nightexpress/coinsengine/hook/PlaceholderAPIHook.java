@@ -3,23 +3,21 @@ package su.nightexpress.coinsengine.hook;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.Pair;
+import su.nightexpress.nightcore.util.text.NightMessage;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 public class PlaceholderAPIHook {
 
     private static PointsExpansion expansion;
 
-    public static void setup(@NotNull CoinsEngine plugin) {
+    public static void setup(@NotNull CoinsEnginePlugin plugin) {
         if (expansion == null) {
             expansion = new PointsExpansion(plugin);
             expansion.register();
@@ -35,9 +33,9 @@ public class PlaceholderAPIHook {
 
     private static class PointsExpansion extends PlaceholderExpansion {
 
-        private final CoinsEngine plugin;
+        private final CoinsEnginePlugin plugin;
 
-        public PointsExpansion(@NotNull CoinsEngine plugin) {
+        public PointsExpansion(@NotNull CoinsEnginePlugin plugin) {
             this.plugin = plugin;
         }
 
@@ -74,16 +72,21 @@ public class PlaceholderAPIHook {
                 DecimalFormat format = new DecimalFormat("#");
                 format.setMaximumFractionDigits(8);
 
-                return format.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
-                    .stream().mapToDouble(Pair::getSecond).sum());
+                return NightMessage.asLegacy(format.format(plugin.getCurrencyManager().getTotalBalance(currency)));
+            }
+            if (holder.startsWith("server_balance_short_")) {
+                String curId = holder.substring("server_balance_short_".length());
+                Currency currency = plugin.getCurrencyManager().getCurrency(curId);
+                if (currency == null) return null;
+
+                return NumberUtil.compact(plugin.getCurrencyManager().getTotalBalance(currency));
             }
             if (holder.startsWith("server_balance_")) {
                 String curId = holder.substring("server_balance_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
-                return currency.format(plugin.getCurrencyManager().getBalanceMap().getOrDefault(currency, Collections.emptyList())
-                    .stream().mapToDouble(Pair::getSecond).sum());
+                return NightMessage.asLegacy(currency.format(plugin.getCurrencyManager().getTotalBalance(currency)));
             }
 
             // top_balance_coins_1
@@ -105,7 +108,7 @@ public class PlaceholderAPIHook {
                 if (pos > baltop.size()) return "-";
 
                 Pair<String, Double> pair = baltop.get(pos - 1);
-                if (type.equalsIgnoreCase("balance")) return currency.format(pair.getSecond());
+                if (type.equalsIgnoreCase("balance")) return NightMessage.asLegacy(currency.format(pair.getSecond()));
                 if (type.equalsIgnoreCase("player")) return pair.getFirst();
 
                 return null;
@@ -138,11 +141,12 @@ public class PlaceholderAPIHook {
                 if (currency == null) return null;
 
                 double balance = currency.fine(user.getCurrencyData(currency).getBalance());
+                return NumberUtil.compact(balance);
 
-                NumberFormat fmt = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
+                /*NumberFormat fmt = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
                 fmt.setMinimumFractionDigits(1);
                 fmt.setMaximumFractionDigits(2);
-                return fmt.format(balance);
+                return fmt.format(balance);*/
             }
             // balance_coins
             if (holder.startsWith("balance_")) {
@@ -150,7 +154,7 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return currency.format(user.getCurrencyData(currency).getBalance());
+                return NightMessage.asLegacy(currency.format(user.getCurrencyData(currency).getBalance()));
             }
 
             return null;

@@ -3,7 +3,7 @@ package su.nightexpress.coinsengine.command.base;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
@@ -13,9 +13,9 @@ import su.nightexpress.nightcore.command.impl.AbstractCommand;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WipeCommand extends AbstractCommand<CoinsEngine> {
+public class WipeCommand extends AbstractCommand<CoinsEnginePlugin> {
 
-    public WipeCommand(@NotNull CoinsEngine plugin) {
+    public WipeCommand(@NotNull CoinsEnginePlugin plugin) {
         super(plugin, new String[]{"wipe"}, Perms.COMMAND_WIPE);
         this.setDescription(Lang.COMMAND_WIPE_DESC);
         this.setUsage(Lang.COMMAND_WIPE_USAGE);

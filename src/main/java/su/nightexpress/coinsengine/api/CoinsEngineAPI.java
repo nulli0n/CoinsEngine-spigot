@@ -3,7 +3,7 @@ package su.nightexpress.coinsengine.api;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.currency.CurrencyManager;
 import su.nightexpress.coinsengine.data.UserManager;
@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class CoinsEngineAPI {
 
-    public static final CoinsEngine PLUGIN = CoinsEngine.getPlugin(CoinsEngine.class);
+    public static final CoinsEnginePlugin PLUGIN = CoinsEnginePlugin.getPlugin(CoinsEnginePlugin.class);
 
     @NotNull
     public static UserManager getUserManager() {
@@ -24,6 +24,19 @@ public class CoinsEngineAPI {
     @NotNull
     public static CurrencyManager getCurrencyManager() {
         return PLUGIN.getCurrencyManager();
+    }
+
+    @Nullable
+    public static Currency getCurrency(@NotNull String id) {
+        return getCurrencyManager().getCurrency(id);
+    }
+
+    public static boolean hasCurrency(@NotNull String id) {
+        return getCurrency(id) != null;
+    }
+
+    public static void regsiterCurrency(@NotNull Currency currency) {
+        getCurrencyManager().registerCurrency(currency);
     }
 
     public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
@@ -71,18 +84,5 @@ public class CoinsEngineAPI {
     @NotNull
     public static CompletableFuture<CoinsUser> getUserDataAsync(@NotNull UUID uuid) {
         return getUserManager().getUserDataAsync(uuid);
-    }
-
-    @Nullable
-    public static Currency getCurrency(@NotNull String id) {
-        return getCurrencyManager().getCurrency(id);
-    }
-
-    public static boolean hasCurrency(@NotNull String id) {
-        return getCurrency(id) != null;
-    }
-
-    public static void regsiterCurrency(@NotNull Currency currency) {
-        getCurrencyManager().registerCurrency(currency);
     }
 }

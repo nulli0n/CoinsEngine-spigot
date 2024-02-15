@@ -1,8 +1,8 @@
-main: su.nightexpress.coinsengine.CoinsEngine
+main: su.nightexpress.coinsengine.CoinsEnginePlugin
 version: '${project.version}'
 name: CoinsEngine
 author: NightExpress
-desciption: Your best custom coins & currencies plugin.
+desciption: Your best economy & custom currencies plugin.
 depend: [ nightcore ]
 softdepend:
   - Vault

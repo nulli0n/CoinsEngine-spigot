@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.ServicesManager;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.currency.impl.CurrencyEconomy;
 
@@ -13,7 +13,7 @@ public class VaultEconomyHook {
 
     private static CurrencyEconomy economy;
 
-    public static void setup(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
+    public static void setup(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         economy = new CurrencyEconomy(plugin, currency);
 
         ServicesManager services = plugin.getServer().getServicesManager();

@@ -44,7 +44,7 @@ public interface Currency extends Placeholder {
 
     @NotNull
     default String getPermission() {
-        return Perms.CURRENCY + this.getId();
+        return Perms.CURRENCY.getName() + this.getId();
     }
 
     @NotNull

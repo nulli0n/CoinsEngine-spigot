@@ -3,7 +3,7 @@ package su.nightexpress.coinsengine.command.currency.impl;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class SendCommand extends CurrencySubCommand {
 
-    public SendCommand(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
+    public SendCommand(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         super(plugin, currency, new String[]{"pay", "transfer", "send"}, Perms.COMMAND_CURRENCY_SEND);
         this.setDescription(Lang.COMMAND_CURRENCY_SEND_DESC);
         this.setUsage(Lang.COMMAND_CURRENCY_SEND_USAGE);

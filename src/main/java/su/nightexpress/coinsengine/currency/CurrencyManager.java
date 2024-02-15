@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.currency.CurrencyMainCommand;
@@ -26,12 +26,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class CurrencyManager extends AbstractManager<CoinsEngine> {
+public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
     private final Map<String, Currency>                     currencyMap;
     private final Map<Currency, List<Pair<String, Double>>> balanceMap;
 
-    public CurrencyManager(@NotNull CoinsEngine plugin) {
+    public CurrencyManager(@NotNull CoinsEnginePlugin plugin) {
         super(plugin);
         this.currencyMap = new HashMap<>();
         this.balanceMap = new ConcurrentHashMap<>();
@@ -101,6 +101,11 @@ public class CurrencyManager extends AbstractManager<CoinsEngine> {
     @NotNull
     public List<Pair<String, Double>> getBalanceList(@NotNull Currency currency) {
         return this.getBalanceMap().getOrDefault(currency, Collections.emptyList());
+    }
+
+    public double getTotalBalance(@NotNull Currency currency) {
+        return this.getBalanceMap().getOrDefault(currency, Collections.emptyList())
+            .stream().mapToDouble(Pair::getSecond).sum();
     }
 
     public void updateBalances() {

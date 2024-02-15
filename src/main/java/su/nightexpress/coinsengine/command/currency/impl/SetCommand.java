@@ -16,7 +16,7 @@ package su.nightexpress.coinsengine.command.currency.impl;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEngine;
+import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.CommandFlags;
@@ -34,7 +34,7 @@ import java.util.List;
 
 public class SetCommand extends CurrencySubCommand {
 
-    public SetCommand(@NotNull CoinsEngine plugin, @NotNull Currency currency) {
+    public SetCommand(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         super(plugin, currency, new String[]{"set"}, Perms.COMMAND_CURRENCY_SET);
         this.setDescription(Lang.COMMAND_CURRENCY_SET_DESC);
         this.setUsage(Lang.COMMAND_CURRENCY_SET_USAGE);

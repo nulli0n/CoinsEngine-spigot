@@ -14,26 +14,24 @@ import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
+import su.nightexpress.coinsengine.migration.MigrationManager;
 import su.nightexpress.nightcore.NightDataPlugin;
 import su.nightexpress.nightcore.command.api.NightPluginCommand;
 import su.nightexpress.nightcore.command.base.ReloadSubCommand;
 import su.nightexpress.nightcore.config.PluginDetails;
 import su.nightexpress.nightcore.util.Plugins;
 
-public class CoinsEngine extends NightDataPlugin<CoinsUser> {
+public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> {
 
-    private CurrencyManager currencyManager;
-    private DataHandler     dataHandler;
-    private UserManager     userManager;
+    private CurrencyManager  currencyManager;
+    private MigrationManager migrationManager;
+    private DataHandler      dataHandler;
+    private UserManager      userManager;
 
     @Override
     public void enable() {
-        NightPluginCommand generalCommand = this.getBaseCommand();
-        generalCommand.addChildren(new ReloadSubCommand(this, Perms.COMMAND_RELOAD));
-        generalCommand.addChildren(new ResetCommand(this));
-        generalCommand.addChildren(new WipeCommand(this));
-        generalCommand.addChildren(new MigrateCommand(this));
-
+        this.registerCommands();
+        
         this.dataHandler = new DataHandler(this);
         this.dataHandler.setup();
 
@@ -42,6 +40,9 @@ public class CoinsEngine extends NightDataPlugin<CoinsUser> {
 
         this.currencyManager = new CurrencyManager(this);
         this.currencyManager.setup();
+
+        this.migrationManager = new MigrationManager(this);
+        this.migrationManager.setup();
 
         if (Plugins.hasPlaceholderAPI()) {
             PlaceholderAPIHook.setup(this);
@@ -52,15 +53,21 @@ public class CoinsEngine extends NightDataPlugin<CoinsUser> {
         }
     }
 
+    private void registerCommands() {
+        NightPluginCommand generalCommand = this.getBaseCommand();
+        generalCommand.addChildren(new ReloadSubCommand(this, Perms.COMMAND_RELOAD));
+        generalCommand.addChildren(new ResetCommand(this));
+        generalCommand.addChildren(new WipeCommand(this));
+        generalCommand.addChildren(new MigrateCommand(this));
+    }
+
     @Override
     public void disable() {
         if (Plugins.hasPlaceholderAPI()) {
             PlaceholderAPIHook.shutdown();
         }
-        if (this.currencyManager != null) {
-            this.currencyManager.shutdown();
-            this.currencyManager = null;
-        }
+        if (this.migrationManager != null) this.migrationManager.shutdown();
+        if (this.currencyManager != null) this.currencyManager.shutdown();
     }
 
     @Override
@@ -75,6 +82,11 @@ public class CoinsEngine extends NightDataPlugin<CoinsUser> {
     @NotNull
     public CurrencyManager getCurrencyManager() {
         return currencyManager;
+    }
+
+    @NotNull
+    public MigrationManager getMigrationManager() {
+        return migrationManager;
     }
 
     @Override
