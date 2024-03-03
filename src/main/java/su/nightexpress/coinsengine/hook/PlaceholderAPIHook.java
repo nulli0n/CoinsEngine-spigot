@@ -140,10 +140,12 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                double balance = currency.fine(user.getCurrencyData(currency).getBalance());
+                return currency.formatCompact(user.getCurrencyData(currency).getBalance()); // allow per-currency formatting
+
+                /*double balance = currency.fine(user.getCurrencyData(currency).getBalance());
                 return NumberUtil.compact(balance);
 
-                /*NumberFormat fmt = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
+                NumberFormat fmt = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
                 fmt.setMinimumFractionDigits(1);
                 fmt.setMaximumFractionDigits(2);
                 return fmt.format(balance);*/

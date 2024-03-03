@@ -170,6 +170,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         ConfigCurrency currency = new ConfigCurrency(this.plugin, file);
         currency.setName(StringUtil.capitalizeUnderscored(id));
         currency.setFormat(Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SYMBOL);
+        currency.setFormatShort(Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SHORT_SYMBOL);
         currency.setCommandAliases(new String[]{id});
         currency.setPermissionRequired(false);
         currency.setTransferAllowed(true);

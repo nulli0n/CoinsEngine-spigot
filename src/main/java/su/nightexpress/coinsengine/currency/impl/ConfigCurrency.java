@@ -22,6 +22,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     private String name;
     private String symbol;
     private String format;
+    private String formatShort;
     private String[] commandAliases;
     private ItemStack icon;
     private boolean decimal;
@@ -63,6 +64,14 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
             "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS,
             "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
+        ).read(cfg));
+
+        this.setFormatShort(ConfigValue.create("Format_Short",
+                Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SHORT_SYMBOL,
+                "Currency short display format.",
+                "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
+                "Use '" + Placeholders.CURRENCY_SHORT_SYMBOL + "' placeholder for short symbol (k, m, b, t, q).",
+                "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS
         ).read(cfg));
 
         this.setCommandAliases(ConfigValue.create("Command_Aliases",
@@ -136,6 +145,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
         cfg.set("Name", this.getName());
         cfg.set("Symbol", this.getSymbol());
         cfg.set("Format", this.getFormat());
+        cfg.set("Format_Short", this.getFormatShort());
         cfg.set("Command_Aliases", String.join(",", Arrays.asList(this.getCommandAliases())));
         cfg.setItem("Icon", this.getIcon());
         cfg.set("Decimal", this.isDecimal());
@@ -189,6 +199,17 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     public void setFormat(@NotNull String format) {
         this.format = format;
+    }
+
+    @NotNull
+    @Override
+    public String getFormatShort() {
+        return this.formatShort;
+    }
+
+    @Override
+    public void setFormatShort(@NotNull String formatShort) {
+        this.formatShort = formatShort;
     }
 
     @NotNull
