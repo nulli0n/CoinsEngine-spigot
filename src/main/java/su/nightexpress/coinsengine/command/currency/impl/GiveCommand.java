@@ -48,7 +48,7 @@ public class GiveCommand extends CurrencySubCommand {
         }
 
         double amount = CoinsUtils.getAmountFromInput(result.getArg(2));
-        if (amount <= 0) return;
+        if (amount <= 0D) return;
 
         this.plugin.getUserManager().getUserDataAndPerform(result.getArg(1), user -> {
             if (user == null) {

@@ -59,6 +59,12 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
     }
 
     @Override
+    protected void createUserTable() {
+        super.createUserTable();
+        this.dropColumn(this.tableUsers, SQLColumn.of("balances", ColumnType.STRING));
+    }
+
+    @Override
     public void onSynchronize() {
         this.plugin.getUserManager().getLoaded().forEach(this::updateUserBalance);
     }
@@ -70,6 +76,8 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
         user.getCurrencyDataMap().clear();
 
         data.forEach(currencyData -> {
+            if (currencyData == null) return;
+
             user.getCurrencyDataMap().put(currencyData.getCurrency().getId(), currencyData);
         });
     }

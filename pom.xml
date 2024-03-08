@@ -6,7 +6,7 @@
 
     <groupId>su.nightexpress.coinsengine</groupId>
     <artifactId>CoinsEngine</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.0.1</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -18,27 +18,22 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
+
         <repository>
             <id>maven</id>
             <url>https://repo1.maven.org/maven2/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
+
         <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
+
         <repository>
             <id>rosewood-repo</id>
             <url>https://repo.rosewooddev.io/repository/public/</url>
