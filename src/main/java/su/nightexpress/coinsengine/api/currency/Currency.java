@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.nightcore.util.NumberUtil;
+import su.nightexpress.nightcore.util.Pair;
 import su.nightexpress.nightcore.util.placeholder.Placeholder;
 
 public interface Currency extends Placeholder {
@@ -58,6 +59,19 @@ public interface Currency extends Placeholder {
                 .apply(this.getFormat()).replace(Placeholders.GENERIC_AMOUNT, this.formatValue(balance));
     }
 
+    @NotNull
+    default Pair<String, String> formatCompactValue(double balance) {
+        return NumberUtil.formatCompact(this.fine(balance));
+    }
+
+    @NotNull
+    default String formatCompact(double balance) {
+        Pair<String, String> compact = this.formatCompactValue(balance);
+        return this.replacePlaceholders().apply(this.getFormatShort())
+                .replace(Placeholders.GENERIC_AMOUNT, compact.getFirst())
+                .replace(Placeholders.CURRENCY_SHORT_SYMBOL, compact.getSecond());
+    }
+
     @NotNull String getId();
 
     @NotNull String getName();
@@ -71,6 +85,10 @@ public interface Currency extends Placeholder {
     @NotNull String getFormat();
 
     void setFormat(@NotNull String format);
+
+    @NotNull String getFormatShort();
+
+    void setFormatShort(@NotNull String formatShort);
 
     @NotNull String[] getCommandAliases();
 

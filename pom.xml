@@ -73,9 +73,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.zithium.deluxecoinflip</groupId>
-            <artifactId>DeluxeCoinflip</artifactId>
-            <version>2.7.2</version>
+            <groupId>com.github.ItzSave</groupId>
+            <artifactId>DeluxeCoinflipAPI</artifactId>
+            <version>1.0.4</version>
         </dependency>
     </dependencies>
 

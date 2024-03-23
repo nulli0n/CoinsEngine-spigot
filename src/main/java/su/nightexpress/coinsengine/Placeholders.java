@@ -17,5 +17,6 @@ public class Placeholders extends su.nightexpress.nightcore.util.Placeholders {
     public static final String CURRENCY_ID     = "%currency_id%";
     public static final String CURRENCY_NAME   = "%currency_name%";
     public static final String CURRENCY_SYMBOL = "%currency_symbol%";
+    public static final String CURRENCY_SHORT_SYMBOL = "%currency_short_symbol%";
 
 }
