@@ -1,16 +1,3 @@
-/*
- * Decompiled with CFR 0.151.
- * 
- * Could not load the following classes:
- *  org.bukkit.command.CommandSender
- *  org.bukkit.entity.Player
- *  org.bukkit.permissions.Permission
- *  org.jetbrains.annotations.NotNull
- *  su.nexmedia.engine.api.command.CommandFlag
- *  su.nexmedia.engine.api.command.CommandResult
- *  su.nexmedia.engine.api.data.AbstractUser
- *  su.nexmedia.engine.utils.CollectionsUtil
- */
 package su.nightexpress.coinsengine.command.currency.impl;
 
 import org.bukkit.command.CommandSender;
@@ -57,21 +44,24 @@ public class SetCommand extends CurrencySubCommand {
             this.errorUsage(sender);
             return;
         }
+
         double amount = CoinsUtils.getAmountFromInput(result.getArg(2));
-        if (amount < 0.0) {
-            return;
-        }
+        if (amount < 0D) return;
+
         this.plugin.getUserManager().getUserDataAsync(result.getArg(1)).thenAccept(user -> {
             if (user == null) {
                 this.errorPlayer(sender);
                 return;
             }
+
             this.plugin.runTask(task -> {
                 CurrencyData data = user.getCurrencyData(this.currency);
                 data.setBalance(amount);
+
                 if (!result.hasFlag(CommandFlags.NO_SAVE)) {
                     this.plugin.getUserManager().saveAsync(user);
                 }
+
                 Logger.logSet(user, this.currency, amount, sender);
 
                 Lang.COMMAND_CURRENCY_SET_DONE.getMessage()
@@ -82,6 +72,7 @@ public class SetCommand extends CurrencySubCommand {
                     .send(sender);
 
                 Player target = user.getPlayer();
+
                 if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
                     Lang.COMMAND_CURRENCY_SET_NOTIFY.getMessage()
                         .replace(this.currency.replacePlaceholders())

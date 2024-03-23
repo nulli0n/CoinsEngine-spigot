@@ -100,12 +100,11 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
     @NotNull
     public List<Pair<String, Double>> getBalanceList(@NotNull Currency currency) {
-        return this.getBalanceMap().getOrDefault(currency, Collections.emptyList());
+        return new ArrayList<>(this.getBalanceMap().getOrDefault(currency, Collections.emptyList()));
     }
 
     public double getTotalBalance(@NotNull Currency currency) {
-        return this.getBalanceMap().getOrDefault(currency, Collections.emptyList())
-            .stream().mapToDouble(Pair::getSecond).sum();
+        return this.getBalanceList(currency).stream().mapToDouble(Pair::getSecond).sum();
     }
 
     public void updateBalances() {
@@ -118,7 +117,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
                 balanceMap.computeIfAbsent(currency, k -> new ArrayList<>()).add(Pair.of(name, balance));
             });
         });
-        this.plugin.info("Balance top updated!");
+        //this.plugin.info("Balance top updated!");
     }
 
     public void registerCurrency(@NotNull Currency currency) {
