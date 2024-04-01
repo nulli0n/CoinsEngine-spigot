@@ -41,6 +41,11 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
+        <repository>
+            <id>auxilor</id>
+            <url>https://repo.auxilor.io/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -76,6 +81,26 @@
             <groupId>com.github.ItzSave</groupId>
             <artifactId>DeluxeCoinflipAPI</artifactId>
             <version>1.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>eco</artifactId>
+            <version>6.69.1</version>
+            <classifier>all</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>libreforge</artifactId>
+            <version>4.57.0</version>
+            <classifier>all</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.willfp</groupId>
+            <artifactId>libreforge</artifactId>
+            <version>4.57.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

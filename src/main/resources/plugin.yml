@@ -9,5 +9,6 @@ softdepend:
   - PlaceholderAPI
   - PlayerPoints
   - DeluxeCoinflip
+  - eco
 load: STARTUP
 api-version: 1.18

@@ -13,6 +13,7 @@ import su.nightexpress.coinsengine.data.UserManager;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
+import su.nightexpress.coinsengine.hook.LibreforgeHook;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 import su.nightexpress.coinsengine.migration.MigrationManager;
 import su.nightexpress.nightcore.NightDataPlugin;
@@ -46,6 +47,10 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> {
 
         if (Plugins.hasPlaceholderAPI()) {
             PlaceholderAPIHook.setup(this);
+        }
+
+        if (Plugins.isInstalled(HookId.ECO)) {
+            LibreforgeHook.setup(this);
         }
 
         if (Plugins.isInstalled(HookId.DELUXE_COINFLIP)) {
