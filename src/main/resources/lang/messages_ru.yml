@@ -76,6 +76,7 @@ Currency:
       NoRate: <light_gray><light_red>%currency_name%</light_red> нельзя обменять на <light_red>%name%</light_red>!</light_gray>
       LowAmount: <light_gray>Количество валюты <light_red>%currency_name%</light_red> слишком мало для обмена!</light_gray>
       LowBalance: <light_gray>У вас нет <light_red>%amount%</light_red> для обмена!</light_gray>
+      LimitExceed: <light_gray>Вы бы получили <light_red>%amount%</light_red> за обмен, но ваш баланс не может превышать <light_red>%max%</light_red>!</light_gray>
     Success: <light_gray>Вы обменяли <light_yellow>%balance%</light_yellow> на <light_yellow>%amount%</light_yellow>!</light_gray>
   Error:
     Invalid: <light_red>Некорректная валюта!</light_red>

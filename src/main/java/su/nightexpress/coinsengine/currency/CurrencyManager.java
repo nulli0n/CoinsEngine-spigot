@@ -216,6 +216,15 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             return false;
         }
 
+        double has = user.getBalance(to) + result;
+        if (!to.isUnderLimit(has)) {
+            Lang.CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED.getMessage()
+                .replace(Placeholders.GENERIC_AMOUNT, to.format(result))
+                .replace(Placeholders.GENERIC_MAX, to.format(to.getMaxValue()))
+                .send(player);
+            return false;
+        }
+
         user.removeBalance(from, amount);
         user.addBalance(to, result);
         this.plugin.getUserManager().saveAsync(user);

@@ -24,6 +24,10 @@ public interface Currency extends Placeholder {
         return !this.isDecimal();
     }
 
+    default boolean isUnderLimit(double value) {
+        return this.isUnlimited() || value <= this.getMaxValue();
+    }
+
     default double fine(double amount) {
         return Math.max(0D, this.isDecimal() ? amount : Math.floor(amount));
     }

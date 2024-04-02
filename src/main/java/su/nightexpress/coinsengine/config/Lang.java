@@ -160,6 +160,9 @@ public class Lang {
     public static final LangText CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT = LangText.of("Currency.Exchange.Error.LowAmount",
         LIGHT_GRAY.enclose(LIGHT_RED.enclose(CURRENCY_NAME) + " amount is too low for exchange!"));
 
+    public static final LangText CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED = LangText.of("Currency.Exchange.Error.LimitExceed",
+        LIGHT_GRAY.enclose("You could get " + LIGHT_RED.enclose(GENERIC_AMOUNT) + ", but you can't hold more than " + LIGHT_RED.enclose(GENERIC_MAX) + " total!"));
+
     public static final LangText CURRENCY_EXCHANGE_ERROR_LOW_BALANCE = LangText.of("Currency.Exchange.Error.LowBalance",
         LIGHT_GRAY.enclose("You don't have " + LIGHT_RED.enclose(GENERIC_AMOUNT) + " for exchange!"));
 
