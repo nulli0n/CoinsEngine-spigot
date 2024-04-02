@@ -10,9 +10,7 @@ import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.coinsengine.util.CoinsUtils;
-import su.nightexpress.coinsengine.util.Logger;
 import su.nightexpress.nightcore.command.CommandResult;
 import su.nightexpress.nightcore.util.Players;
 
@@ -50,26 +48,25 @@ public class TakeCommand extends CurrencySubCommand {
         double amount = CoinsUtils.getAmountFromInput(result.getArg(2));
         if (amount <= 0D) return;
 
-        this.plugin.getUserManager().getUserDataAndPerform(result.getArg(1), user -> {
+        this.plugin.getUserManager().getUserDataAndPerformAsync(result.getArg(1), user -> {
             if (user == null) {
                 this.errorPlayer(sender);
                 return;
             }
 
-            CurrencyData data = user.getCurrencyData(this.currency);
-            data.removeBalance(amount);
+            user.removeBalance(this.currency, amount);
 
             if (!result.hasFlag(CommandFlags.NO_SAVE)) {
                 this.plugin.getUserManager().saveAsync(user);
             }
 
-            Logger.logTake(user, currency, amount, sender);
+            this.plugin.getCoinsLogger().logTake(user, currency, amount, sender);
 
             Lang.COMMAND_CURRENCY_TAKE_DONE.getMessage()
                 .replace(currency.replacePlaceholders())
                 .replace(Placeholders.PLAYER_NAME, user.getName())
                 .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
+                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
                 .send(sender);
 
             Player target = user.getPlayer();
@@ -77,7 +74,7 @@ public class TakeCommand extends CurrencySubCommand {
                 Lang.COMMAND_CURRENCY_TAKE_NOTIFY.getMessage()
                     .replace(currency.replacePlaceholders())
                     .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                    .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
                     .send(target);
             }
         });

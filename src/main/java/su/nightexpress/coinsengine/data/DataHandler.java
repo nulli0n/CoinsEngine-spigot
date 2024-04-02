@@ -3,15 +3,15 @@ package su.nightexpress.coinsengine.data;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencyData;
+import su.nightexpress.coinsengine.data.impl.CurrencySettings;
 import su.nightexpress.coinsengine.data.serialize.CurrencyDataSerializer;
+import su.nightexpress.coinsengine.data.serialize.CurrencySettingsSerializer;
 import su.nightexpress.nightcore.database.AbstractUserDataHandler;
 import su.nightexpress.nightcore.database.sql.SQLColumn;
-import su.nightexpress.nightcore.database.sql.SQLCondition;
 import su.nightexpress.nightcore.database.sql.SQLValue;
 import su.nightexpress.nightcore.database.sql.column.ColumnType;
 import su.nightexpress.nightcore.database.sql.executor.SelectQueryExecutor;
@@ -24,7 +24,9 @@ import java.util.function.Function;
 
 public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, CoinsUser> {
 
-    private static final SQLColumn COLUMN_CURRENCY_DATA = SQLColumn.of("currencyData", ColumnType.STRING);
+    private static final SQLColumn COLUMN_CURRENCY_LEGACY_DATA = SQLColumn.of("currencyData", ColumnType.STRING);
+
+    private static final SQLColumn COLUMN_SETTINGS = SQLColumn.of("settings", ColumnType.STRING);
 
     private final Function<ResultSet, CoinsUser> userFunction;
 
@@ -38,11 +40,35 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
                 long dateCreated = resultSet.getLong(COLUMN_USER_DATE_CREATED.getName());
                 long lastOnline = resultSet.getLong(COLUMN_USER_LAST_ONLINE.getName());
 
-                Set<CurrencyData> data = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
-                if (data == null) data = new HashSet<>();
-                data.removeIf(Objects::isNull);
 
-                return new CoinsUser(plugin, uuid, name, dateCreated, lastOnline, data);
+                Set<CurrencyData> legacyDatas = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_LEGACY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
+                Map<String, CurrencyData> legacyDataMap = new HashMap<>();
+                if (legacyDatas != null && !legacyDatas.isEmpty()) {
+                    legacyDatas.forEach(currencyData -> {
+                        if (currencyData == null) return;
+
+                        legacyDataMap.put(currencyData.getCurrency().getId(), currencyData);
+                    });
+                }
+
+                Map<String, CurrencySettings> settingsMap = gson.fromJson(resultSet.getString(COLUMN_SETTINGS.getName()), new TypeToken<Map<String, CurrencySettings>>(){}.getType());
+                Map<String, Double> balanceMap = new HashMap<>();
+
+                for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
+                    double balance = resultSet.getDouble(currency.getColumnName());
+
+                    CurrencyData legacyData = legacyDataMap.get(currency.getId());
+                    if (legacyData != null) {
+                        balance = legacyData.getBalance();
+
+                        CurrencySettings settings = settingsMap.computeIfAbsent(currency.getId(), k -> CurrencySettings.create(currency));
+                        settings.setPaymentsEnabled(legacyData.isPaymentsEnabled());
+                    }
+
+                    balanceMap.put(currency.getId(), balance);
+                }
+
+                return new CoinsUser(plugin, uuid, name, dateCreated, lastOnline, balanceMap, settingsMap);
             }
             catch (SQLException exception) {
                 exception.printStackTrace();
@@ -55,13 +81,21 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
     @NotNull
     protected GsonBuilder registerAdapters(@NotNull GsonBuilder builder) {
         return super.registerAdapters(builder)
-            .registerTypeAdapter(CurrencyData.class, new CurrencyDataSerializer());
+            .registerTypeAdapter(CurrencyData.class, new CurrencyDataSerializer())
+            .registerTypeAdapter(CurrencySettings.class, new CurrencySettingsSerializer());
     }
 
     @Override
     protected void createUserTable() {
         super.createUserTable();
         this.dropColumn(this.tableUsers, SQLColumn.of("balances", ColumnType.STRING));
+        this.addColumn(this.tableUsers, SQLValue.of(COLUMN_SETTINGS, "{}"));
+    }
+
+    public void createCurrencyColumn(@NotNull Currency currency) {
+        if (this.hasColumn(this.tableUsers, currency.getColumn())) return;
+
+        this.addColumn(this.tableUsers, SQLValue.of(currency.getColumn(), String.valueOf(currency.getStartValue())));
     }
 
     @Override
@@ -70,16 +104,25 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
     }
 
     public void updateUserBalance(@NotNull CoinsUser user) {
-        Set<CurrencyData> data = this.getBalances(user.getId());
-        if (data == null || data.isEmpty()) return;
+        CoinsUser fresh = this.getUser(user.getId());
+        if (fresh == null) return;
 
-        user.getCurrencyDataMap().clear();
+        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
+            if (!currency.isSynchronizable()) continue;
 
-        data.forEach(currencyData -> {
-            if (currencyData == null) return;
+            double balance = fresh.getBalance(currency);
+            user.setBalance(currency, balance);
+        }
+    }
 
-            user.getCurrencyDataMap().put(currencyData.getCurrency().getId(), currencyData);
-        });
+    public void resetBalances() {
+        List<SQLValue> values = new ArrayList<>();
+
+        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
+            values.add(SQLValue.of(currency.getColumn(), String.valueOf(currency.getStartValue())));
+        }
+
+        this.update(this.tableUsers, values);
     }
 
     @NotNull
@@ -89,22 +132,23 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
         Function<ResultSet, Void> function = resultSet -> {
             try {
                 String name = resultSet.getString(COLUMN_USER_NAME.getName());
-                Set<CurrencyData> currencyData = gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
-                if (currencyData == null) currencyData = new HashSet<>();
-                currencyData.removeIf(Objects::isNull);
 
-                currencyData.forEach(data -> {
-                    map.computeIfAbsent(data.getCurrency(), k -> new HashMap<>()).put(name, data.getBalance());
-                });
+                for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
+                    double balance = resultSet.getDouble(currency.getColumnName());
+                    map.computeIfAbsent(currency, k -> new HashMap<>()).put(name, balance);
+                }
             }
-            catch (SQLException e) {
-                e.printStackTrace();
+            catch (SQLException exception) {
+                exception.printStackTrace();
             }
             return null;
         };
 
+        List<SQLColumn> columns = Lists.newList(COLUMN_USER_NAME);
+        columns.addAll(this.plugin.getCurrencyManager().getCurrencies().stream().map(Currency::getColumn).toList());
+
         SelectQueryExecutor.builder(this.tableUsers, function)
-            .columns(COLUMN_USER_NAME, COLUMN_CURRENCY_DATA)
+            .columns(columns)
             .execute(this.getConnector());
 
         /*map.values().forEach(data -> {
@@ -122,36 +166,25 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
         return map;
     }
 
-    @Nullable
-    public Set<CurrencyData> getBalances(@NotNull UUID uuid) {
-        Function<ResultSet, Set<CurrencyData>> function = resultSet -> {
-            try {
-                return gson.fromJson(resultSet.getString(COLUMN_CURRENCY_DATA.getName()), new TypeToken<Set<CurrencyData>>(){}.getType());
-            }
-            catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-            return null;
-        };
-
-        return this.load(this.tableUsers, function,
-            Lists.newList(COLUMN_CURRENCY_DATA),
-            Lists.newList(SQLCondition.equal(COLUMN_USER_ID.toValue(uuid)))
-        ).orElse(null);
-    }
-
     @Override
     @NotNull
     protected List<SQLColumn> getExtraColumns() {
-        return Lists.newList(COLUMN_CURRENCY_DATA);
+        return Lists.newList(COLUMN_CURRENCY_LEGACY_DATA, COLUMN_SETTINGS);
     }
 
     @Override
     @NotNull
     protected List<SQLValue> getSaveColumns(@NotNull CoinsUser user) {
-        return Lists.newList(
-            COLUMN_CURRENCY_DATA.toValue(this.gson.toJson(new HashSet<>(user.getCurrencyDataMap().values())))
-        );
+        List<SQLValue> values = new ArrayList<>();
+
+        values.add(COLUMN_CURRENCY_LEGACY_DATA.toValue(this.gson.toJson(new HashSet<>())));
+        values.add(COLUMN_SETTINGS.toValue(this.gson.toJson(user.getSettingsMap())));
+
+        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
+            values.add(SQLValue.of(currency.getColumn(), String.valueOf(user.getBalance(currency))));
+        }
+
+        return values;
     }
 
     @Override

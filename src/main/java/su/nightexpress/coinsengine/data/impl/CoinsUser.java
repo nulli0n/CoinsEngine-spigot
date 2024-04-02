@@ -6,63 +6,93 @@ import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.nightcore.database.AbstractUser;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
 
-    private final Map<String, CurrencyData> currencyDataMap;
+    private final Map<String, Double> balanceMap;
+    private final Map<String, CurrencySettings> settingsMap;
 
-    public CoinsUser(@NotNull CoinsEnginePlugin plugin, @NotNull UUID uuid, @NotNull String name) {
-        this(plugin, uuid, name, System.currentTimeMillis(), System.currentTimeMillis(),
-            new HashSet<>());
+    public static CoinsUser create(@NotNull CoinsEnginePlugin plugin, @NotNull UUID uuid, @NotNull String name) {
+        Map<String, Double> balanceMap = new HashMap<>();
+        for (Currency currency : plugin.getCurrencyManager().getCurrencies()) {
+            balanceMap.put(currency.getId(), currency.getStartValue());
+        }
+
+        return new CoinsUser(plugin, uuid, name, System.currentTimeMillis(), System.currentTimeMillis(),
+            balanceMap,
+            new HashMap<>()
+        );
     }
 
     public CoinsUser(
-            @NotNull CoinsEnginePlugin plugin,
-            @NotNull UUID uuid,
-            @NotNull String name,
-            long dateCreated,
-            long lastLogin,
-            @NotNull Set<CurrencyData> currencyDatas
+        @NotNull CoinsEnginePlugin plugin,
+        @NotNull UUID uuid,
+        @NotNull String name,
+        long dateCreated,
+        long lastLogin,
+        @NotNull Map<String, Double> balanceMap,
+        @NotNull Map<String, CurrencySettings> settingsMap
     ) {
         super(plugin, uuid, name, dateCreated, lastLogin);
-        this.currencyDataMap = new ConcurrentHashMap<>();
-        currencyDatas.forEach(data -> this.getCurrencyDataMap().put(data.getCurrency().getId(), data));
-        this.plugin.getCurrencyManager().getCurrencies().forEach(this::getCurrencyData);
+        this.balanceMap = new HashMap<>(balanceMap);
+        this.settingsMap = new HashMap<>(settingsMap);
     }
 
     @NotNull
-    public Map<String, CurrencyData> getCurrencyDataMap() {
-        return currencyDataMap;
+    public Map<String, Double> getBalanceMap() {
+        return balanceMap;
     }
 
     @NotNull
+    public Map<String, CurrencySettings> getSettingsMap() {
+        return settingsMap;
+    }
+
+    public void resetBalance() {
+        this.plugin.getCurrencyManager().getCurrencies().forEach(currency -> {
+            this.setBalance(currency, currency.getStartValue());
+        });
+    }
+
+    @NotNull
+    @Deprecated
     public CurrencyData getCurrencyData(@NotNull Currency currency) {
-        return this.getCurrencyDataMap().computeIfAbsent(currency.getId(), k -> CurrencyData.create(currency));
+        CurrencySettings settings = this.getSettings(currency);
+        double balance = this.getBalance(currency);
+
+        return new CurrencyData(currency, balance, settings.isPaymentsEnabled());
     }
 
     @Nullable
+    @Deprecated
     public CurrencyData getCurrencyData(@NotNull String id) {
-        return this.getCurrencyDataMap().get(id.toLowerCase());
+        Currency currency = this.plugin.getCurrencyManager().getCurrency(id);
+        return currency == null ? null : this.getCurrencyData(currency);
     }
 
     public double getBalance(@NotNull Currency currency) {
-        return this.getCurrencyData(currency).getBalance();
+        return this.balanceMap.computeIfAbsent(currency.getId(), k -> 0D);
     }
 
     public void addBalance(@NotNull Currency currency, double amount) {
-        this.getCurrencyData(currency).addBalance(amount);
-    }
-
-    public void setBalance(@NotNull Currency currency, double amount) {
-        this.getCurrencyData(currency).setBalance(amount);
+        this.changeBalance(currency, this.getBalance(currency) + Math.abs(amount));
     }
 
     public void removeBalance(@NotNull Currency currency, double amount) {
-        this.getCurrencyData(currency).removeBalance(amount);
+        this.changeBalance(currency, this.getBalance(currency) - Math.abs(amount));
+    }
+
+    public void setBalance(@NotNull Currency currency, double amount) {
+        this.changeBalance(currency, Math.abs(amount));
+    }
+
+    private void changeBalance(@NotNull Currency currency, double amount) {
+        this.balanceMap.put(currency.getId(), currency.fineAndLimit(amount));
+    }
+
+    @NotNull
+    public CurrencySettings getSettings(@NotNull Currency currency) {
+        return this.settingsMap.computeIfAbsent(currency.getId(), k -> CurrencySettings.create(currency));
     }
 }

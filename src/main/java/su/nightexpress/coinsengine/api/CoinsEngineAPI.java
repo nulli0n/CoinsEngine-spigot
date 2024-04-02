@@ -40,24 +40,24 @@ public class CoinsEngineAPI {
     }
 
     public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
-        return getUserData(player).getCurrencyData(currency).getBalance();
+        return getUserData(player).getBalance(currency);
     }
 
     public static void addBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         CoinsUser user = getUserData(player);
-        user.getCurrencyData(currency).addBalance(amount);
+        user.addBalance(currency, amount);
         getUserManager().saveAsync(user);
     }
 
     public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         CoinsUser user = getUserData(player);
-        user.getCurrencyData(currency).setBalance(amount);
+        user.setBalance(currency, amount);
         getUserManager().saveAsync(user);
     }
 
     public static void removeBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         CoinsUser user = getUserData(player);
-        user.getCurrencyData(currency).removeBalance(amount);
+        user.removeBalance(currency, amount);
         getUserManager().saveAsync(user);
     }
 

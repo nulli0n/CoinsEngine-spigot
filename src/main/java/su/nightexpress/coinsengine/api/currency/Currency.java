@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.config.Perms;
+import su.nightexpress.nightcore.database.sql.SQLColumn;
 import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.Pair;
 import su.nightexpress.nightcore.util.placeholder.Placeholder;
@@ -21,6 +22,10 @@ public interface Currency extends Placeholder {
 
     default boolean isInteger() {
         return !this.isDecimal();
+    }
+
+    default boolean isUnderLimit(double value) {
+        return this.isUnlimited() || value <= this.getMaxValue();
     }
 
     default double fine(double amount) {
@@ -45,7 +50,7 @@ public interface Currency extends Placeholder {
 
     @NotNull
     default String getPermission() {
-        return Perms.CURRENCY.getName() + this.getId();
+        return Perms.PREFIX_CURRENCY + this.getId();
     }
 
     @NotNull
@@ -94,6 +99,12 @@ public interface Currency extends Placeholder {
 
     void setCommandAliases(String... commandAliases);
 
+    @NotNull String getColumnName();
+
+    void setColumnName(@NotNull String columnName);
+
+    @NotNull SQLColumn getColumn();
+
     @NotNull ItemStack getIcon();
 
     void setIcon(@NotNull ItemStack icon);
@@ -105,6 +116,10 @@ public interface Currency extends Placeholder {
     boolean isPermissionRequired();
 
     void setPermissionRequired(boolean permissionRequired);
+
+    boolean isSynchronizable();
+
+    void setSynchronizable(boolean synchronizable);
 
     boolean isTransferAllowed();
 

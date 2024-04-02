@@ -8,6 +8,8 @@ import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
+import su.nightexpress.nightcore.database.sql.SQLColumn;
+import su.nightexpress.nightcore.database.sql.column.ColumnType;
 import su.nightexpress.nightcore.manager.AbstractFileData;
 import su.nightexpress.nightcore.util.StringUtil;
 import su.nightexpress.nightcore.util.placeholder.PlaceholderMap;
@@ -19,20 +21,23 @@ import java.util.Map;
 
 public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implements Currency {
 
-    private String name;
-    private String symbol;
-    private String format;
-    private String formatShort;
-    private String[] commandAliases;
-    private ItemStack icon;
-    private boolean decimal;
-    private boolean permissionRequired;
-    private boolean transferAllowed;
-    private double minTransferAmount;
-    private double startValue;
-    private double maxValue;
-    private boolean vaultEconomy;
-    private boolean exchangeAllowed;
+    private String              name;
+    private String              symbol;
+    private String              format;
+    private String              formatShort;
+    private String              columnName;
+    private String[]            commandAliases;
+    private ItemStack           icon;
+    private SQLColumn           column;
+    private boolean             decimal;
+    private boolean             synchronizable;
+    private boolean             permissionRequired;
+    private boolean             transferAllowed;
+    private double              minTransferAmount;
+    private double              startValue;
+    private double              maxValue;
+    private boolean             vaultEconomy;
+    private boolean             exchangeAllowed;
     private Map<String, Double> exchangeRates;
 
     private final PlaceholderMap placeholderMap;
@@ -47,16 +52,16 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     }
 
     @Override
-    protected boolean onLoad(@NotNull FileConfig cfg) {
+    protected boolean onLoad(@NotNull FileConfig config) {
         this.setName(ConfigValue.create("Name", StringUtil.capitalizeUnderscored(this.getId()),
             "Localized currency name.",
             "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
-        ).read(cfg));
+        ).read(config));
 
         this.setSymbol(ConfigValue.create("Symbol", this.getName(),
             "Currency symbol, like '$'.",
             "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
-        ).read(cfg));
+        ).read(config));
 
         this.setFormat(ConfigValue.create("Format",
             Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SYMBOL,
@@ -64,67 +69,82 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
             "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS,
             "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
-        ).read(cfg));
+        ).read(config));
 
         this.setFormatShort(ConfigValue.create("Format_Short",
-                Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SHORT_SYMBOL,
-                "Currency short display format.",
-                "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
-                "Use '" + Placeholders.CURRENCY_SHORT_SYMBOL + "' placeholder for short symbol (k, m, b, t, q).",
-                "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS
-        ).read(cfg));
+            Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SHORT_SYMBOL,
+            "Currency short display format.",
+            "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
+            "Use '" + Placeholders.CURRENCY_SHORT_SYMBOL + "' placeholder for short symbol (k, m, b, t, q).",
+            "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS
+        ).read(config));
+
+        this.setColumnName(ConfigValue.create("Column_Name",
+            this.getId(),
+            "Sets database column name for this currency.",
+            "This might be useful for MySQL if you want to use the same currency for multiple servers, but not share their balance.",
+            "=".repeat(15) + " WARNING " + "=".repeat(15),
+            "When chaning this setting, all balances will retain in PREVIOUS column!"
+        ).read(config));
 
         this.setCommandAliases(ConfigValue.create("Command_Aliases",
             new String[]{this.getId()},
             "Custom currency commands. Split with commas."
-        ).read(cfg));
+        ).read(config));
 
         this.setIcon(ConfigValue.create("Icon",
             new ItemStack(Material.GOLD_NUGGET),
             "Currency icon."
-        ).read(cfg));
+        ).read(config));
 
         this.setDecimal(ConfigValue.create("Decimal",
             false,
             "Sets whether or not currency value can have decimals."
-        ).read(cfg));
+        ).read(config));
+
+        this.setSynchronizable(ConfigValue.create("Synchronized",
+            true,
+            "Sets whether or not the currency will synchronize balance of online players from database.",
+            "This setting is useless for SQLite.",
+            "You may want to disable this if you're using this currency on a single server only."
+        ).read(config));
 
         this.setPermissionRequired(ConfigValue.create("Permission_Required",
             false,
             "Sets whether or not players must have '" + this.getPermission() + "' permission to use this currency."
-        ).read(cfg));
+        ).read(config));
 
         this.setTransferAllowed(ConfigValue.create("Transfer_Allowed",
             true,
             "Sets whether or not players can send this currency to other players."
-        ).read(cfg));
+        ).read(config));
 
         this.setMinTransferAmount(ConfigValue.create("Transfer_Min_Amount",
             1D,
             "Sets minimal amount for sending this currency to other players.",
             "Set this to '-1' for no limit."
-        ).read(cfg));
+        ).read(config));
 
         this.setStartValue(ConfigValue.create("Start_Value",
             0D,
             "How much of this currency new players will have on their balance?"
-        ).read(cfg));
+        ).read(config));
 
         this.setMaxValue(ConfigValue.create("Max_Value",
             -1D,
             "Max. possible value that players can have on their balance.",
             "Set this to '-1' to disable."
-        ).read(cfg));
+        ).read(config));
 
         this.setVaultEconomy(ConfigValue.create("Economy.Vault",
             false,
             "When enabled, uses the Vault API to register the currency as primary server Economy."
-        ).read(cfg));
+        ).read(config));
 
         this.setExchangeAllowed(ConfigValue.create("Exchange.Allowed",
             true,
             "Sets whether or not this currency can be exchanged for other ones."
-        ).read(cfg));
+        ).read(config));
 
         this.exchangeRates = ConfigValue.forMap("Exchange.Rates",
             (cfg2, path, id) -> cfg2.getDouble(path + "." + id),
@@ -135,30 +155,32 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Exchange.Rates:",
             "  other: 5",
             "  another: 10"
-        ).read(cfg);
+        ).read(config);
 
         return true;
     }
 
     @Override
-    protected void onSave(@NotNull FileConfig cfg) {
-        cfg.set("Name", this.getName());
-        cfg.set("Symbol", this.getSymbol());
-        cfg.set("Format", this.getFormat());
-        cfg.set("Format_Short", this.getFormatShort());
-        cfg.set("Command_Aliases", String.join(",", Arrays.asList(this.getCommandAliases())));
-        cfg.setItem("Icon", this.getIcon());
-        cfg.set("Decimal", this.isDecimal());
-        cfg.set("Permission_Required", this.isPermissionRequired());
-        cfg.set("Transfer_Allowed", this.isTransferAllowed());
-        cfg.set("Transfer_Min_Amount", this.getMinTransferAmount());
-        cfg.set("Start_Value", this.getStartValue());
-        cfg.set("Max_Value", this.getMaxValue());
-        cfg.set("Economy.Vault", this.isVaultEconomy());
-        cfg.set("Exchange.Allowed", this.isExchangeAllowed());
-        cfg.remove("Exchange.Rates");
+    protected void onSave(@NotNull FileConfig config) {
+        config.set("Name", this.getName());
+        config.set("Symbol", this.getSymbol());
+        config.set("Format", this.getFormat());
+        config.set("Format_Short", this.getFormatShort());
+        config.set("Column_Name", this.getColumnName());
+        config.set("Command_Aliases", String.join(",", Arrays.asList(this.getCommandAliases())));
+        config.setItem("Icon", this.getIcon());
+        config.set("Decimal", this.isDecimal());
+        config.set("Synchronizable", this.isSynchronizable());
+        config.set("Permission_Required", this.isPermissionRequired());
+        config.set("Transfer_Allowed", this.isTransferAllowed());
+        config.set("Transfer_Min_Amount", this.getMinTransferAmount());
+        config.set("Start_Value", this.getStartValue());
+        config.set("Max_Value", this.getMaxValue());
+        config.set("Economy.Vault", this.isVaultEconomy());
+        config.set("Exchange.Allowed", this.isExchangeAllowed());
+        config.remove("Exchange.Rates");
         this.getExchangeRates().forEach((id, rate) -> {
-            cfg.set("Exchange.Rates." + id, rate);
+            config.set("Exchange.Rates." + id, rate);
         });
     }
 
@@ -214,6 +236,17 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
 
     @NotNull
     @Override
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public void setColumnName(@NotNull String columnName) {
+        this.columnName = columnName;
+        this.column = SQLColumn.of(this.columnName, ColumnType.DOUBLE);
+    }
+
+    @NotNull
+    @Override
     public String[] getCommandAliases() {
         return commandAliases;
     }
@@ -221,6 +254,12 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     public void setCommandAliases(String[] commandAliases) {
         this.commandAliases = commandAliases;
+    }
+
+    @NotNull
+    @Override
+    public SQLColumn getColumn() {
+        return column;
     }
 
     @NotNull
@@ -241,6 +280,16 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     public void setDecimal(boolean decimal) {
         this.decimal = decimal;
+    }
+
+    @Override
+    public boolean isSynchronizable() {
+        return synchronizable;
+    }
+
+    @Override
+    public void setSynchronizable(boolean synchronizable) {
+        this.synchronizable = synchronizable;
     }
 
     @Override
