@@ -9,7 +9,6 @@ import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.coinsengine.data.impl.CurrencyData;
 import su.nightexpress.nightcore.command.CommandResult;
 import su.nightexpress.nightcore.util.Players;
 
@@ -54,11 +53,11 @@ public class BalanceCommand extends CurrencySubCommand {
             }
 
             boolean isOwn = user.getName().equalsIgnoreCase(sender.getName());
-            CurrencyData data = user.getCurrencyData(this.currency);
+
             (isOwn ? Lang.CURRENCY_BALANCE_DISPLAY_OWN : Lang.CURRENCY_BALANCE_DISPLAY_OTHERS).getMessage()
                 .replace(this.currency.replacePlaceholders())
                 .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(data.getBalance()))
+                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(this.currency)))
                 .send(sender);
         });
     }

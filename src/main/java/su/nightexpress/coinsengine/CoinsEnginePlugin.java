@@ -15,6 +15,7 @@ import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 import su.nightexpress.coinsengine.migration.MigrationManager;
+import su.nightexpress.coinsengine.util.CoinsLogger;
 import su.nightexpress.nightcore.NightDataPlugin;
 import su.nightexpress.nightcore.command.api.NightPluginCommand;
 import su.nightexpress.nightcore.command.base.ReloadSubCommand;
@@ -28,8 +29,11 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> {
     private DataHandler      dataHandler;
     private UserManager      userManager;
 
+    private CoinsLogger coinsLogger;
+
     @Override
     public void enable() {
+        this.coinsLogger = new CoinsLogger(this);
         this.registerCommands();
         
         this.dataHandler = new DataHandler(this);
@@ -73,10 +77,15 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> {
     @Override
     @NotNull
     protected PluginDetails getDefaultDetails() {
-        return PluginDetails.create("CoinsEngine", new String[]{"coinsengine", "coe"})
+        return PluginDetails.create("Economy", new String[]{"coinsengine", "coe"})
             .setConfigClass(Config.class)
             .setLangClass(Lang.class)
             .setPermissionsClass(Perms.class);
+    }
+
+    @NotNull
+    public CoinsLogger getCoinsLogger() {
+        return coinsLogger;
     }
 
     @NotNull

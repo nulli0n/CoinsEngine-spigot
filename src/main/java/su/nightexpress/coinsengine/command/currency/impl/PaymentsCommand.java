@@ -10,7 +10,7 @@ import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.command.currency.CurrencySubCommand;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.coinsengine.data.impl.CurrencyData;
+import su.nightexpress.coinsengine.data.impl.CurrencySettings;
 import su.nightexpress.nightcore.command.CommandResult;
 import su.nightexpress.nightcore.core.CoreLang;
 import su.nightexpress.nightcore.util.Players;
@@ -53,15 +53,15 @@ public class PaymentsCommand extends CurrencySubCommand {
                 return;
             }
 
-            CurrencyData data = user.getCurrencyData(this.currency);
-            data.setPaymentsEnabled(!data.isPaymentsEnabled());
+            CurrencySettings settings = user.getSettings(this.currency);
+            settings.setPaymentsEnabled(!settings.isPaymentsEnabled());
             this.plugin.getUserManager().save(user);
 
             if (!user.getName().equalsIgnoreCase(sender.getName())) {
                 Lang.COMMAND_CURRENCY_PAYMENTS_TARGET.getMessage()
                     .replace(currency.replacePlaceholders())
                     .replace(Placeholders.PLAYER_NAME, user.getName())
-                    .replace(Placeholders.GENERIC_STATE, CoreLang.getEnabledOrDisabled(data.isPaymentsEnabled()))
+                    .replace(Placeholders.GENERIC_STATE, CoreLang.getEnabledOrDisabled(settings.isPaymentsEnabled()))
                     .send(sender);
             }
 
@@ -69,7 +69,7 @@ public class PaymentsCommand extends CurrencySubCommand {
             if (!result.hasFlag(CommandFlags.SILENT) && target != null) {
                 Lang.COMMAND_CURRENCY_PAYMENTS_TOGGLE.getMessage()
                     .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_STATE, CoreLang.getEnabledOrDisabled(data.isPaymentsEnabled()))
+                    .replace(Placeholders.GENERIC_STATE, CoreLang.getEnabledOrDisabled(settings.isPaymentsEnabled()))
                     .send(target);
             }
         });

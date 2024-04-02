@@ -31,7 +31,7 @@ public class VaultPlugin extends MigrationPlugin {
                 balances.put(offlinePlayer, economy.getBalance(offlinePlayer));
             }
             catch (Exception exception) {
-                this.plugin.error("Could not convert Vault <-> Economy balance for '" + offlinePlayer.getUniqueId() + "'! See error for details:");
+                this.plugin.error("Could not convert Vault <-> Economy balance for '" + offlinePlayer.getUniqueId() + "'! See stacktrace for details:");
                 exception.printStackTrace();
             }
         }

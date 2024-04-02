@@ -16,6 +16,6 @@ public class UserManager extends AbstractUserManager<CoinsEnginePlugin, CoinsUse
     @Override
     @NotNull
     public CoinsUser createUserData(@NotNull UUID uuid, @NotNull String name) {
-        return new CoinsUser(plugin, uuid, name);
+        return CoinsUser.create(plugin, uuid, name);
     }
 }

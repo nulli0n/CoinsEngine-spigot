@@ -2,7 +2,7 @@ main: su.nightexpress.coinsengine.CoinsEnginePlugin
 version: '${project.version}'
 name: CoinsEngine
 author: NightExpress
-desciption: Your best economy & custom currencies plugin.
+desciption: Unlimited virtual currencies with Vault Economy support!
 depend: [ nightcore ]
 softdepend:
   - Vault

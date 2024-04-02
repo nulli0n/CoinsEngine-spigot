@@ -72,14 +72,14 @@ public class PlaceholderAPIHook {
                 DecimalFormat format = new DecimalFormat("#");
                 format.setMaximumFractionDigits(8);
 
-                return NightMessage.asLegacy(format.format(plugin.getCurrencyManager().getTotalBalance(currency)));
+                return format.format(plugin.getCurrencyManager().getTotalBalance(currency));
             }
             if (holder.startsWith("server_balance_short_")) {
                 String curId = holder.substring("server_balance_short_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
-                return NumberUtil.compact(plugin.getCurrencyManager().getTotalBalance(currency));
+                return NightMessage.asLegacy(currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency)));
             }
             if (holder.startsWith("server_balance_")) {
                 String curId = holder.substring("server_balance_".length());
@@ -126,37 +126,28 @@ public class PlaceholderAPIHook {
                 DecimalFormat format = new DecimalFormat("#");
                 format.setMaximumFractionDigits(8);
 
-                return format.format(currency.fine(user.getCurrencyData(currency).getBalance()));
+                return format.format(currency.fine(user.getBalance(currency)));
             }
             if (holder.startsWith("balance_rounded_")) {
                 String currencyId = holder.substring("balance_rounded_".length()); // coins
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return NumberUtil.format(currency.fine(user.getCurrencyData(currency).getBalance()));
+                return NumberUtil.format(currency.fine(user.getBalance(currency)));
             }
             if (holder.startsWith("balance_short_")) {
                 String currencyId = holder.substring("balance_short_".length()); // coins
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return currency.formatCompact(user.getCurrencyData(currency).getBalance()); // allow per-currency formatting
-
-                /*double balance = currency.fine(user.getCurrencyData(currency).getBalance());
-                return NumberUtil.compact(balance);
-
-                NumberFormat fmt = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
-                fmt.setMinimumFractionDigits(1);
-                fmt.setMaximumFractionDigits(2);
-                return fmt.format(balance);*/
+                return NightMessage.asLegacy(currency.formatCompact(user.getBalance(currency))); // allow per-currency formatting
             }
-            // balance_coins
             if (holder.startsWith("balance_")) {
-                String currencyId = holder.substring("balance_".length()); // coins
+                String currencyId = holder.substring("balance_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(currency.format(user.getCurrencyData(currency).getBalance()));
+                return NightMessage.asLegacy(currency.format(user.getBalance(currency)));
             }
 
             return null;

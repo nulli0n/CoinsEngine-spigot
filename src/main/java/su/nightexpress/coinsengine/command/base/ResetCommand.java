@@ -44,7 +44,7 @@ public class ResetCommand extends AbstractCommand<CoinsEnginePlugin> {
                 return;
             }
 
-            user.getCurrencyDataMap().clear();
+            user.resetBalance();
             this.plugin.getUserManager().save(user);
 
             Lang.COMMAND_RESET_DONE.getMessage()

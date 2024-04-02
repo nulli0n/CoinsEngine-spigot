@@ -17,7 +17,6 @@ import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.currency.impl.ConfigCurrency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.hook.VaultEconomyHook;
-import su.nightexpress.coinsengine.util.Logger;
 import su.nightexpress.nightcore.manager.AbstractManager;
 import su.nightexpress.nightcore.util.*;
 
@@ -41,7 +40,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     protected void onLoad() {
         this.createDefaults();
 
-        for (File file : FileUtil.getFiles(plugin.getDataFolder() + Config.DIR_CURRENCIES, false)) {
+        for (File file : FileUtil.getConfigFiles(plugin.getDataFolder() + Config.DIR_CURRENCIES)) {
             ConfigCurrency currency = new ConfigCurrency(plugin, file);
             if (currency.load()) {
                 this.registerCurrency(currency);
@@ -62,9 +61,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             }
         });
 
-        this.addTask(this.plugin.createAsyncTask(this::updateBalances)
-            .setSecondsInterval(Config.TOP_UPDATE_INTERVAL.get())
-        );
+        this.addTask(this.plugin.createAsyncTask(this::updateBalances).setSecondsInterval(Config.TOP_UPDATE_INTERVAL.get()));
     }
 
     @Override
@@ -117,12 +114,12 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
                 balanceMap.computeIfAbsent(currency, k -> new ArrayList<>()).add(Pair.of(name, balance));
             });
         });
-        //this.plugin.info("Balance top updated!");
     }
 
     public void registerCurrency(@NotNull Currency currency) {
         this.unregisterCurrency(currency);
 
+        this.plugin.getData().createCurrencyColumn(currency);
         this.plugin.getCommandManager().registerCommand(new CurrencyMainCommand(plugin, currency));
         this.getCurrencyMap().put(currency.getId(), currency);
         this.plugin.info("Currency registered: '" + currency.getId() + "'!");
@@ -189,7 +186,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         }
 
         CoinsUser user = this.plugin.getUserManager().getUserData(player);
-        if (user.getCurrencyData(from).getBalance() < amount) {
+        if (user.getBalance(from) < amount) {
             Lang.CURRENCY_EXCHANGE_ERROR_LOW_BALANCE.getMessage()
                 .replace(from.replacePlaceholders())
                 .replace(Placeholders.GENERIC_AMOUNT, from.format(amount))
@@ -219,8 +216,8 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             return false;
         }
 
-        user.getCurrencyData(from).removeBalance(amount);
-        user.getCurrencyData(to).addBalance(result);
+        user.removeBalance(from, amount);
+        user.addBalance(to, result);
         this.plugin.getUserManager().saveAsync(user);
 
         Lang.CURRENCY_EXCHANGE_SUCCESS.getMessage()
@@ -229,7 +226,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             .replace(Placeholders.GENERIC_AMOUNT, to.format(result))
             .send(player);
 
-        Logger.logExchange(user, from, to, amount, result);
+        this.plugin.getCoinsLogger().logExchange(user, from, to, amount, result);
         return true;
     }
 }
