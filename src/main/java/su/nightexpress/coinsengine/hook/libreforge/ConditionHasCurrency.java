@@ -24,7 +24,7 @@ public class ConditionHasCurrency extends Condition<NoCompileData> {
         Currency currency = plugin.getCurrencyManager().getCurrency(config.getString("currency"));
         if (currency == null)
             return false;
-        return plugin.getUserManager().getUserData(player).getCurrencyData(currency).getBalance() >= config.getDoubleFromExpression("amount", player);
+        return plugin.getUserManager().getUserData(player).getBalance(currency) >= config.getDoubleFromExpression("amount", player);
     }
 
     @NotNull

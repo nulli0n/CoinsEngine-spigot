@@ -39,7 +39,7 @@ public class EffectTakeCurrency extends Effect<NoCompileData> {
         if (currency == null)
             return false;
         plugin.getUserManager().getUserDataAndPerform(player.getUniqueId(), user -> {
-            user.getCurrencyData(currency).removeBalance(config.getDoubleFromExpression("amount", player));
+            user.removeBalance(currency, config.getDoubleFromExpression("amount", player));
             plugin.getUserManager().saveAsync(user);
         });
         return true;

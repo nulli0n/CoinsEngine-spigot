@@ -154,14 +154,14 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyID);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(user.getCurrencyData(currency).getCurrency().getName());
+                return NightMessage.asLegacy(currency.getName());
             }
             if (holder.startsWith("symbol_")) {
                 String currencyID = holder.substring("symbol_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyID);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(user.getCurrencyData(currency).getCurrency().getSymbol());
+                return NightMessage.asLegacy(currency.getSymbol());
             }
 
             return null;

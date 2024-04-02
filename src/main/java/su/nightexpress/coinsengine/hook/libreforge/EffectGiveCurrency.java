@@ -35,7 +35,7 @@ public class EffectGiveCurrency extends Effect<NoCompileData> {
         if (currency == null)
             return false;
         plugin.getUserManager().getUserDataAndPerform(player.getUniqueId(), user -> {
-            user.getCurrencyData(currency).addBalance(config.getDoubleFromExpression("amount", player));
+            user.addBalance(currency, config.getDoubleFromExpression("amount", player));
             plugin.getUserManager().saveAsync(user);
         });
         return true;
