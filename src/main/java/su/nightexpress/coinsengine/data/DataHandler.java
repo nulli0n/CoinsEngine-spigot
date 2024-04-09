@@ -52,6 +52,8 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
                 }
 
                 Map<String, CurrencySettings> settingsMap = gson.fromJson(resultSet.getString(COLUMN_SETTINGS.getName()), new TypeToken<Map<String, CurrencySettings>>(){}.getType());
+                if (settingsMap == null) settingsMap = new HashMap<>();
+
                 Map<String, Double> balanceMap = new HashMap<>();
 
                 for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
@@ -113,6 +115,10 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
             double balance = fresh.getBalance(currency);
             user.setBalance(currency, balance);
         }
+    }
+
+    public void resetBalances(@NotNull Currency currency) {
+        this.update(this.tableUsers, Lists.newList(SQLValue.of(currency.getColumn(), String.valueOf(currency.getStartValue()))));
     }
 
     public void resetBalances() {

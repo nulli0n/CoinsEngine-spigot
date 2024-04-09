@@ -7,7 +7,6 @@ import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.nightcore.command.CommandResult;
 import su.nightexpress.nightcore.command.impl.AbstractCommand;
 
@@ -46,8 +45,8 @@ public class WipeCommand extends AbstractCommand<CoinsEnginePlugin> {
 
         Lang.COMMAND_WIPE_START.getMessage().replace(currency.replacePlaceholders()).send(sender);
         this.plugin.runTaskAsync(task -> {
-            this.plugin.getData().resetBalances();
-            this.plugin.getUserManager().getLoaded().forEach(CoinsUser::resetBalance);
+            this.plugin.getData().resetBalances(currency);
+            this.plugin.getUserManager().getLoaded().forEach(user -> user.resetBalance(currency));
             Lang.COMMAND_WIPE_FINISH.getMessage().replace(currency.replacePlaceholders()).send(sender);
         });
     }

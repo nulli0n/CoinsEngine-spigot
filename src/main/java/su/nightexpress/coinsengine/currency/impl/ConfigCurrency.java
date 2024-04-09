@@ -104,7 +104,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
 
         this.setSynchronizable(ConfigValue.create("Synchronized",
             true,
-            "Sets whether or not the currency will synchronize balance of online players from database.",
+            "Sets whether or not the currency will synchronize balance of online players from the database.",
             "This setting is useless for SQLite.",
             "You may want to disable this if you're using this currency on a single server only."
         ).read(config));
@@ -170,7 +170,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
         config.set("Command_Aliases", String.join(",", Arrays.asList(this.getCommandAliases())));
         config.setItem("Icon", this.getIcon());
         config.set("Decimal", this.isDecimal());
-        config.set("Synchronizable", this.isSynchronizable());
+        config.set("Synchronized", this.isSynchronizable());
         config.set("Permission_Required", this.isPermissionRequired());
         config.set("Transfer_Allowed", this.isTransferAllowed());
         config.set("Transfer_Min_Amount", this.getMinTransferAmount());

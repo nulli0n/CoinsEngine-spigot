@@ -50,9 +50,11 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
     }
 
     public void resetBalance() {
-        this.plugin.getCurrencyManager().getCurrencies().forEach(currency -> {
-            this.setBalance(currency, currency.getStartValue());
-        });
+        this.plugin.getCurrencyManager().getCurrencies().forEach(this::resetBalance);
+    }
+
+    public void resetBalance(@NotNull Currency currency) {
+        this.setBalance(currency, currency.getStartValue());
     }
 
     @NotNull

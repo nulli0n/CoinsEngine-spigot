@@ -33,7 +33,7 @@ public class Lang {
         LIGHT_GRAY.enclose("Reset all currency balances for " + LIGHT_YELLOW.enclose(PLAYER_NAME) + "!"));
 
     public static final LangString COMMAND_WIPE_DESC  = LangString.of("Command.Wipe.Desc",
-        "Reset all currencies for all users.");
+        "Reset currency for all users.");
 
     public static final LangString COMMAND_WIPE_USAGE = LangString.of("Command.Wipe.Usage",
         "<currency>");
