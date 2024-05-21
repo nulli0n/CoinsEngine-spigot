@@ -79,16 +79,16 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency)));
+                return currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency)); // line format_short:
             }
             if (holder.startsWith("server_balance_")) {
                 String curId = holder.substring("server_balance_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(currency.format(plugin.getCurrencyManager().getTotalBalance(currency)));
+                return currency.format(plugin.getCurrencyManager().getTotalBalance(currency)); // line format:
             }
-
+            
             // top_balance_coins_1
             // top_player_coins_1
             if (holder.startsWith("top_")) {
@@ -109,7 +109,7 @@ public class PlaceholderAPIHook {
 
                 Pair<String, Double> pair = baltop.get(pos - 1);
                 if (type.equalsIgnoreCase("balance")) return NightMessage.asLegacy(currency.format(pair.getSecond()));
-                if (type.equalsIgnoreCase("player")) return pair.getFirst();
+                if (type.equalsIgnoreCase("player")) return NightMessage.asLegacy(pair.getFirst());
 
                 return null;
             }
@@ -140,14 +140,14 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(currency.formatCompact(user.getBalance(currency))); // allow per-currency formatting
+                return currency.formatCompact(user.getBalance(currency)); 
             }
             if (holder.startsWith("balance_")) {
                 String currencyId = holder.substring("balance_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                return NightMessage.asLegacy(currency.format(user.getBalance(currency)));
+                return currency.format(user.getBalance(currency));
             }
 
             return null;
