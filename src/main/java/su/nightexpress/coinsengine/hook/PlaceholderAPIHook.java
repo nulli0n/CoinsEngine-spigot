@@ -79,16 +79,16 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
-                return currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency)); // line format_short:
+                return currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency));
             }
             if (holder.startsWith("server_balance_")) {
                 String curId = holder.substring("server_balance_".length());
                 Currency currency = plugin.getCurrencyManager().getCurrency(curId);
                 if (currency == null) return null;
 
-                return currency.format(plugin.getCurrencyManager().getTotalBalance(currency)); // line format:
+                return currency.format(plugin.getCurrencyManager().getTotalBalance(currency));
             }
-            
+
             // top_balance_coins_1
             // top_player_coins_1
             if (holder.startsWith("top_")) {
