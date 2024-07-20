@@ -11,6 +11,7 @@ import su.nightexpress.coinsengine.migration.MigrationPlugin;
 import su.nightexpress.nightcore.command.experimental.CommandContext;
 import su.nightexpress.nightcore.command.experimental.argument.ArgumentTypes;
 import su.nightexpress.nightcore.command.experimental.argument.ParsedArguments;
+import su.nightexpress.nightcore.command.experimental.impl.ReloadCommand;
 import su.nightexpress.nightcore.command.experimental.node.ChainedNode;
 import su.nightexpress.nightcore.command.experimental.node.DirectNode;
 
@@ -18,6 +19,8 @@ public class BasicCommands {
 
     public static void load(@NotNull CoinsEnginePlugin plugin) {
         ChainedNode rootNode = plugin.getRootNode();
+
+        ReloadCommand.inject(plugin, rootNode, Perms.COMMAND_RELOAD);
 
         rootNode.addChildren(DirectNode.builder(plugin, "migrate")
             .permission(Perms.COMMAND_MIGRATE)
