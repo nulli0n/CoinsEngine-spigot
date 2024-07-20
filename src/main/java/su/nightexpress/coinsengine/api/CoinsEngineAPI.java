@@ -107,7 +107,7 @@ public class CoinsEngineAPI {
         if (user == null) return false;
 
         consumer.accept(user);
-        getUserManager().saveAsync(user);
+        getUserManager().scheduleSave(user);
         return true;
     }
 
