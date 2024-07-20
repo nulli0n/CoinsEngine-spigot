@@ -1,10 +1,9 @@
 package su.nightexpress.coinsengine.data.impl;
 
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.api.events.ChangeBalanceEvent;
+import su.nightexpress.coinsengine.api.event.ChangeBalanceEvent;
 import su.nightexpress.nightcore.database.AbstractUser;
 
 import java.util.HashMap;
@@ -79,9 +78,10 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
     }
 
     private void changeBalance(@NotNull Currency currency, double amount) {
-        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(Objects.requireNonNull(this.getPlayer()), currency, balanceMap.get(currency.getId()), currency.fineAndLimit(amount));
-        Bukkit.getPluginManager().callEvent(changeBalanceEvent);
         this.balanceMap.put(currency.getId(), currency.fineAndLimit(amount));
+
+        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(this, currency, balanceMap.get(currency.getId()), currency.fineAndLimit(amount));
+        this.plugin.getPluginManager().callEvent(changeBalanceEvent);
     }
 
     @NotNull
