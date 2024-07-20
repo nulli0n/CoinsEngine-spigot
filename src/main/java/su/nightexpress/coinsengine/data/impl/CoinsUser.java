@@ -1,28 +1,31 @@
 package su.nightexpress.coinsengine.data.impl;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.nightcore.database.AbstractUser;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
 
-    private final Map<String, Double> balanceMap;
+    private final Map<String, Double>           balanceMap;
     private final Map<String, CurrencySettings> settingsMap;
 
+    @NotNull
     public static CoinsUser create(@NotNull CoinsEnginePlugin plugin, @NotNull UUID uuid, @NotNull String name) {
+        long dateCreated = System.currentTimeMillis();
+
         Map<String, Double> balanceMap = new HashMap<>();
         for (Currency currency : plugin.getCurrencyManager().getCurrencies()) {
             balanceMap.put(currency.getId(), currency.getStartValue());
         }
 
-        return new CoinsUser(plugin, uuid, name, System.currentTimeMillis(), System.currentTimeMillis(),
-            balanceMap,
-            new HashMap<>()
-        );
+        Map<String, CurrencySettings> settingsMap = new HashMap<>();
+
+        return new CoinsUser(plugin, uuid, name, dateCreated, dateCreated, balanceMap, settingsMap);
     }
 
     public CoinsUser(
@@ -55,22 +58,6 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
 
     public void resetBalance(@NotNull Currency currency) {
         this.setBalance(currency, currency.getStartValue());
-    }
-
-    @NotNull
-    @Deprecated
-    public CurrencyData getCurrencyData(@NotNull Currency currency) {
-        CurrencySettings settings = this.getSettings(currency);
-        double balance = this.getBalance(currency);
-
-        return new CurrencyData(currency, balance, settings.isPaymentsEnabled());
-    }
-
-    @Nullable
-    @Deprecated
-    public CurrencyData getCurrencyData(@NotNull String id) {
-        Currency currency = this.plugin.getCurrencyManager().getCurrency(id);
-        return currency == null ? null : this.getCurrencyData(currency);
     }
 
     public double getBalance(@NotNull Currency currency) {

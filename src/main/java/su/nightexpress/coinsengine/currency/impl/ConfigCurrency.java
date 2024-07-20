@@ -45,22 +45,19 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     public ConfigCurrency(@NotNull CoinsEnginePlugin plugin, @NotNull File file) {
         super(plugin, file);
         this.exchangeRates = new HashMap<>();
-        this.placeholderMap = new PlaceholderMap()
-            .add(Placeholders.CURRENCY_ID, this::getId)
-            .add(Placeholders.CURRENCY_NAME, this::getName)
-            .add(Placeholders.CURRENCY_SYMBOL, this::getSymbol);
+        this.placeholderMap = Placeholders.forCurrency(this);
     }
 
     @Override
     protected boolean onLoad(@NotNull FileConfig config) {
         this.setName(ConfigValue.create("Name", StringUtil.capitalizeUnderscored(this.getId()),
             "Localized currency name.",
-            "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.WIKI_TEXT_URL
         ).read(config));
 
         this.setSymbol(ConfigValue.create("Symbol", this.getName(),
             "Currency symbol, like '$'.",
-            "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.WIKI_TEXT_URL
         ).read(config));
 
         this.setFormat(ConfigValue.create("Format",
@@ -68,7 +65,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Currency display format.",
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
             "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS,
-            "Text formation allowed: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.WIKI_TEXT_URL
         ).read(config));
 
         this.setFormatShort(ConfigValue.create("Format_Short",

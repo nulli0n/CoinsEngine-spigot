@@ -105,7 +105,9 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
         this.plugin.getUserManager().getLoaded().forEach(this::updateUserBalance);
     }
 
-    public void updateUserBalance(@NotNull CoinsUser user) {
+    private void updateUserBalance(@NotNull CoinsUser user) {
+        if (this.plugin.getUserManager().isScheduledToSave(user)) return;
+
         CoinsUser fresh = this.getUser(user.getId());
         if (fresh == null) return;
 
@@ -118,7 +120,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
     }
 
     public void resetBalances(@NotNull Currency currency) {
-        this.update(this.tableUsers, Lists.newList(SQLValue.of(currency.getColumn(), String.valueOf(currency.getStartValue()))));
+        this.executeUpdate(this.tableUsers, Lists.newList(SQLValue.of(currency.getColumn(), String.valueOf(currency.getStartValue()))), Lists.newList());
     }
 
     public void resetBalances() {
@@ -128,7 +130,7 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
             values.add(SQLValue.of(currency.getColumn(), String.valueOf(currency.getStartValue())));
         }
 
-        this.update(this.tableUsers, values);
+        this.executeUpdate(this.tableUsers, values, Lists.newList());
     }
 
     @NotNull

@@ -30,7 +30,6 @@ public class PlayerPointsPlugin extends MigrationPlugin {
         if (playerPoints == null) return balances;
 
         Map<UUID, Integer> pointsMap = new HashMap<>();
-        //Map<UUID, String> nameMap = new HashMap<>();
 
         DataManager dataManager = playerPoints.getManager(DataManager.class);
         try {
@@ -46,25 +45,12 @@ public class PlayerPointsPlugin extends MigrationPlugin {
                     pointsMap.put(uuid, points);
                 }
                 statement.close();
-
-                /*query = "SELECT * FROM " + dataManager.getTablePrefix() + "username_cache";
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery(query);
-
-                while (resultSet.next()) {
-                    UUID uuid = UUID.fromString(resultSet.getString("uuid"));
-                    String name = resultSet.getString("username");
-
-                    nameMap.put(uuid, name);
-                }
-                statement.close();*/
             });
         }
         catch (Exception exception) {
             exception.printStackTrace();
         }
 
-        //pointsMap.keySet().removeIf(uuid -> !nameMap.containsKey(uuid));
         pointsMap.forEach((id, balance) -> {
             OfflinePlayer offlinePlayer = this.plugin.getServer().getOfflinePlayer(id);
             balances.put(offlinePlayer, (double) balance);

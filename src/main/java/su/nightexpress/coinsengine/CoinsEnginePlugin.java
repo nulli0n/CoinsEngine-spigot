@@ -1,9 +1,7 @@
 package su.nightexpress.coinsengine;
 
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.command.base.MigrateCommand;
-import su.nightexpress.coinsengine.command.base.ResetCommand;
-import su.nightexpress.coinsengine.command.base.WipeCommand;
+import su.nightexpress.coinsengine.command.impl.BasicCommands;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.config.Perms;
@@ -17,12 +15,11 @@ import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 import su.nightexpress.coinsengine.migration.MigrationManager;
 import su.nightexpress.coinsengine.util.CoinsLogger;
 import su.nightexpress.nightcore.NightDataPlugin;
-import su.nightexpress.nightcore.command.api.NightPluginCommand;
-import su.nightexpress.nightcore.command.base.ReloadSubCommand;
+import su.nightexpress.nightcore.command.experimental.ImprovedCommands;
 import su.nightexpress.nightcore.config.PluginDetails;
 import su.nightexpress.nightcore.util.Plugins;
 
-public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> {
+public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> implements ImprovedCommands {
 
     private CurrencyManager  currencyManager;
     private MigrationManager migrationManager;
@@ -58,11 +55,7 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> {
     }
 
     private void registerCommands() {
-        NightPluginCommand generalCommand = this.getBaseCommand();
-        generalCommand.addChildren(new ReloadSubCommand(this, Perms.COMMAND_RELOAD));
-        generalCommand.addChildren(new ResetCommand(this));
-        generalCommand.addChildren(new WipeCommand(this));
-        generalCommand.addChildren(new MigrateCommand(this));
+        BasicCommands.load(this);
     }
 
     @Override
