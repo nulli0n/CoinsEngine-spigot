@@ -1,6 +1,7 @@
 package su.nightexpress.coinsengine.api.event;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -20,6 +21,7 @@ public class ChangeBalanceEvent extends Event {
 
 
     public ChangeBalanceEvent(@NotNull CoinsUser user, @NotNull Currency currency,double oldAmount, double newAmount) {
+        super(!Bukkit.isPrimaryThread());
         this.user = user;
         this.currency = currency;
         this.oldAmount = oldAmount;
