@@ -52,7 +52,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         if (Plugins.hasVault()) {
             VaultEconomyHook.shutdown();
         }
-        this.getCurrencyMap().clear();
+        this.currencyMap.clear();
     }
 
     private void createDefaults() {
@@ -223,7 +223,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
         user.removeBalance(from, amount);
         user.addBalance(to, result);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
 
         Lang.CURRENCY_EXCHANGE_SUCCESS.getMessage()
             .replace(from.replacePlaceholders())

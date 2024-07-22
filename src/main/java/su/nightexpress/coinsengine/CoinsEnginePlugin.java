@@ -64,6 +64,11 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> implements Imp
             PlaceholderAPIHook.shutdown();
         }
         if (this.migrationManager != null) this.migrationManager.shutdown();
+    }
+
+    @Override
+    protected void unloadManagers() {
+        super.unloadManagers();
         if (this.currencyManager != null) this.currencyManager.shutdown();
     }
 

@@ -138,7 +138,7 @@ public class CurrencyEconomy extends AbstractEconomy {
         }
 
         user.addBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -157,7 +157,7 @@ public class CurrencyEconomy extends AbstractEconomy {
         }
 
         user.addBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -180,7 +180,7 @@ public class CurrencyEconomy extends AbstractEconomy {
         }
 
         user.removeBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -203,7 +203,7 @@ public class CurrencyEconomy extends AbstractEconomy {
         }
 
         user.removeBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
