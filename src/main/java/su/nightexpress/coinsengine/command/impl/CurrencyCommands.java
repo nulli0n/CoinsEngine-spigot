@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.api.event.*;
 import su.nightexpress.coinsengine.command.CommandArguments;
 import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.config.Config;
@@ -23,6 +24,7 @@ import su.nightexpress.nightcore.core.CoreLang;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.Pair;
+import su.nightexpress.coinsengine.api.events.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,70 +36,70 @@ public class CurrencyCommands {
 
     public static void loadForCurrency(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         ServerCommand command = RootCommand.chained(plugin, currency.getCommandAliases(), builder -> {
-                builder
-                    .permission(currency.isPermissionRequired() ? currency.getPermission() : null)
-                    .description(currency.replacePlaceholders().apply(Lang.COMMAND_CURRENCY_ROOT_DESC.getString()))
-                    .child(balanceBuilder(plugin, currency, "balance"))
-                    .addDirect("giveall", children -> children
-                        .permission(Perms.COMMAND_CURRENCY_GIVE_ALL)
-                        .description(Lang.COMMAND_CURRENCY_GIVE_ALL_DESC)
-                        .withArgument(CommandArguments.amount().required())
-                        .withFlag(CommandFlags.silent())
-                        .executes((context, arguments) -> giveAll(plugin, currency, context, arguments))
-                    )
-                    .addDirect("give", children -> children
-                        .permission(Perms.COMMAND_CURRENCY_GIVE)
-                        .description(Lang.COMMAND_CURRENCY_GIVE_DESC)
-                        .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
-                        .withArgument(CommandArguments.amount().required())
-                        .withFlag(CommandFlags.silent())
-                        .executes((context, arguments) -> give(plugin, currency, context, arguments))
-                    )
-                    .addDirect("set", children -> children
-                        .permission(Perms.COMMAND_CURRENCY_SET)
-                        .description(Lang.COMMAND_CURRENCY_SET_DESC)
-                        .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
-                        .withArgument(CommandArguments.amount().required())
-                        .withFlag(CommandFlags.silent())
-                        .executes((context, arguments) -> set(plugin, currency, context, arguments))
-                    )
-                    .addDirect("take", children -> children
-                        .permission(Perms.COMMAND_CURRENCY_TAKE)
-                        .description(Lang.COMMAND_CURRENCY_TAKE_DESC)
-                        .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
-                        .withArgument(CommandArguments.amount().required())
-                        .withFlag(CommandFlags.silent())
-                        .executes((context, arguments) -> remove(plugin, currency, context, arguments))
-                    )
-                    .child(topBuilder(plugin, currency, "top"));
-
-                if (currency.isTransferAllowed()) {
                     builder
-                        .child(payBuilder(plugin, currency, "pay", "send"))
-                        .addDirect("payments", children -> children
-                            .permission(Perms.COMMAND_CURRENCY_PAYMENTS)
-                            .description(Lang.COMMAND_CURRENCY_PAYMENTS_DESC)
-                            .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).permission(Perms.COMMAND_CURRENCY_PAYMENTS_OTHERS))
-                            .withFlag(CommandFlags.silent().permission(Perms.COMMAND_CURRENCY_PAYMENTS_OTHERS))
-                            .executes((context, arguments) -> togglePayments(plugin, currency, context, arguments))
-                        );
-                }
-
-                if (currency.isExchangeAllowed()) {
-                    builder.addDirect("exchange", children -> children
-                        .playerOnly()
-                        .permission(Perms.COMMAND_CURRENCY_EXCHANGE)
-                        .description(Lang.COMMAND_CURRENCY_EXCHANGE_DESC)
-                        .withArgument(CommandArguments.currency(plugin).required()
-                            .withSamples(context -> plugin.getCurrencyManager().getCurrencies().stream()
-                                .filter(other -> currency.getExchangeRate(other) > 0).map(Currency::getId).toList()
+                            .permission(currency.isPermissionRequired() ? currency.getPermission() : null)
+                            .description(currency.replacePlaceholders().apply(Lang.COMMAND_CURRENCY_ROOT_DESC.getString()))
+                            .child(balanceBuilder(plugin, currency, "balance"))
+                            .addDirect("giveall", children -> children
+                                    .permission(Perms.COMMAND_CURRENCY_GIVE_ALL)
+                                    .description(Lang.COMMAND_CURRENCY_GIVE_ALL_DESC)
+                                    .withArgument(CommandArguments.amount().required())
+                                    .withFlag(CommandFlags.silent())
+                                    .executes((context, arguments) -> giveAll(plugin, currency, context, arguments))
                             )
-                        )
-                        .withArgument(CommandArguments.amount().required())
-                        .executes((context, arguments) -> exchange(plugin, currency, context, arguments))
-                    );
+                            .addDirect("give", children -> children
+                                    .permission(Perms.COMMAND_CURRENCY_GIVE)
+                                    .description(Lang.COMMAND_CURRENCY_GIVE_DESC)
+                                    .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
+                                    .withArgument(CommandArguments.amount().required())
+                                    .withFlag(CommandFlags.silent())
+                                    .executes((context, arguments) -> give(plugin, currency, context, arguments))
+                            )
+                            .addDirect("set", children -> children
+                                    .permission(Perms.COMMAND_CURRENCY_SET)
+                                    .description(Lang.COMMAND_CURRENCY_SET_DESC)
+                                    .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
+                                    .withArgument(CommandArguments.amount().required())
+                                    .withFlag(CommandFlags.silent())
+                                    .executes((context, arguments) -> set(plugin, currency, context, arguments))
+                            )
+                            .addDirect("take", children -> children
+                                    .permission(Perms.COMMAND_CURRENCY_TAKE)
+                                    .description(Lang.COMMAND_CURRENCY_TAKE_DESC)
+                                    .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
+                                    .withArgument(CommandArguments.amount().required())
+                                    .withFlag(CommandFlags.silent())
+                                    .executes((context, arguments) -> remove(plugin, currency, context, arguments))
+                            )
+                            .child(topBuilder(plugin, currency, "top"));
+
+                    if (currency.isTransferAllowed()) {
+                        builder
+                                .child(payBuilder(plugin, currency, "pay", "send"))
+                                .addDirect("payments", children -> children
+                                        .permission(Perms.COMMAND_CURRENCY_PAYMENTS)
+                                        .description(Lang.COMMAND_CURRENCY_PAYMENTS_DESC)
+                                        .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).permission(Perms.COMMAND_CURRENCY_PAYMENTS_OTHERS))
+                                        .withFlag(CommandFlags.silent().permission(Perms.COMMAND_CURRENCY_PAYMENTS_OTHERS))
+                                        .executes((context, arguments) -> togglePayments(plugin, currency, context, arguments))
+                                );
+                    }
+
+                    if (currency.isExchangeAllowed()) {
+                        builder.addDirect("exchange", children -> children
+                                .playerOnly()
+                                .permission(Perms.COMMAND_CURRENCY_EXCHANGE)
+                                .description(Lang.COMMAND_CURRENCY_EXCHANGE_DESC)
+                                .withArgument(CommandArguments.currency(plugin).required()
+                                        .withSamples(context -> plugin.getCurrencyManager().getCurrencies().stream()
+                                                .filter(other -> currency.getExchangeRate(other) > 0).map(Currency::getId).toList()
+                                        )
+                                )
+                                .withArgument(CommandArguments.amount().required())
+                                .executes((context, arguments) -> exchange(plugin, currency, context, arguments))
+                        );
+                    }
                 }
-            }
         );
 
         plugin.getCommandManager().registerCommand(command);
@@ -123,34 +125,33 @@ public class CurrencyCommands {
         plugin.getCommandManager().unregisterServerCommand("balancetop");
     }
 
-
     private static DirectNodeBuilder balanceBuilder(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency, @NotNull String... aliases) {
         return DirectNode.builder(plugin, aliases)
-            .permission(Perms.COMMAND_CURRENCY_BALANCE)
-            .description(Lang.COMMAND_CURRENCY_BALANCE_DESC)
-            .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).permission(Perms.COMMAND_CURRENCY_BALANCE_OTHERS))
-            .executes((context, arguments) -> showBalance(plugin, currency, context, arguments));
+                .permission(Perms.COMMAND_CURRENCY_BALANCE)
+                .description(Lang.COMMAND_CURRENCY_BALANCE_DESC)
+                .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).permission(Perms.COMMAND_CURRENCY_BALANCE_OTHERS))
+                .executes((context, arguments) -> showBalance(plugin, currency, context, arguments));
     }
 
     private static DirectNodeBuilder payBuilder(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency, @NotNull String... aliases) {
         return DirectNode.builder(plugin, aliases)
-            .playerOnly()
-            .permission(Perms.COMMAND_CURRENCY_SEND)
-            .description(Lang.COMMAND_CURRENCY_SEND_DESC)
-            .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
-            .withArgument(CommandArguments.amount().required())
-            .executes((context, arguments) -> send(plugin, currency, context, arguments));
+                .playerOnly()
+                .permission(Perms.COMMAND_CURRENCY_SEND)
+                .description(Lang.COMMAND_CURRENCY_SEND_DESC)
+                .withArgument(ArgumentTypes.playerName(CommandArguments.PLAYER).required())
+                .withArgument(CommandArguments.amount().required())
+                .executes((context, arguments) -> send(plugin, currency, context, arguments));
     }
 
     private static DirectNodeBuilder topBuilder(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency, @NotNull String... aliases) {
         return DirectNode.builder(plugin, aliases)
-            .permission(Perms.COMMAND_CURRENCY_TOP)
-            .description(Lang.COMMAND_CURRENCY_TOP_DESC)
-            .withArgument(ArgumentTypes.integerAbs(CommandArguments.AMOUNT)
-                .localized(Lang.COMMAND_ARGUMENT_NAME_PAGE)
-                .withSamples(context -> IntStream.range(1, 11).boxed().map(String::valueOf).toList())
-            )
-            .executes((context, arguments) -> showTop(plugin, currency, context, arguments));
+                .permission(Perms.COMMAND_CURRENCY_TOP)
+                .description(Lang.COMMAND_CURRENCY_TOP_DESC)
+                .withArgument(ArgumentTypes.integerAbs(CommandArguments.AMOUNT)
+                        .localized(Lang.COMMAND_ARGUMENT_NAME_PAGE)
+                        .withSamples(context -> IntStream.range(1, 11).boxed().map(String::valueOf).toList())
+                )
+                .executes((context, arguments) -> showTop(plugin, currency, context, arguments));
     }
 
     public static boolean showBalance(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency, @NotNull CommandContext context, @NotNull ParsedArguments arguments) {
@@ -164,10 +165,10 @@ public class CurrencyCommands {
             }
 
             (isOwn ? Lang.CURRENCY_BALANCE_DISPLAY_OWN : Lang.CURRENCY_BALANCE_DISPLAY_OTHERS).getMessage()
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                .send(context.getSender());
+                    .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                    .send(context.getSender());
         });
         return true;
     }
@@ -179,6 +180,19 @@ public class CurrencyCommands {
         if (amount <= 0) return false;
 
         Player player = context.getPlayerOrThrow();
+        CoinsUser user = plugin.getUserManager().getUserData(player);
+
+        double exchangeRate = currency.getExchangeRate(targetCurrency);
+        double resultAmount = amount * exchangeRate;
+
+        CoinsExchangeEvent event = new CoinsExchangeEvent(user, currency, targetCurrency, amount, resultAmount);
+        plugin.getServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return false;
+        }
+        amount = event.getFromAmount();
+        resultAmount = event.getToAmount();
+
         return plugin.getCurrencyManager().exchange(player, currency, targetCurrency, amount);
     }
 
@@ -196,17 +210,17 @@ public class CurrencyCommands {
 
             if (!arguments.hasFlag(CommandFlags.SILENT)) {
                 Lang.COMMAND_CURRENCY_GIVE_NOTIFY.getMessage()
-                    .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                    .send(player);
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                        .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                        .send(player);
             }
         });
 
         Lang.COMMAND_CURRENCY_GIVE_ALL_DONE.getMessage()
-            .replace(currency.replacePlaceholders())
-            .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-            .send(context.getSender());
+                .replace(currency.replacePlaceholders())
+                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                .send(context.getSender());
 
         return true;
     }
@@ -221,25 +235,32 @@ public class CurrencyCommands {
                 return;
             }
 
+            CoinsGiveEvent event = new CoinsGiveEvent(user, currency, amount, context.getSender());
+            plugin.getServer().getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            amount = event.getAmount();
+
             user.addBalance(currency, amount);
 
             plugin.getUserManager().scheduleSave(user);
             plugin.getCoinsLogger().logGive(user, currency, amount, context.getSender());
 
             Lang.COMMAND_CURRENCY_GIVE_DONE.getMessage()
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                .send(context.getSender());
+                    .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                    .send(context.getSender());
 
             Player target = user.getPlayer();
             if (!arguments.hasFlag(CommandFlags.SILENT) && target != null) {
                 Lang.COMMAND_CURRENCY_GIVE_NOTIFY.getMessage()
-                    .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                    .send(target);
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                        .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                        .send(target);
             }
         });
 
@@ -288,8 +309,8 @@ public class CurrencyCommands {
 
         if (currency.getMinTransferAmount() > 0 && amount < currency.getMinTransferAmount()) {
             Lang.COMMAND_CURRENCY_SEND_ERROR_TOO_LOW.getMessage()
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(currency.getMinTransferAmount()))
-                .send(context.getSender());
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(currency.getMinTransferAmount()))
+                    .send(context.getSender());
             return false;
         }
 
@@ -310,19 +331,26 @@ public class CurrencyCommands {
 
             if (money > fromUser.getBalance(currency)) {
                 Lang.COMMAND_CURRENCY_SEND_ERROR_NOT_ENOUGH.getMessage()
-                    .replace(currency.replacePlaceholders())
-                    .send(from);
+                        .replace(currency.replacePlaceholders())
+                        .send(from);
                 return;
             }
 
             CurrencySettings settings = targetUser.getSettings(currency);
             if (!settings.isPaymentsEnabled()) {
                 Lang.COMMAND_CURRENCY_SEND_ERROR_NO_PAYMENTS.getMessage()
-                    .replace(Placeholders.PLAYER_NAME, targetUser.getName())
-                    .replace(currency.replacePlaceholders())
-                    .send(from);
+                        .replace(Placeholders.PLAYER_NAME, targetUser.getName())
+                        .replace(currency.replacePlaceholders())
+                        .send(from);
                 return;
             }
+
+            CoinsSendEvent event = new CoinsSendEvent(targetUser, currency, money, from);
+            plugin.getServer().getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            money = event.getAmount();
 
             targetUser.addBalance(currency, money);
             fromUser.removeBalance(currency, money);
@@ -332,20 +360,20 @@ public class CurrencyCommands {
             plugin.getCoinsLogger().logSend(targetUser, currency, money, from);
 
             Lang.COMMAND_CURRENCY_SEND_DONE_SENDER.getMessage()
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(money))
-                .replace(Placeholders.GENERIC_BALANCE, fromUser.getBalance(currency))
-                .replace(Placeholders.PLAYER_NAME, targetUser.getName())
-                .send(context.getSender());
+                    .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(money))
+                    .replace(Placeholders.GENERIC_BALANCE, fromUser.getBalance(currency))
+                    .replace(Placeholders.PLAYER_NAME, targetUser.getName())
+                    .send(context.getSender());
 
             Player target = plugin.getServer().getPlayer(targetUser.getName());
             if (target != null) {
                 Lang.COMMAND_CURRENCY_SEND_DONE_NOTIFY.getMessage()
-                    .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(money))
-                    .replace(Placeholders.GENERIC_BALANCE, targetUser.getBalance(currency))
-                    .replace(Placeholders.PLAYER_NAME, fromUser.getName())
-                    .send(target);
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(money))
+                        .replace(Placeholders.GENERIC_BALANCE, targetUser.getBalance(currency))
+                        .replace(Placeholders.PLAYER_NAME, fromUser.getName())
+                        .send(target);
             }
         });
         return true;
@@ -361,26 +389,33 @@ public class CurrencyCommands {
                 return;
             }
 
+            CoinsSetEvent event = new CoinsSetEvent(user, currency, amount, context.getSender());
+            plugin.getServer().getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            amount = event.getAmount();
+
             user.setBalance(currency, amount);
 
             plugin.getUserManager().scheduleSave(user);
             plugin.getCoinsLogger().logSet(user, currency, amount, context.getSender());
 
             Lang.COMMAND_CURRENCY_SET_DONE.getMessage()
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                .send(context.getSender());
+                    .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                    .send(context.getSender());
 
             Player target = user.getPlayer();
 
             if (!arguments.hasFlag(CommandFlags.SILENT) && target != null) {
                 Lang.COMMAND_CURRENCY_SET_NOTIFY.getMessage()
-                    .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                    .send(target);
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                        .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                        .send(target);
             }
         });
         return true;
@@ -396,25 +431,32 @@ public class CurrencyCommands {
                 return;
             }
 
+            CoinsTakeEvent event = new CoinsTakeEvent(user, currency, amount, context.getSender());
+            plugin.getServer().getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            amount = event.getAmount();
+
             user.removeBalance(currency, amount);
 
             plugin.getUserManager().scheduleSave(user);
             plugin.getCoinsLogger().logTake(user, currency, amount, context.getSender());
 
             Lang.COMMAND_CURRENCY_TAKE_DONE.getMessage()
-                .replace(currency.replacePlaceholders())
-                .replace(Placeholders.PLAYER_NAME, user.getName())
-                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                .send(context.getSender());
+                    .replace(currency.replacePlaceholders())
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                    .send(context.getSender());
 
             Player target = user.getPlayer();
             if (!arguments.hasFlag(CommandFlags.SILENT) && target != null) {
                 Lang.COMMAND_CURRENCY_TAKE_NOTIFY.getMessage()
-                    .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
-                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                    .send(target);
+                        .replace(currency.replacePlaceholders())
+                        .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                        .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                        .send(target);
             }
         });
         return true;
@@ -428,22 +470,25 @@ public class CurrencyCommands {
         int pages = split.size();
         int page = Math.max(0, Math.min(pages, Math.abs(arguments.getIntArgument(CommandArguments.AMOUNT, 1))) - 1);
 
+        CoinsTopEvent event = new CoinsTopEvent(currency, context.getSender(), page + 1);
+        plugin.getServer().getPluginManager().callEvent(event);
+
         List<Pair<String, Double>> list = pages > 0 ? split.get(page) : new ArrayList<>();
         AtomicInteger pos = new AtomicInteger(1 + perPage * page);
 
         Lang.COMMAND_CURRENCY_TOP_LIST.getMessage()
-            .replace(currency.replacePlaceholders())
-            .replace(Placeholders.GENERIC_CURRENT, page + 1)
-            .replace(Placeholders.GENERIC_MAX, pages)
-            .replace(Placeholders.GENERIC_ENTRY, list1 -> {
-                for (Pair<String, Double> pair : list) {
-                    list1.add(Lang.COMMAND_CURRENCY_TOP_ENTRY.getString()
-                        .replace(Placeholders.GENERIC_POS, NumberUtil.format(pos.getAndIncrement()))
-                        .replace(Placeholders.GENERIC_BALANCE, currency.format(pair.getSecond()))
-                        .replace(Placeholders.PLAYER_NAME, pair.getFirst()));
-                }
-            })
-            .send(context.getSender());
+                .replace(currency.replacePlaceholders())
+                .replace(Placeholders.GENERIC_CURRENT, page + 1)
+                .replace(Placeholders.GENERIC_MAX, pages)
+                .replace(Placeholders.GENERIC_ENTRY, list1 -> {
+                    for (Pair<String, Double> pair : list) {
+                        list1.add(Lang.COMMAND_CURRENCY_TOP_ENTRY.getString()
+                                .replace(Placeholders.GENERIC_POS, NumberUtil.format(pos.getAndIncrement()))
+                                .replace(Placeholders.GENERIC_BALANCE, currency.format(pair.getSecond()))
+                                .replace(Placeholders.PLAYER_NAME, pair.getFirst()));
+                    }
+                })
+                .send(context.getSender());
 
         return true;
     }
