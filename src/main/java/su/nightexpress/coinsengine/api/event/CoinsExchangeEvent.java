@@ -1,6 +1,7 @@
 package su.nightexpress.coinsengine.api.event;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -11,13 +12,13 @@ import org.jetbrains.annotations.NotNull;
 public class CoinsExchangeEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled;
-    private final CoinsUser user;
+    private final Player user;
     private final Currency fromCurrency;
     private final Currency toCurrency;
     private double fromAmount;
     private double toAmount;
 
-    public CoinsExchangeEvent(@NotNull CoinsUser user, @NotNull Currency fromCurrency, @NotNull Currency toCurrency, double fromAmount, double toAmount) {
+    public CoinsExchangeEvent(@NotNull Player user, @NotNull Currency fromCurrency, @NotNull Currency toCurrency, double fromAmount, double toAmount) {
         this.user = user;
         this.fromCurrency = fromCurrency;
         this.toCurrency = toCurrency;
@@ -26,7 +27,7 @@ public class CoinsExchangeEvent extends Event implements Cancellable {
     }
 
     @NotNull
-    public CoinsUser getUser() {
+    public Player getUser() {
         return user;
     }
 

@@ -1,6 +1,8 @@
 package su.nightexpress.coinsengine.api.event;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -8,24 +10,34 @@ import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import org.jetbrains.annotations.NotNull;
 
-public class CoinsGiveEvent extends Event implements Cancellable {
+public class CoinsGiveEvent extends Event{
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
-    private final CoinsUser user;
-    private final Currency currency;
-    private double amount;
+    private final OfflinePlayer user;
     private final CommandSender from;
+    private final Currency currency;
+    private final String currencyName;
+    private double amount;
 
-    public CoinsGiveEvent(@NotNull CoinsUser user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
+    public CoinsGiveEvent(@NotNull OfflinePlayer user, @NotNull Currency currency, double amount, @NotNull CommandSender from) {
         this.user = user;
         this.currency = currency;
+        this.currencyName = currency.getName();
         this.amount = amount;
         this.from = from;
     }
 
     @NotNull
-    public CoinsUser getUser() {
+    public OfflinePlayer getUser() {
         return user;
+    }
+
+    @NotNull
+    public CommandSender getFrom() {
+        return from;
+    }
+
+    public String getCurrencyName() {
+        return currencyName;
     }
 
     @NotNull
@@ -41,20 +53,6 @@ public class CoinsGiveEvent extends Event implements Cancellable {
         this.amount = amount;
     }
 
-    @NotNull
-    public CommandSender getFrom() {
-        return from;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.cancelled = cancel;
-    }
 
     @NotNull
     @Override
