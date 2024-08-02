@@ -1,6 +1,5 @@
 package su.nightexpress.coinsengine.api.event;
 
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -18,14 +17,15 @@ public class ChangeBalanceEvent extends Event {
     private final Currency currency;
     private final double oldAmount;
     private final double newAmount;
+    private boolean isCancelled;
 
-
-    public ChangeBalanceEvent(@NotNull CoinsUser user, @NotNull Currency currency,double oldAmount, double newAmount) {
+    public ChangeBalanceEvent(@NotNull CoinsUser user, @NotNull Currency currency, double oldAmount, double newAmount) {
         super(!Bukkit.isPrimaryThread());
         this.user = user;
         this.currency = currency;
         this.oldAmount = oldAmount;
         this.newAmount = newAmount;
+        this.isCancelled = false;
     }
 
     @NotNull
@@ -59,5 +59,15 @@ public class ChangeBalanceEvent extends Event {
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean isCancelled) {
+        this.isCancelled = isCancelled;
     }
 }
