@@ -69,5 +69,10 @@ public class DeluxeCoinflipHook {
                 plugin.getUserManager().saveAsync(user);
             }
         }
+
+        @Override
+        public String getDisplayName() {
+            return this.currency.getName();
+        }
     }
 }

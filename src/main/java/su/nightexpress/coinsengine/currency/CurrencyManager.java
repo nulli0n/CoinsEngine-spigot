@@ -8,10 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.command.currency.CurrencyMainCommand;
-import su.nightexpress.coinsengine.command.currency.impl.BalanceCommand;
-import su.nightexpress.coinsengine.command.currency.impl.SendCommand;
-import su.nightexpress.coinsengine.command.currency.impl.TopCommand;
+import su.nightexpress.coinsengine.command.impl.CurrencyCommands;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.currency.impl.ConfigCurrency;
@@ -47,20 +44,6 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             }
         }
 
-        this.getVaultCurrency().ifPresent(currency -> {
-            if (Plugins.hasVault()) {
-                VaultEconomyHook.setup(this.plugin, currency);
-                if (Config.ECONOMY_COMMAND_SHORTCUTS_ENABLED.get()) {
-                    this.plugin.getCommandManager().registerCommand(new BalanceCommand(plugin, currency));
-                    this.plugin.getCommandManager().registerCommand(new SendCommand(plugin, currency));
-                    this.plugin.getCommandManager().registerCommand(new TopCommand(plugin, currency, "baltop"));
-                }
-            }
-            else {
-                this.plugin.error("Found Vault Economy currency, but Vault is not installed!");
-            }
-        });
-
         this.addTask(this.plugin.createAsyncTask(this::updateBalances).setSecondsInterval(Config.TOP_UPDATE_INTERVAL.get()));
     }
 
@@ -69,7 +52,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         if (Plugins.hasVault()) {
             VaultEconomyHook.shutdown();
         }
-        this.getCurrencyMap().clear();
+        this.currencyMap.clear();
     }
 
     private void createDefaults() {
@@ -118,9 +101,22 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
     public void registerCurrency(@NotNull Currency currency) {
         this.unregisterCurrency(currency);
-
         this.plugin.getData().createCurrencyColumn(currency);
-        this.plugin.getCommandManager().registerCommand(new CurrencyMainCommand(plugin, currency));
+
+        CurrencyCommands.loadForCurrency(plugin, currency);
+
+        if (currency.isVaultEconomy() && this.getVaultCurrency().isEmpty()) {
+            if (Plugins.hasVault()) {
+                VaultEconomyHook.setup(this.plugin, currency);
+                if (Config.ECONOMY_COMMAND_SHORTCUTS_ENABLED.get()) {
+                    CurrencyCommands.loadForEconomy(plugin, currency);
+                }
+            }
+            else {
+                this.plugin.error("Found Vault Economy currency, but Vault is not installed!");
+            }
+        }
+
         this.getCurrencyMap().put(currency.getId(), currency);
         this.plugin.info("Currency registered: '" + currency.getId() + "'!");
     }
@@ -227,7 +223,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
         user.removeBalance(from, amount);
         user.addBalance(to, result);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
 
         Lang.CURRENCY_EXCHANGE_SUCCESS.getMessage()
             .replace(from.replacePlaceholders())

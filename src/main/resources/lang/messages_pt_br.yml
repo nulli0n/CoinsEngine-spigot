@@ -1,10 +1,3 @@
-# Here you can create your own custom placeholders to use it in language config.
-# Key = Placeholder, Value = Replacer.
-Placeholders:
-  '%red%': '#fd5e5e'
-  '%gray%': '#d4d9d8'
-  '%green%': '#aefd5e'
-
 Command:
   Migrate:
     Desc: Migrar dados de outros plugins.

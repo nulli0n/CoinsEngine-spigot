@@ -137,10 +137,8 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        //CurrencyLegacyData data = user.getCurrencyData(this.currency);
-        //data.addBalance(amount);
         user.addBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -158,10 +156,8 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        //CurrencyLegacyData data = user.getCurrencyData(this.currency);
-        //data.addBalance(amount);
         user.addBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -179,10 +175,12 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        //CurrencyLegacyData data = user.getCurrencyData(this.currency);
-        //data.removeBalance(amount);
+        if (user.getBalance(this.currency) < amount) {
+            return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.FAILURE, null);
+        }
+
         user.removeBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -200,10 +198,12 @@ public class CurrencyEconomy extends AbstractEconomy {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Player not found.");
         }
 
-        //CurrencyLegacyData data = user.getCurrencyData(this.currency);
-        //data.removeBalance(amount);
+        if (user.getBalance(this.currency) < amount) {
+            return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.FAILURE, null);
+        }
+
         user.removeBalance(this.currency, amount);
-        this.plugin.getUserManager().saveAsync(user);
+        this.plugin.getUserManager().scheduleSave(user);
         double balance = user.getBalance(this.currency);
 
         return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
@@ -211,42 +211,42 @@ public class CurrencyEconomy extends AbstractEconomy {
 
     @Override
     public EconomyResponse createBank(String name, String player) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse deleteBank(String name) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse bankHas(String name, double amount) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse bankWithdraw(String name, double amount) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse bankDeposit(String name, double amount) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse isBankOwner(String name, String playerName) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse isBankMember(String name, String playerName) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
     public EconomyResponse bankBalance(String name) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "SunLightEco does not support bank accounts!");
+        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
     }
 
     @Override
