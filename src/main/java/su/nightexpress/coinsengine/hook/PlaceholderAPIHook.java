@@ -177,6 +177,20 @@ public class PlaceholderAPIHook {
 
                 return entry.getValue().apply(player, currency);
             }
+            if (holder.startsWith("name_")) {
+                String currencyID = holder.substring("name_".length());
+                Currency currency = plugin.getCurrencyManager().getCurrency(currencyID);
+                if (currency == null) return null;
+
+                return NightMessage.asLegacy(currency.getName());
+            }
+            if (holder.startsWith("symbol_")) {
+                String currencyID = holder.substring("symbol_".length());
+                Currency currency = plugin.getCurrencyManager().getCurrency(currencyID);
+                if (currency == null) return null;
+
+                return NightMessage.asLegacy(currency.getSymbol());
+            }
 
             return null;
         }
