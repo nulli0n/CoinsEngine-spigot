@@ -10,4 +10,4 @@ softdepend:
   - PlayerPoints
   - DeluxeCoinflip
 load: STARTUP
-api-version: 1.18
+api-version: 1.19

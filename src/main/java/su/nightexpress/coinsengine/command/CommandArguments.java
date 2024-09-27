@@ -9,21 +9,19 @@ import su.nightexpress.nightcore.command.experimental.argument.CommandArgument;
 import su.nightexpress.nightcore.command.experimental.builder.ArgumentBuilder;
 import su.nightexpress.nightcore.util.Lists;
 
-import java.util.ArrayList;
-
 public class CommandArguments {
 
-    public static final String PLAYER = "player";
-    public static final String AMOUNT = "amount";
+    public static final String PLAYER   = "player";
+    public static final String AMOUNT   = "amount";
     public static final String CURRENCY = "currency";
-    public static final String NAME = "name";
+    public static final String NAME     = "name";
 
     @NotNull
     public static ArgumentBuilder<Currency> currency(@NotNull CoinsEnginePlugin plugin) {
         return CommandArgument.builder(CURRENCY, (string, context) -> plugin.getCurrencyManager().getCurrency(string))
             .localized(Lang.COMMAND_ARGUMENT_NAME_CURRENCY)
             .customFailure(Lang.ERROR_COMMAND_ARGUMENT_INVALID_CURRENCY)
-            .withSamples(context -> new ArrayList<>(plugin.getCurrencyManager().getCurrencyMap().keySet()))
+            .withSamples(context -> plugin.getCurrencyManager().getCurrencyIds())
             ;
     }
 

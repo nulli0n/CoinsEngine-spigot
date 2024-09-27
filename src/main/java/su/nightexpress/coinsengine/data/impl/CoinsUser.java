@@ -78,9 +78,11 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
     }
 
     private void changeBalance(@NotNull Currency currency, double amount) {
+        double oldBalance = this.getBalance(currency);
+
         this.balanceMap.put(currency.getId(), currency.fineAndLimit(amount));
 
-        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(this, currency, balanceMap.get(currency.getId()), currency.fineAndLimit(amount));
+        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(this, currency, oldBalance, this.getBalance(currency));
         this.plugin.getPluginManager().callEvent(changeBalanceEvent);
     }
 

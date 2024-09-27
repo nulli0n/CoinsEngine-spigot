@@ -106,10 +106,12 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
     }
 
     private void updateUserBalance(@NotNull CoinsUser user) {
-        if (this.plugin.getUserManager().isScheduledToSave(user)) return;
+        if (plugin.getUserManager().isScheduledToSave(user)) return;
 
         CoinsUser fresh = this.getUser(user.getId());
         if (fresh == null) return;
+
+        if (!user.isSyncReady()) return;
 
         for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
             if (!currency.isSynchronizable()) continue;
@@ -159,17 +161,10 @@ public class DataHandler extends AbstractUserDataHandler<CoinsEnginePlugin, Coin
             .columns(columns)
             .execute(this.getConnector());
 
-        /*map.values().forEach(data -> {
-            data.put("MoonBunny", Rnd.getDouble(500));
-            data.put("7teen", Rnd.getDouble(1200));
-            data.put("har1us", Rnd.getDouble(2000));
-            data.put("lPariahl", Rnd.getDouble(800));
-            data.put("AquaticFlamesIV", Rnd.getDouble(600));
-            data.put("YaZanoZa", Rnd.getDouble(200));
-            data.put("S_T_I_N_O_L", Rnd.getDouble(400));
-            data.put("konoos", Rnd.getDouble(100));
-            data.put("Noob_Perforator", Rnd.getDouble(80));
-        });*/
+//        for (int i = 0; i < 30; i++) {
+//            String name = "DummyPlayer_" + i;
+//            map.values().forEach(data -> data.put(name, Rnd.getDouble(1000)));
+//        }
 
         return map;
     }

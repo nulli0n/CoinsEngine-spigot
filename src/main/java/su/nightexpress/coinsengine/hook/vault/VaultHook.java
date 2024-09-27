@@ -1,4 +1,4 @@
-package su.nightexpress.coinsengine.hook;
+package su.nightexpress.coinsengine.hook.vault;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -7,9 +7,8 @@ import org.bukkit.plugin.ServicesManager;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.currency.impl.CurrencyEconomy;
 
-public class VaultEconomyHook {
+public class VaultHook {
 
     private static CurrencyEconomy economy;
 

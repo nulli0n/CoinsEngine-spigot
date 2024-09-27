@@ -15,12 +15,12 @@ public class ChangeBalanceEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final CoinsUser user;
-    private final Currency currency;
-    private final double oldAmount;
-    private final double newAmount;
+    private final Currency  currency;
+    private final double    oldAmount;
+    private final double    newAmount;
 
 
-    public ChangeBalanceEvent(@NotNull CoinsUser user, @NotNull Currency currency,double oldAmount, double newAmount) {
+    public ChangeBalanceEvent(@NotNull CoinsUser user, @NotNull Currency currency, double oldAmount, double newAmount) {
         super(!Bukkit.isPrimaryThread());
         this.user = user;
         this.currency = currency;

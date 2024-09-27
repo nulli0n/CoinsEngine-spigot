@@ -13,24 +13,26 @@ import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.currency.impl.ConfigCurrency;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
-import su.nightexpress.coinsengine.hook.VaultEconomyHook;
+import su.nightexpress.coinsengine.hook.vault.VaultHook;
+import su.nightexpress.coinsengine.util.TopEntry;
 import su.nightexpress.nightcore.manager.AbstractManager;
 import su.nightexpress.nightcore.util.*;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
-    private final Map<String, Currency>                     currencyMap;
-    private final Map<Currency, List<Pair<String, Double>>> balanceMap;
+    private final Map<String, Currency>       currencyMap;
+    private final Map<String, List<TopEntry>> totalBalanceMap;
 
     public CurrencyManager(@NotNull CoinsEnginePlugin plugin) {
         super(plugin);
         this.currencyMap = new HashMap<>();
-        this.balanceMap = new ConcurrentHashMap<>();
+        this.totalBalanceMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -50,9 +52,11 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     @Override
     protected void onShutdown() {
         if (Plugins.hasVault()) {
-            VaultEconomyHook.shutdown();
+            VaultHook.shutdown();
         }
+        this.getCurrencies().forEach(this::unregisterCurrency);
         this.currencyMap.clear();
+        this.totalBalanceMap.clear();
     }
 
     private void createDefaults() {
@@ -74,40 +78,46 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     }
 
     @NotNull
-    public Map<Currency, List<Pair<String, Double>>> getBalanceMap() {
-        return balanceMap;
+    public Map<String, List<TopEntry>> getTotalBalanceMap() {
+        return this.totalBalanceMap;
     }
 
     @NotNull
-    public List<Pair<String, Double>> getBalanceList(@NotNull Currency currency) {
-        return new ArrayList<>(this.getBalanceMap().getOrDefault(currency, Collections.emptyList()));
+    public List<TopEntry> getTopBalances(@NotNull Currency currency) {
+        return new ArrayList<>(this.totalBalanceMap.getOrDefault(currency.getId(), Collections.emptyList()));
     }
 
     public double getTotalBalance(@NotNull Currency currency) {
-        return this.getBalanceList(currency).stream().mapToDouble(Pair::getSecond).sum();
+        return this.getTopBalances(currency).stream().mapToDouble(TopEntry::balance).sum();
     }
 
     public void updateBalances() {
-        Map<Currency, List<Pair<String, Double>>> balanceMap = this.getBalanceMap();
-        Map<Currency, Map<String, Double>> dataMap = this.plugin.getData().getBalances();
+        this.totalBalanceMap.clear();
 
-        balanceMap.clear();
-        dataMap.forEach((currency, users) -> {
-            Lists.sortDescent(users).forEach((name, balance) -> {
-                balanceMap.computeIfAbsent(currency, k -> new ArrayList<>()).add(Pair.of(name, balance));
+        Map<Currency, Map<String, Double>> balances = this.plugin.getData().getBalances();
+        AtomicInteger counter = new AtomicInteger(0);
+
+        balances.forEach((currency, balanceMap) -> {
+            List<TopEntry> entries = this.totalBalanceMap.computeIfAbsent(currency.getId(), k -> new ArrayList<>());
+            Lists.sortDescent(balanceMap).forEach((name, balance) -> {
+                entries.add(new TopEntry(counter.incrementAndGet(), balance, name));
             });
         });
     }
 
     public void registerCurrency(@NotNull Currency currency) {
-        this.unregisterCurrency(currency);
+        if (this.getCurrency(currency.getId()) != null) {
+            this.plugin.error("Could not register duplicated currency: '" + currency.getId() + "'!");
+            return;
+        }
+
         this.plugin.getData().createCurrencyColumn(currency);
 
         CurrencyCommands.loadForCurrency(plugin, currency);
 
         if (currency.isVaultEconomy() && this.getVaultCurrency().isEmpty()) {
             if (Plugins.hasVault()) {
-                VaultEconomyHook.setup(this.plugin, currency);
+                VaultHook.setup(this.plugin, currency);
                 if (Config.ECONOMY_COMMAND_SHORTCUTS_ENABLED.get()) {
                     CurrencyCommands.loadForEconomy(plugin, currency);
                 }
@@ -117,8 +127,8 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             }
         }
 
-        this.getCurrencyMap().put(currency.getId(), currency);
-        this.plugin.info("Currency registered: '" + currency.getId() + "'!");
+        this.currencyMap.put(currency.getId(), currency);
+        this.plugin.info("Registered: '" + currency.getId() + "' currency!");
     }
 
     public boolean unregisterCurrency(@NotNull Currency currency) {
@@ -126,22 +136,33 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     }
 
     public boolean unregisterCurrency(@NotNull String id) {
-        Currency currency = this.getCurrencyMap().remove(id);
+        Currency currency = this.currencyMap.remove(id);
         if (currency == null) return false;
 
-        this.plugin.getCommandManager().unregisterCommand(currency.getCommandAliases()[0]);
+        CurrencyCommands.unloadForCurrency(this.plugin, currency);
+
+        if (currency.isVaultEconomy()) {
+            CurrencyCommands.unloadForEconomy(this.plugin);
+        }
+
+        this.totalBalanceMap.remove(id);
         this.plugin.info("Currency unregistered: '" + currency.getId() + "'!");
         return true;
     }
 
     @Nullable
     public Currency getCurrency(@NotNull String id) {
-        return this.getCurrencyMap().get(id.toLowerCase());
+        return this.currencyMap.get(id.toLowerCase());
     }
 
     @NotNull
     public Map<String, Currency> getCurrencyMap() {
-        return currencyMap;
+        return this.currencyMap;
+    }
+
+    @NotNull
+    public List<String> getCurrencyIds() {
+        return new ArrayList<>(this.currencyMap.keySet());
     }
 
     @NotNull
@@ -150,8 +171,8 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     }
 
     @NotNull
-    public Collection<Currency> getCurrencies() {
-        return this.getCurrencyMap().values();
+    public Set<Currency> getCurrencies() {
+        return new HashSet<>(this.currencyMap.values());
     }
 
     public boolean createCurrency(@NotNull String id, @NotNull Consumer<ConfigCurrency> consumer) {
