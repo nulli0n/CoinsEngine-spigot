@@ -6,10 +6,16 @@ import su.nightexpress.nightcore.command.experimental.flag.SimpleFlag;
 
 public class CommandFlags {
 
-    public static final String SILENT = "s";
+    public static final String SILENT          = "s";
+    public static final String SILENT_FEEDBACK = "sf";
 
     @NotNull
     public static SimpleFlagBuilder silent() {
         return SimpleFlag.builder(SILENT);
+    }
+
+    @NotNull
+    public static SimpleFlagBuilder silentOutput() {
+        return SimpleFlag.builder(SILENT_FEEDBACK);
     }
 }

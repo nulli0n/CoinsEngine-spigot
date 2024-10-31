@@ -154,18 +154,23 @@ public class PlaceholderAPIHook {
                 Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
                 if (currency == null) return null;
 
-                int pos = NumberUtil.getInteger(split[2]);
+                int pos = NumberUtil.getIntegerAbs(split[2]);
                 if (pos <= 0) return null;
 
                 List<TopEntry> baltop = plugin.getCurrencyManager().getTopBalances(currency);
                 if (pos > baltop.size()) return "-";
 
                 TopEntry entry = baltop.get(pos - 1);
+                if (type.equalsIgnoreCase("balance-short")) return NightMessage.asLegacy(currency.formatCompact(entry.balance()));
+                if (type.equalsIgnoreCase("balance-short-plain")) return currency.formatCompact(entry.balance());
+                if (type.equalsIgnoreCase("balance-plain")) return currency.format(entry.balance());
                 if (type.equalsIgnoreCase("balance")) return NightMessage.asLegacy(currency.format(entry.balance()));
                 if (type.equalsIgnoreCase("player")) return entry.name();
 
                 return null;
             }
+
+            if (player == null) return "";
 
             for (var entry : this.placeholders.entrySet()) {
                 String prefix = entry.getKey() + "_";
@@ -183,7 +188,7 @@ public class PlaceholderAPIHook {
 
         @Nullable
         private String handleUserCurrency(@NotNull Player player, @NotNull Function<CoinsUser, String> function) {
-            CoinsUser user = plugin.getUserManager().getUserData(player);
+            CoinsUser user = plugin.getUserManager().getOrFetch(player);
             return function.apply(user);
         }
     }

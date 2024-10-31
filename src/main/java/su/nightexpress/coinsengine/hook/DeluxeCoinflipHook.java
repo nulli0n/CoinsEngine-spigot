@@ -43,7 +43,7 @@ public class DeluxeCoinflipHook {
 
         @Nullable
         private CoinsUser getUser(@NotNull OfflinePlayer offlinePlayer) {
-            return this.plugin.getUserManager().getUserData(offlinePlayer.getUniqueId());
+            return this.plugin.getUserManager().getOrFetch(offlinePlayer.getUniqueId());
         }
 
         @Override
@@ -57,7 +57,7 @@ public class DeluxeCoinflipHook {
             CoinsUser user = this.getUser(offlinePlayer);
             if (user != null) {
                 user.removeBalance(currency, v);
-                plugin.getUserManager().saveAsync(user);
+                plugin.getUserManager().save(user);
             }
         }
 
@@ -66,7 +66,7 @@ public class DeluxeCoinflipHook {
             CoinsUser user = this.getUser(offlinePlayer);
             if (user != null) {
                 user.addBalance(currency, v);
-                plugin.getUserManager().saveAsync(user);
+                plugin.getUserManager().save(user);
             }
         }
 

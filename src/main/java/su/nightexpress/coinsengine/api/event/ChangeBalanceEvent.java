@@ -12,13 +12,12 @@ import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
 public class ChangeBalanceEvent extends Event {
 
-    private static final HandlerList HANDLERS = new HandlerList();
+    private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final CoinsUser user;
     private final Currency  currency;
     private final double    oldAmount;
     private final double    newAmount;
-
 
     public ChangeBalanceEvent(@NotNull CoinsUser user, @NotNull Currency currency, double oldAmount, double newAmount) {
         super(!Bukkit.isPrimaryThread());
@@ -52,12 +51,12 @@ public class ChangeBalanceEvent extends Event {
     }
 
     public static HandlerList getHandlerList() {
-        return HANDLERS;
+        return HANDLER_LIST;
     }
 
     @NotNull
     @Override
     public HandlerList getHandlers() {
-        return HANDLERS;
+        return HANDLER_LIST;
     }
 }

@@ -39,14 +39,14 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     protected void onLoad() {
         this.createDefaults();
 
-        for (File file : FileUtil.getConfigFiles(plugin.getDataFolder() + Config.DIR_CURRENCIES)) {
+        for (File file : FileUtil.getConfigFiles(this.getDirectory())) {
             ConfigCurrency currency = new ConfigCurrency(plugin, file);
             if (currency.load()) {
                 this.registerCurrency(currency);
             }
         }
 
-        this.addTask(this.plugin.createAsyncTask(this::updateBalances).setSecondsInterval(Config.TOP_UPDATE_INTERVAL.get()));
+        this.addAsyncTask(this::updateBalances, Config.TOP_UPDATE_INTERVAL.get());
     }
 
     @Override
@@ -60,7 +60,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     }
 
     private void createDefaults() {
-        File dir = new File(plugin.getDataFolder() + Config.DIR_CURRENCIES);
+        File dir = new File(this.getDirectory());
         if (dir.exists()) return;
 
         this.createCurrency("coins", currency -> {
@@ -75,6 +75,11 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             currency.setDecimal(true);
             currency.setVaultEconomy(true);
         });
+    }
+
+    @NotNull
+    public String getDirectory() {
+        return this.plugin.getDataFolder() + Config.DIR_CURRENCIES;
     }
 
     @NotNull
@@ -95,9 +100,10 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         this.totalBalanceMap.clear();
 
         Map<Currency, Map<String, Double>> balances = this.plugin.getData().getBalances();
-        AtomicInteger counter = new AtomicInteger(0);
 
         balances.forEach((currency, balanceMap) -> {
+            AtomicInteger counter = new AtomicInteger(0);
+
             List<TopEntry> entries = this.totalBalanceMap.computeIfAbsent(currency.getId(), k -> new ArrayList<>());
             Lists.sortDescent(balanceMap).forEach((name, balance) -> {
                 entries.add(new TopEntry(counter.incrementAndGet(), balance, name));
@@ -171,7 +177,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     }
 
     @NotNull
-    public Set<Currency> getCurrencies() {
+    public Collection<Currency> getCurrencies() {
         return new HashSet<>(this.currencyMap.values());
     }
 
@@ -179,11 +185,11 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         id = StringUtil.lowerCaseUnderscore(id);
         if (id.isEmpty()) return false;
 
-        File file = new File(plugin.getDataFolder() + Config.DIR_CURRENCIES, id + ".yml");
+        File file = new File(this.getDirectory(), id + ".yml");
         ConfigCurrency currency = new ConfigCurrency(this.plugin, file);
         currency.setName(StringUtil.capitalizeUnderscored(id));
         currency.setFormat(Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SYMBOL);
-        currency.setFormatShort(Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SHORT_SYMBOL);
+        currency.setFormatShort(Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT/* + Placeholders.CURRENCY_SHORT_SYMBOL*/);
         currency.setCommandAliases(new String[]{id});
         currency.setPermissionRequired(false);
         currency.setTransferAllowed(true);
@@ -196,61 +202,61 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
         return true;
     }
 
-    public boolean exchange(@NotNull Player player, @NotNull Currency from, @NotNull Currency to, double amount) {
+    public boolean exchange(@NotNull Player player, @NotNull Currency from, @NotNull Currency to, double initAmount) {
         if (!from.isExchangeAllowed()) {
-            Lang.CURRENCY_EXCHANGE_ERROR_DISABLED.getMessage().replace(from.replacePlaceholders()).send(player);
+            Lang.CURRENCY_EXCHANGE_ERROR_DISABLED.getMessage().send(player, replacer -> replacer.replace(from.replacePlaceholders()));
             return false;
         }
 
-        CoinsUser user = this.plugin.getUserManager().getUserData(player);
-        if (user.getBalance(from) < amount) {
-            Lang.CURRENCY_EXCHANGE_ERROR_LOW_BALANCE.getMessage()
+        CoinsUser user = this.plugin.getUserManager().getOrFetch(player);
+        if (user.getBalance(from) < initAmount) {
+            Lang.CURRENCY_EXCHANGE_ERROR_LOW_BALANCE.getMessage().send(player, replacer -> replacer
                 .replace(from.replacePlaceholders())
-                .replace(Placeholders.GENERIC_AMOUNT, from.format(amount))
-                .send(player);
+                .replace(Placeholders.GENERIC_AMOUNT, from.format(initAmount))
+            );
             return false;
         }
 
         double rate = from.getExchangeRate(to);
         if (rate <= 0D) {
-            Lang.CURRENCY_EXCHANGE_ERROR_NO_RATE.getMessage()
+            Lang.CURRENCY_EXCHANGE_ERROR_NO_RATE.getMessage().send(player, replacer -> replacer
                 .replace(from.replacePlaceholders())
                 .replace(Placeholders.GENERIC_NAME, to.getName())
-                .send(player);
+            );
             return false;
         }
 
-        amount = from.fine(amount);
+        double amount = from.fine(initAmount);
 
         if (amount <= 0D) {
-            Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT.getMessage().replace(from.replacePlaceholders()).send(player);
+            Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT.getMessage().send(player, replacer -> replacer.replace(from.replacePlaceholders()));
             return false;
         }
 
         double result = to.fine(amount * rate);
         if (result <= 0D) {
-            Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT.getMessage().replace(from.replacePlaceholders()).send(player);
+            Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT.getMessage().send(player, replacer -> replacer.replace(from.replacePlaceholders()));
             return false;
         }
 
         double has = user.getBalance(to) + result;
         if (!to.isUnderLimit(has)) {
-            Lang.CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED.getMessage()
+            Lang.CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED.getMessage().send(player, replacer -> replacer
                 .replace(Placeholders.GENERIC_AMOUNT, to.format(result))
                 .replace(Placeholders.GENERIC_MAX, to.format(to.getMaxValue()))
-                .send(player);
+            );
             return false;
         }
 
         user.removeBalance(from, amount);
         user.addBalance(to, result);
-        this.plugin.getUserManager().scheduleSave(user);
+        this.plugin.getUserManager().save(user);
 
-        Lang.CURRENCY_EXCHANGE_SUCCESS.getMessage()
+        Lang.CURRENCY_EXCHANGE_SUCCESS.getMessage().send(player, replacer -> replacer
             .replace(from.replacePlaceholders())
             .replace(Placeholders.GENERIC_BALANCE, from.format(amount))
             .replace(Placeholders.GENERIC_AMOUNT, to.format(result))
-            .send(player);
+        );
 
         this.plugin.getCoinsLogger().logExchange(user, from, to, amount, result);
         return true;

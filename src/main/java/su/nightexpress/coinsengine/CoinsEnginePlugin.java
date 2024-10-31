@@ -1,6 +1,7 @@
 package su.nightexpress.coinsengine;
 
 import org.jetbrains.annotations.NotNull;
+import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.command.impl.BasicCommands;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
@@ -8,18 +9,17 @@ import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.coinsengine.currency.CurrencyManager;
 import su.nightexpress.coinsengine.data.DataHandler;
 import su.nightexpress.coinsengine.data.UserManager;
-import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 import su.nightexpress.coinsengine.migration.MigrationManager;
 import su.nightexpress.coinsengine.util.CoinsLogger;
-import su.nightexpress.nightcore.NightDataPlugin;
+import su.nightexpress.nightcore.NightPlugin;
 import su.nightexpress.nightcore.command.experimental.ImprovedCommands;
 import su.nightexpress.nightcore.config.PluginDetails;
 import su.nightexpress.nightcore.util.Plugins;
 
-public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> implements ImprovedCommands {
+public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
 
     private CurrencyManager  currencyManager;
     private MigrationManager migrationManager;
@@ -30,13 +30,15 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> implements Imp
 
     @Override
     public void enable() {
+        CoinsEngineAPI.load(this);
+
         this.coinsLogger = new CoinsLogger(this);
         this.registerCommands();
         
         this.dataHandler = new DataHandler(this);
         this.dataHandler.setup();
 
-        this.userManager = new UserManager(this);
+        this.userManager = new UserManager(this, this.dataHandler);
         this.userManager.setup();
 
         this.currencyManager = new CurrencyManager(this);
@@ -63,13 +65,13 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> implements Imp
         if (Plugins.hasPlaceholderAPI()) {
             PlaceholderAPIHook.shutdown();
         }
-        if (this.migrationManager != null) this.migrationManager.shutdown();
-    }
 
-    @Override
-    protected void unloadManagers() {
-        super.unloadManagers();
+        if (this.migrationManager != null) this.migrationManager.shutdown();
+        if (this.userManager != null) this.userManager.shutdown();
+        if (this.dataHandler != null) this.dataHandler.shutdown();
         if (this.currencyManager != null) this.currencyManager.shutdown();
+
+        CoinsEngineAPI.unload();
     }
 
     @Override
@@ -83,28 +85,26 @@ public class CoinsEnginePlugin extends NightDataPlugin<CoinsUser> implements Imp
 
     @NotNull
     public CoinsLogger getCoinsLogger() {
-        return coinsLogger;
+        return this.coinsLogger;
     }
 
     @NotNull
     public CurrencyManager getCurrencyManager() {
-        return currencyManager;
+        return this.currencyManager;
     }
 
     @NotNull
     public MigrationManager getMigrationManager() {
-        return migrationManager;
+        return this.migrationManager;
     }
 
-    @Override
     @NotNull
     public DataHandler getData() {
         return this.dataHandler;
     }
 
     @NotNull
-    @Override
     public UserManager getUserManager() {
-        return userManager;
+        return this.userManager;
     }
 }
