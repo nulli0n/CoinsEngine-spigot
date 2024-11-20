@@ -22,6 +22,7 @@ import java.util.Map;
 public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implements Currency {
 
     private String    name;
+    private String    prefix;
     private String    symbol;
     private String    format;
     private String    formatShort;
@@ -50,6 +51,11 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     protected boolean onLoad(@NotNull FileConfig config) {
         this.setName(ConfigValue.create("Name", StringUtil.capitalizeUnderscored(this.getId()),
             "Localized currency name.",
+            "Text Formations: " + Placeholders.WIKI_TEXT_URL
+        ).read(config));
+
+        this.setPrefix(ConfigValue.create("Prefix", this.name,
+            "Sets custom currency prefix.",
             "Text Formations: " + Placeholders.WIKI_TEXT_URL
         ).read(config));
 
@@ -159,6 +165,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     protected void onSave(@NotNull FileConfig config) {
         config.set("Name", this.getName());
+        config.set("Prefix", this.prefix);
         config.set("Symbol", this.getSymbol());
         config.set("Format", this.getFormat());
         config.set("Format_Short", this.getFormatShort());
@@ -194,6 +201,17 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     public void setName(@NotNull String name) {
         this.name = name;
+    }
+
+    @NotNull
+    @Override
+    public String getPrefix() {
+        return this.prefix;
+    }
+
+    @Override
+    public void setPrefix(@NotNull String prefix) {
+        this.prefix = prefix;
     }
 
     @NotNull

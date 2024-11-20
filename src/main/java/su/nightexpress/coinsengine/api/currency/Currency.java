@@ -7,6 +7,7 @@ import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Perms;
 import su.nightexpress.nightcore.db.sql.column.Column;
+import su.nightexpress.nightcore.language.message.LangMessage;
 import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.number.CompactNumber;
 
@@ -18,6 +19,14 @@ public interface Currency {
     @NotNull
     default UnaryOperator<String> replacePlaceholders() {
         return Placeholders.forCurrency(this);
+    }
+
+    @NotNull
+    default LangMessage withPrefix(@NotNull LangMessage message) {
+        if (!Config.CURRENCY_PREFIX_ENABLED.get()) return message;
+
+        String prefix = this.replacePlaceholders().apply(Config.CURRENCY_PREFIX_FORMAT.get());
+        return message.setPrefix(prefix);
     }
 
     default boolean isUnlimited() {
@@ -98,6 +107,10 @@ public interface Currency {
     @NotNull String getName();
 
     void setName(@NotNull String name);
+
+    @NotNull String getPrefix();
+
+    void setPrefix(@NotNull String prefix);
 
     @NotNull String getSymbol();
 
