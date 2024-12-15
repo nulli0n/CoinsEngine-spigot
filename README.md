@@ -36,7 +36,7 @@ No need in separate economy and points plugins anymore, CoinsEngine will do ever
 
 ### Downloads & Documentation
 - [SpigotMC](https://spigotmc.org/resources/84121/)
-- Hangar *(coming soon)*
+- [Hangar](https://hangar.papermc.io/NightExpress/CoinsEngine)
 - Modrinth *(coming soon)*
 - [Documentation](http://nightexpressdev.com/coinsengine/)
 
