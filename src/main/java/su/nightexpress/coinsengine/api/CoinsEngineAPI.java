@@ -16,16 +16,24 @@ import java.util.function.Supplier;
 
 public class CoinsEngineAPI {
 
-    public static final CoinsEnginePlugin PLUGIN = CoinsEnginePlugin.getPlugin(CoinsEnginePlugin.class);
+    private static CoinsEnginePlugin plugin;
+
+    public static void load(@NotNull CoinsEnginePlugin plugin) {
+        CoinsEngineAPI.plugin = plugin;
+    }
+
+    public static void unload() {
+        plugin = null;
+    }
 
     @NotNull
     public static UserManager getUserManager() {
-        return PLUGIN.getUserManager();
+        return plugin.getUserManager();
     }
 
     @NotNull
     public static CurrencyManager getCurrencyManager() {
-        return PLUGIN.getCurrencyManager();
+        return plugin.getCurrencyManager();
     }
 
     @Nullable
@@ -107,24 +115,24 @@ public class CoinsEngineAPI {
         if (user == null) return false;
 
         consumer.accept(user);
-        getUserManager().scheduleSave(user);
+        getUserManager().save(user);
         return true;
     }
 
 
     @NotNull
     public static CoinsUser getUserData(@NotNull Player player) {
-        return getUserManager().getUserData(player);
+        return getUserManager().getOrFetch(player);
     }
 
     @Nullable
     public static CoinsUser getUserData(@NotNull String name) {
-        return getUserManager().getUserData(name);
+        return getUserManager().getOrFetch(name);
     }
 
     @Nullable
     public static CoinsUser getUserData(@NotNull UUID uuid) {
-        return getUserManager().getUserData(uuid);
+        return getUserManager().getOrFetch(uuid);
     }
 
     @NotNull

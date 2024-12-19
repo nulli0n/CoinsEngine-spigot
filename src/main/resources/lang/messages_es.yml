@@ -1,0 +1,80 @@
+Command:
+  Argument:
+    Name:
+      Currency: moneda
+      Page: página
+      Plugin: plugin
+  Migrate:
+    Desc: Migrar datos de otro(s) plugin(s).
+    Error:
+      Plugin: <lgray>¡Plugin no soportado o no instalado!</lgray>
+    Start: <lgray>¡Se inició la migración de datos desde <lyellow>%name%</lyellow>! Esto puede tomar un tiempo.</lgray>
+    Done: <lgray>¡Datos migrados desde <lyellow>%name%</lyellow>!</lgray>
+  Reset:
+    Desc: Restablecer los saldos de un jugador.
+    Done: <lgray>¡Se han restablecido todos los saldos de moneda para <lyellow>%player_name%</lyellow>!</lgray>
+  Wipe:
+    Desc: Restablecer la moneda para todos los usuarios.
+    Start: <lgray>Se inició la limpieza de datos de la moneda para <lyellow>%currency_name%</lyellow>. Esto puede tomar un tiempo...</lgray>
+    Finish: <lgray>Se completó la limpieza de datos de la moneda para <lyellow>%currency_name%</lyellow>.</lgray>
+  Currency:
+    Root:
+      Desc: 'Comandos de la moneda %currency_name%.'
+    Balance:
+      Desc: Ver saldo.
+    Give:
+      Desc: Agregar moneda a un jugador.
+      Done: '<lgray>Se agregaron <lyellow>%amount%</lyellow> al saldo de <lyellow>%player_name%</lyellow>. Nuevo saldo: <lyellow>%balance%</lyellow>.</lgray>'
+      Notify: <lgray>¡Se han añadido <lyellow>%amount%</lyellow> a tu cuenta!</lgray>
+    GiveAll:
+      Desc: Agregar moneda a todos los jugadores conectados.
+      Done: <lgray>Se agregaron <lyellow>%amount%</lyellow> a <lyellow>todos los jugadores conectados</lyellow>.</lgray>
+    Take:
+      Desc: Quitar moneda a un jugador.
+      Done: '<lgray>Se quitaron <lyellow>%amount%</lyellow> del saldo de <lyellow>%player_name%</lyellow>. Nuevo saldo: <lyellow>%balance%</lyellow>.</lgray>'
+      Notify: <lgray>Se han deducido <lyellow>%amount%</lyellow> de tu cuenta.</lgray>
+    Set:
+      Desc: Establecer el saldo de moneda de un jugador.
+      Done: <lgray>Saldo de <lyellow>%currency_name%</lyellow> de <lyellow>%player_name%</lyellow> establecido en <lyellow>%balance%</lyellow>.</lgray>
+      Notify: <lgray>Tu saldo de <lyellow>%currency_name%</lyellow> se ha establecido en <lyellow>%amount%</lyellow>.</lgray>
+    Send:
+      Desc: Transferir moneda a un jugador.
+      Error:
+        NotEnough: <lgray>¡No tienes suficiente <lred>%currency_name%</lred>!</lgray>
+        TooLow: <lgray>¡No puedes enviar menos de <lred>%amount%</lred>!</lgray>
+        NoPayments: <lgray>¡<lred>%player_name%</lred> no acepta <lred>%currency_name%</lred>!</lgray>
+      Done:
+        Sender: <lgray>Enviaste <lyellow>%amount%</lyellow> a <lyellow>%player_name%</lyellow>!</lgray>
+        Notify: <lgray>Recibiste <lyellow>%amount%</lyellow> de <lyellow>%player_name%</lyellow>!</lgray>
+    Payments:
+      Desc: Activar/desactivar la aceptación de pagos de otros jugadores.
+      Toggle: '<lgray>Aceptación de pagos de <lyellow>%currency_name%</lyellow>: <lyellow>%state%</lyellow>.</lgray>'
+      Target: '<lgray>Aceptación de pagos de <lyellow>%currency_name%</lyellow> para <lyellow>%player_name%</lyellow>: <lyellow>%state%</lyellow>.</lgray>'
+    Exchange:
+      Desc: Intercambiar moneda.
+    Top:
+      Desc: Lista de jugadores con el saldo más alto.
+      List:
+        - <noprefix>
+        - <cyan><b>%currency_name% Top:</b></cyan>
+        - ' '
+        - '%entry%'
+        - ' '
+        - <lgray>Página <cyan>%current%</cyan> de <cyan>%max%</cyan>.</lgray>
+        - ' '
+      Entry: '<cyan>%pos%. <gray>%player_name%: </gray>%balance%</cyan>'
+Currency:
+  Balance:
+    Display:
+      Own: '<lgray>Saldo: <lyellow>%balance%</lyellow>.</lgray>'
+      Others: '<lgray>Saldo de <lyellow>%player_name%</lyellow>: <lyellow>%balance%</lyellow>.</lgray>'
+  Exchange:
+    Error:
+      Disabled: <lgray>¡<lred>%currency_name%</lred> no se puede intercambiar!</lgray>
+      NoRate: <lgray>¡<lred>%currency_name%</lred> no se puede intercambiar por <lred>%name%</lred>!</lgray>
+      LowAmount: <lgray>¡La cantidad de <lred>%currency_name%</lred> es demasiado baja para el intercambio!</lgray>
+      LimitExceed: <lgray>Podrías obtener <lred>%amount%</lred>, ¡pero no puedes tener más de <lred>%max%</lred> en total!</lgray>
+      LowBalance: <lgray>¡No tienes <lred>%amount%</lred> para el intercambio!</lgray>
+    Success: <lgray>¡Intercambiaste <lyellow>%balance%</lyellow> por <lyellow>%amount%</lyellow>!</lgray>
+  Error:
+    Invalid: <lgray>¡<lred>%value%</lred> no es una moneda válida!</lgray>

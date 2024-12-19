@@ -8,11 +8,11 @@ import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
-import su.nightexpress.nightcore.database.sql.SQLColumn;
-import su.nightexpress.nightcore.database.sql.column.ColumnType;
+import su.nightexpress.nightcore.db.sql.column.Column;
+import su.nightexpress.nightcore.db.sql.column.ColumnType;
 import su.nightexpress.nightcore.manager.AbstractFileData;
+import su.nightexpress.nightcore.util.Plugins;
 import su.nightexpress.nightcore.util.StringUtil;
-import su.nightexpress.nightcore.util.placeholder.PlaceholderMap;
 
 import java.io.File;
 import java.util.Arrays;
@@ -21,37 +21,41 @@ import java.util.Map;
 
 public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implements Currency {
 
-    private String              name;
-    private String              symbol;
-    private String              format;
-    private String              formatShort;
-    private String              columnName;
-    private String[]            commandAliases;
-    private ItemStack           icon;
-    private SQLColumn           column;
-    private boolean             decimal;
-    private boolean             synchronizable;
-    private boolean             permissionRequired;
-    private boolean             transferAllowed;
-    private double              minTransferAmount;
-    private double              startValue;
-    private double              maxValue;
-    private boolean             vaultEconomy;
-    private boolean             exchangeAllowed;
-    private Map<String, Double> exchangeRates;
+    private String    name;
+    private String    prefix;
+    private String    symbol;
+    private String    format;
+    private String    formatShort;
+    private String    columnName;
+    private String[]  commandAliases;
+    private ItemStack icon;
+    private Column    column;
+    private boolean   decimal;
+    private boolean   synchronizable;
+    private boolean   permissionRequired;
+    private boolean   transferAllowed;
+    private double    minTransferAmount;
+    private double    startValue;
+    private double    maxValue;
+    private boolean   vaultEconomy;
+    private boolean   exchangeAllowed;
 
-    private final PlaceholderMap placeholderMap;
+    private final Map<String, Double> exchangeRates;
 
     public ConfigCurrency(@NotNull CoinsEnginePlugin plugin, @NotNull File file) {
         super(plugin, file);
         this.exchangeRates = new HashMap<>();
-        this.placeholderMap = Placeholders.forCurrency(this);
     }
 
     @Override
     protected boolean onLoad(@NotNull FileConfig config) {
         this.setName(ConfigValue.create("Name", StringUtil.capitalizeUnderscored(this.getId()),
             "Localized currency name.",
+            "Text Formations: " + Placeholders.WIKI_TEXT_URL
+        ).read(config));
+
+        this.setPrefix(ConfigValue.create("Prefix", this.name,
+            "Sets custom currency prefix.",
             "Text Formations: " + Placeholders.WIKI_TEXT_URL
         ).read(config));
 
@@ -65,14 +69,16 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Currency display format.",
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
             "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS,
+            "You can use " + Plugins.PLACEHOLDER_API + " placeholders that are NOT bound to a player (e.g. Oraxen or ItemsAdder %img% placeholders)",
             "Text Formations: " + Placeholders.WIKI_TEXT_URL
         ).read(config));
 
         this.setFormatShort(ConfigValue.create("Format_Short",
-            Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SHORT_SYMBOL,
+            Placeholders.CURRENCY_SYMBOL + Placeholders.GENERIC_AMOUNT/* + Placeholders.CURRENCY_SHORT_SYMBOL*/,
             "Currency short display format.",
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
-            "Use '" + Placeholders.CURRENCY_SHORT_SYMBOL + "' placeholder for short symbol (k, m, b, t, q).",
+            "You can use " + Plugins.PLACEHOLDER_API + " placeholders that are NOT bound to a player (e.g. Oraxen or ItemsAdder %img% placeholders)",
+            //"Use '" + Placeholders.CURRENCY_SHORT_SYMBOL + "' placeholder for short symbol (k, m, b, t, q).",
             "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS
         ).read(config));
 
@@ -143,16 +149,15 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Sets whether or not this currency can be exchanged for other ones."
         ).read(config));
 
-        this.exchangeRates = ConfigValue.forMap("Exchange.Rates",
-            (cfg2, path, id) -> cfg2.getDouble(path + "." + id),
-            (cfg2, path, map) -> map.forEach((id, amount) -> cfg2.set(path + "." + id, amount)),
-            () -> Map.of("other", 5D),
-            "Sets exchange rates for this currency for other ones.",
-            "1 of this currency = X of other currency.",
-            "Exchange.Rates:",
-            "  other: 5",
-            "  another: 10"
-        ).read(config);
+        if (config.getSection("Exchange.Rates").isEmpty()) {
+            config.set("Exchange.Rates.your_currency_name", 5);
+            config.set("Exchange.Rates.other_currency_name", 10);
+        }
+
+        config.getSection("Exchange.Rates").forEach(sId -> {
+            double rate = config.getDouble("Exchange.Rates." + sId);
+            this.exchangeRates.put(sId.toLowerCase(), rate);
+        });
 
         return true;
     }
@@ -160,6 +165,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     protected void onSave(@NotNull FileConfig config) {
         config.set("Name", this.getName());
+        config.set("Prefix", this.prefix);
         config.set("Symbol", this.getSymbol());
         config.set("Format", this.getFormat());
         config.set("Format_Short", this.getFormatShort());
@@ -181,11 +187,10 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
         });
     }
 
-    @Override
-    @NotNull
-    public PlaceholderMap getPlaceholders() {
-        return this.placeholderMap;
-    }
+//    @NotNull
+//    public PlaceholderMap getPlaceholders() {
+//        return this.placeholderMap;
+//    }
 
     @NotNull
     @Override
@@ -196,6 +201,17 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     @Override
     public void setName(@NotNull String name) {
         this.name = name;
+    }
+
+    @NotNull
+    @Override
+    public String getPrefix() {
+        return this.prefix;
+    }
+
+    @Override
+    public void setPrefix(@NotNull String prefix) {
+        this.prefix = prefix;
     }
 
     @NotNull
@@ -228,7 +244,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
 
     @Override
     public void setFormatShort(@NotNull String formatShort) {
-        this.formatShort = formatShort;
+        this.formatShort = formatShort.replace("%currency_short_symbol%", "");
     }
 
     @NotNull
@@ -239,7 +255,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
 
     public void setColumnName(@NotNull String columnName) {
         this.columnName = columnName;
-        this.column = SQLColumn.of(this.columnName, ColumnType.DOUBLE);
+        this.column = Column.of(this.columnName, ColumnType.DOUBLE);
     }
 
     @NotNull
@@ -255,7 +271,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
 
     @NotNull
     @Override
-    public SQLColumn getColumn() {
+    public Column getColumn() {
         return column;
     }
 

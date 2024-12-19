@@ -1,16 +1,33 @@
 package su.nightexpress.coinsengine.api.currency;
 
-import java.util.Map;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.Placeholders;
+import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.nightcore.database.sql.SQLColumn;
+import su.nightexpress.nightcore.db.sql.column.Column;
+import su.nightexpress.nightcore.language.message.LangMessage;
 import su.nightexpress.nightcore.util.NumberUtil;
-import su.nightexpress.nightcore.util.Pair;
-import su.nightexpress.nightcore.util.placeholder.Placeholder;
+import su.nightexpress.nightcore.util.number.CompactNumber;
 
-public interface Currency extends Placeholder {
+import java.util.Map;
+import java.util.function.UnaryOperator;
+
+public interface Currency {
+
+    @NotNull
+    default UnaryOperator<String> replacePlaceholders() {
+        return Placeholders.forCurrency(this);
+    }
+
+    @NotNull
+    default LangMessage withPrefix(@NotNull LangMessage message) {
+        if (!Config.CURRENCY_PREFIX_ENABLED.get()) return message;
+
+        String prefix = this.replacePlaceholders().apply(Config.CURRENCY_PREFIX_FORMAT.get());
+        return message.setPrefix(prefix);
+    }
 
     default boolean isUnlimited() {
         return this.getMaxValue() <= 0D;
@@ -60,21 +77,29 @@ public interface Currency extends Placeholder {
 
     @NotNull
     default String format(double balance) {
-        return this.replacePlaceholders()
-                .apply(this.getFormat()).replace(Placeholders.GENERIC_AMOUNT, this.formatValue(balance));
+        String format = this.getFormat();
+        if (Config.useCurrencyFormatPAPI()) {
+            format = PlaceholderAPI.setPlaceholders(null, format);
+        }
+
+        return this.replacePlaceholders().apply(format).replace(Placeholders.GENERIC_AMOUNT, this.formatValue(balance));
     }
 
     @NotNull
-    default Pair<String, String> formatCompactValue(double balance) {
-        return NumberUtil.formatCompact(this.fine(balance));
+    default CompactNumber formatCompactValue(double balance) {
+        return NumberUtil.asCompact(this.fine(balance));
     }
 
     @NotNull
     default String formatCompact(double balance) {
-        Pair<String, String> compact = this.formatCompactValue(balance);
-        return this.replacePlaceholders().apply(this.getFormatShort())
-                .replace(Placeholders.GENERIC_AMOUNT, compact.getFirst())
-                .replace(Placeholders.CURRENCY_SHORT_SYMBOL, compact.getSecond());
+        String format = this.getFormatShort();
+        if (Config.useCurrencyFormatPAPI()) {
+            format = PlaceholderAPI.setPlaceholders(null, format);
+        }
+
+        CompactNumber compact = this.formatCompactValue(balance);
+
+        return this.replacePlaceholders().apply(format).replace(Placeholders.GENERIC_AMOUNT, compact.format());
     }
 
     @NotNull String getId();
@@ -82,6 +107,10 @@ public interface Currency extends Placeholder {
     @NotNull String getName();
 
     void setName(@NotNull String name);
+
+    @NotNull String getPrefix();
+
+    void setPrefix(@NotNull String prefix);
 
     @NotNull String getSymbol();
 
@@ -103,7 +132,7 @@ public interface Currency extends Placeholder {
 
     void setColumnName(@NotNull String columnName);
 
-    @NotNull SQLColumn getColumn();
+    @NotNull Column getColumn();
 
     @NotNull ItemStack getIcon();
 

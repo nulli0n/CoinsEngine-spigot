@@ -1,12 +1,10 @@
 package su.nightexpress.coinsengine.api.event;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import org.jetbrains.annotations.NotNull;
 
 public class CoinsExchangeEvent extends Event implements Cancellable {

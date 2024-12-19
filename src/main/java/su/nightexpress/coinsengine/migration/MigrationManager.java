@@ -60,10 +60,10 @@ public class MigrationManager extends SimpleManager<CoinsEnginePlugin> {
             if (name == null) return;
 
             UUID uuid = player.getUniqueId();
-            CoinsUser user = this.plugin.getUserManager().getUserData(uuid);
+            CoinsUser user = this.plugin.getUserManager().getOrFetch(uuid);
             if (user == null) {
                 user = CoinsUser.create(this.plugin, uuid, name);
-                this.plugin.getData().addUser(user);
+                this.plugin.getData().insertUser(user);
             }
             user.setBalance(currency, points);
             this.plugin.getUserManager().save(user);
