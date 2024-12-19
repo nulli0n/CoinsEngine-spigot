@@ -9,7 +9,10 @@
 **CoinsEngine** is a lightweight, highly customizable custom currency provider with built-in [Vault integration](https://nightexpressdev.com/coinsengine/hooks/vault/).
 </div>
 
-### Features
+# Installation
+Follow [this guide](https://nightexpressdev.com/coinsengine/start/) to install CoinsEngine.
+
+# Features
 - [Unlimited Currencies](https://nightexpressdev.com/coinsengine/configuration/currencies/). Create as many currencies as you want.
 - [Data Migration](https://nightexpressdev.com/coinsengine/migration/). Migrate player balances from other plugins with a single command.
 - [Cross-Server](https://nightexpressdev.com/coinsengine/configuration/cross-server/). Share currency balances between your servers.
@@ -34,11 +37,11 @@
 
 No need in separate economy and points plugins anymore, CoinsEngine will do everything for you!
 
-### Downloads & Documentation
+# Downloads & Documentation
 - [SpigotMC](https://spigotmc.org/resources/84121/)
 - [Hangar](https://hangar.papermc.io/NightExpress/CoinsEngine)
 - [Modrinth](https://modrinth.com/plugin/coinsengine)
 - [Documentation](https://nightexpressdev.com/coinsengine/)
 
-## Donate
+# Donate
 If you like my work or enjoy using my plugins, feel free to [Buy me a coffee](https://ko-fi.com/nightexpress) :) Thank you! 🧡
