@@ -44,16 +44,6 @@ public class CoinsUser extends AbstractUser {
         this.settingsMap = new HashMap<>(settingsMap);
     }
 
-    @Override
-    public void onLoad() {
-
-    }
-
-    @Override
-    public void onUnload() {
-
-    }
-
     @NotNull
     public Map<String, Double> getBalanceMap() {
         return balanceMap;

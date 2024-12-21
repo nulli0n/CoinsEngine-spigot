@@ -51,17 +51,17 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
     protected boolean onLoad(@NotNull FileConfig config) {
         this.setName(ConfigValue.create("Name", StringUtil.capitalizeUnderscored(this.getId()),
             "Localized currency name.",
-            "Text Formations: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.URL_WIKI_TEXT
         ).read(config));
 
         this.setPrefix(ConfigValue.create("Prefix", this.name,
             "Sets custom currency prefix.",
-            "Text Formations: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.URL_WIKI_TEXT
         ).read(config));
 
         this.setSymbol(ConfigValue.create("Symbol", this.getName(),
             "Currency symbol, like '$'.",
-            "Text Formations: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.URL_WIKI_TEXT
         ).read(config));
 
         this.setFormat(ConfigValue.create("Format",
@@ -70,7 +70,7 @@ public class ConfigCurrency extends AbstractFileData<CoinsEnginePlugin> implemen
             "Use '" + Placeholders.GENERIC_AMOUNT + "' placeholder for amount value.",
             "You can use 'Currency' placeholders: " + Placeholders.WIKI_PLACEHOLDERS,
             "You can use " + Plugins.PLACEHOLDER_API + " placeholders that are NOT bound to a player (e.g. Oraxen or ItemsAdder %img% placeholders)",
-            "Text Formations: " + Placeholders.WIKI_TEXT_URL
+            "Text Formations: " + Placeholders.URL_WIKI_TEXT
         ).read(config));
 
         this.setFormatShort(ConfigValue.create("Format_Short",
