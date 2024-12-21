@@ -5,6 +5,8 @@
   <a href="https://discord.gg/EwNFGsnGaW"><img src="https://i.imgur.com/oJLlroF.png"></a>
   <a href="https://ko-fi.com/nightexpress"><img src="https://i.imgur.com/fxoe3Xr.png"></a>
   <a href="https://nightexpressdev.com/coinsengine/"><img src="https://i.imgur.com/gCaEmxj.png"></a>
+  
+  ![](https://repo.nightexpressdev.com/api/badge/latest/releases/su/nightexpress/coinsengine/CoinsEngine?color=40c14a&name=CoinsEngine&prefix=v)
 
 **CoinsEngine** is a lightweight, highly customizable custom currency provider with built-in [Vault integration](https://nightexpressdev.com/coinsengine/hooks/vault/).
 </div>
@@ -42,6 +44,7 @@ No need in separate economy and points plugins anymore, CoinsEngine will do ever
 - [Hangar](https://hangar.papermc.io/NightExpress/CoinsEngine)
 - [Modrinth](https://modrinth.com/plugin/coinsengine)
 - [Documentation](https://nightexpressdev.com/coinsengine/)
+- [Developer API](https://nightexpressdev.com/coinsengine/developer-api/)
 
 # Donate
 If you like my work or enjoy using my plugins, feel free to [Buy me a coffee](https://ko-fi.com/nightexpress) :) Thank you! 🧡
