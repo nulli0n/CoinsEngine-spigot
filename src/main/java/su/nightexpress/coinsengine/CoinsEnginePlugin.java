@@ -11,6 +11,7 @@ import su.nightexpress.coinsengine.data.DataHandler;
 import su.nightexpress.coinsengine.data.UserManager;
 import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
+import su.nightexpress.coinsengine.hook.LibreforgeHook;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 import su.nightexpress.coinsengine.migration.MigrationManager;
 import su.nightexpress.coinsengine.util.CoinsLogger;
@@ -49,6 +50,10 @@ public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
 
         if (Plugins.hasPlaceholderAPI()) {
             PlaceholderAPIHook.setup(this);
+        }
+
+        if (Plugins.isInstalled(HookId.ECO)) {
+            LibreforgeHook.setup(this);
         }
 
         if (Plugins.isInstalled(HookId.DELUXE_COINFLIP)) {
