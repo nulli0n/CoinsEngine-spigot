@@ -1,16 +1,18 @@
 package su.nightexpress.coinsengine.data.impl;
 
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
+import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.api.event.ChangeBalanceEvent;
-import su.nightexpress.nightcore.database.AbstractUser;
+import su.nightexpress.nightcore.db.AbstractUser;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
+public class CoinsUser extends AbstractUser {
 
     private final Map<String, Double>           balanceMap;
     private final Map<String, CurrencySettings> settingsMap;
@@ -29,16 +31,15 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
         return new CoinsUser(plugin, uuid, name, dateCreated, dateCreated, balanceMap, settingsMap);
     }
 
-    public CoinsUser(
-        @NotNull CoinsEnginePlugin plugin,
-        @NotNull UUID uuid,
-        @NotNull String name,
-        long dateCreated,
-        long lastLogin,
-        @NotNull Map<String, Double> balanceMap,
-        @NotNull Map<String, CurrencySettings> settingsMap
+    public CoinsUser(@NotNull CoinsEnginePlugin plugin,
+                     @NotNull UUID uuid,
+                     @NotNull String name,
+                     long dateCreated,
+                     long lastLogin,
+                     @NotNull Map<String, Double> balanceMap,
+                     @NotNull Map<String, CurrencySettings> settingsMap
     ) {
-        super(plugin, uuid, name, dateCreated, lastLogin);
+        super(uuid, name, dateCreated, lastLogin);
         this.balanceMap = new HashMap<>(balanceMap);
         this.settingsMap = new HashMap<>(settingsMap);
     }
@@ -54,7 +55,7 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
     }
 
     public void resetBalance() {
-        this.plugin.getCurrencyManager().getCurrencies().forEach(this::resetBalance);
+        CoinsEngineAPI.getCurrencyManager().getCurrencies().forEach(this::resetBalance);
     }
 
     public void resetBalance(@NotNull Currency currency) {
@@ -78,10 +79,12 @@ public class CoinsUser extends AbstractUser<CoinsEnginePlugin> {
     }
 
     private void changeBalance(@NotNull Currency currency, double amount) {
+        double oldBalance = this.getBalance(currency);
+
         this.balanceMap.put(currency.getId(), currency.fineAndLimit(amount));
 
-        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(this, currency, balanceMap.get(currency.getId()), currency.fineAndLimit(amount));
-        this.plugin.getPluginManager().callEvent(changeBalanceEvent);
+        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(this, currency, oldBalance, this.getBalance(currency));
+        Bukkit.getPluginManager().callEvent(changeBalanceEvent);
     }
 
     @NotNull

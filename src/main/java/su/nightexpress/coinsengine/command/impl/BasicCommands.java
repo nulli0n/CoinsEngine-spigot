@@ -20,7 +20,7 @@ public class BasicCommands {
     public static void load(@NotNull CoinsEnginePlugin plugin) {
         ChainedNode rootNode = plugin.getRootNode();
 
-        ReloadCommand.inject(plugin, rootNode, Perms.COMMAND_RELOAD);
+        rootNode.addChildren(ReloadCommand.builder(plugin, Perms.COMMAND_RELOAD));
 
         rootNode.addChildren(DirectNode.builder(plugin, "migrate")
             .permission(Perms.COMMAND_MIGRATE)
@@ -57,9 +57,9 @@ public class BasicCommands {
         Currency currency = arguments.getArgument(CommandArguments.CURRENCY, Currency.class);
 
         plugin.runTaskAsync(task -> {
-            Lang.COMMAND_MIGRATE_START.getMessage().replace(Placeholders.GENERIC_NAME, migrationPlugin.getPluginName()).send(context.getSender());
+            Lang.COMMAND_MIGRATE_START.getMessage().send(context.getSender(), replacer -> replacer.replace(Placeholders.GENERIC_NAME, migrationPlugin.getPluginName()));
             plugin.getMigrationManager().migrate(migrationPlugin, currency);
-            Lang.COMMAND_MIGRATE_DONE.getMessage().replace(Placeholders.GENERIC_NAME, migrationPlugin.getPluginName()).send(context.getSender());
+            Lang.COMMAND_MIGRATE_DONE.getMessage().send(context.getSender(), replacer -> replacer.replace(Placeholders.GENERIC_NAME, migrationPlugin.getPluginName()));
         });
 
         return true;
@@ -73,11 +73,11 @@ public class BasicCommands {
             }
 
             user.resetBalance();
-            plugin.getUserManager().scheduleSave(user);
+            plugin.getUserManager().save(user);
 
-            Lang.COMMAND_RESET_DONE.getMessage()
+            Lang.COMMAND_RESET_DONE.getMessage().send(context.getSender(), replacer -> replacer
                 .replace(Placeholders.PLAYER_NAME, user.getName())
-                .send(context.getSender());
+            );
         });
         return true;
     }
@@ -85,12 +85,12 @@ public class BasicCommands {
     public static boolean wipe(@NotNull CoinsEnginePlugin plugin, @NotNull CommandContext context, @NotNull ParsedArguments arguments) {
         Currency currency = arguments.getArgument(CommandArguments.CURRENCY, Currency.class);
 
-        Lang.COMMAND_WIPE_START.getMessage().replace(currency.replacePlaceholders()).send(context.getSender());
+        Lang.COMMAND_WIPE_START.getMessage().send(context.getSender(), replacer -> replacer.replace(currency.replacePlaceholders()));
 
         plugin.runTaskAsync(task -> {
             plugin.getData().resetBalances(currency);
             plugin.getUserManager().getLoaded().forEach(user -> user.resetBalance(currency));
-            Lang.COMMAND_WIPE_FINISH.getMessage().replace(currency.replacePlaceholders()).send(context.getSender());
+            Lang.COMMAND_WIPE_FINISH.getMessage().send(context.getSender(), replacer -> replacer.replace(currency.replacePlaceholders()));
         });
 
         return true;

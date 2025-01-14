@@ -1,0 +1,96 @@
+Command:
+  Migrate:
+    Desc: 從其他插件遷移數據
+    Usage: <plugin> <currency>
+    Error:
+      Plugin: '&7插件不支持或未安装！'
+    Start: '&7已開始從 &b%name% &7遷移數據！ 這可能需要一些時間...'
+    Done: '&7已從 &b%name% &7遷移數據！'
+  Reset:
+    Desc: 重置玩家的餘額
+    Usage: <player>
+    Done: '&7已重置 &a%player_name% &7的所有貨幣餘額！'
+  Wipe:
+    Desc: 重置所有用戶的貨幣
+    Usage: <currency>
+    Start: '&7已開始為 &b%currency_name% &7刪除貨幣數據。這可能需要一段時間...'
+    Finish: '&7已完成為 &b%currency_name% &7刪除貨幣數據'
+  Currency:
+    Balance:
+      Usage: '[player]'
+      Desc: 檢查 [player] 的貨幣餘額
+    Give:
+      Usage: <player> <amount> [-s]
+      Desc: 给玩家添加貨幣
+      Done: '&7已添加 &e%amount%金幣 &7到 &a%player_name% &7的餘額。當前餘額: &e%balance%金幣'
+      Notify: '&7已將 &e%amount%金幣 &7添加到你的帳戶！'
+    Take:
+      Usage: <player> <amount> [-s]
+      Desc: 扣除玩家的貨幣
+      Done: '&7已從 &a%player_name% &7的餘額中扣除 &e%amount%金幣&7。當前餘額: &e%balance%金幣'
+      Notify: '&7已从你的账户中扣除 &e%amount%金币！'
+    Set:
+      Usage: <player> <amount> [-s]
+      Desc: 設置玩家的貨幣餘額
+      Done: '&7設置 &a%player_name% &7的 &b%currency_name% 餘額為 &e%balance%'
+      Notify: '&7你的 &b%currency_name% &7餘額已設置為 &e%amount%'
+    Send:
+      Usage: <player> <amount>
+      Desc: 向玩家轉移貨幣
+      Error:
+        NotEnough: '&c你沒有足夠的的 &b%currency_name%&c！'
+        TooLow: '&c你不能發送少於 &e%amount% &c的金額！'
+        NoPayments: '&a%player_name% &c不接受 &b%currency_name% &c付款！'
+      Done:
+        Sender: '&7你已發送 &e%amount% 金幣 &7給 &a%player_name%！'
+        Notify: '&7你已收到來自 &a%player_name% &7的 &e%amount% 金幣！'
+    Payments:
+      Usage: '[player] [-s]'
+      Desc: 切换是否接受其他玩家的付款
+      Toggle: '&b%currency_name% &7付款接受: &b%state%'
+      Target: '&b%currency_name% &7付款接受为 &a%player_name%: &b%state%'
+    Exchange:
+      Usage: <currency> <amount>
+      Desc: 貨幣兌換
+    Top:
+      Usage: '[page]'
+      Desc: 擁有最多餘額的玩家列表
+      List:
+        - <noprefix>
+        - '&b<b>%currency_name% 排行榜:</b>'
+        - ' '
+        - '%entry%'
+        - ' '
+        - ''
+        - '&7頁數 &e%current% &7/ &e%max%'
+        - ' '
+      Entry: ' &b| &7%pos%. &a%player_name%: &e%balance%'
+    Root:
+      Desc: '%currency_name% commands.'
+    GiveAll:
+      Desc: 給予所有在線玩家一定數額的貨幣
+      Done: <lgray>給予了 <lyellow>所有在線</lyellow>玩家 <lyellow>%amount%</lyellow></lgray>
+  Argument:
+    Name:
+      Currency: currency
+      Page: page
+      Plugin: plugin
+Currency:
+  Balance:
+    Display:
+      Own: '&7餘額: &e%balance%'
+      Others: '&a%player_name% &7的餘額: &e%balance%'
+  Exchange:
+    Error:
+      Disabled: '&b%currency_name% &c無法兌換！'
+      NoRate: '&b%currency_name% &c無法以 &b%name% &c兌換！'
+      LowAmount: '&b%currency_name% &c的金額太低無法兌換！'
+      LimitExceed: '&7你可以獲得 &e%amount%&c，但你不能持有超過 &e%max% &c的總額！'
+      LowBalance: '&c你沒有 &c%amount% 來兌換！'
+    Success: '&7你已將 &e%balance% &7兌換為 &e%amount%！'
+  Error:
+    Invalid: '&c無效的貨幣！'
+VaultEconomy:
+  Error:
+    InvalidPlayer: Player not found.
+    InsufficientFunds: Insufficient Funds!

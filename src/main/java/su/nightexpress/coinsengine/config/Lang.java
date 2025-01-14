@@ -16,7 +16,7 @@ public class Lang extends CoreLang {
     public static final LangString COMMAND_MIGRATE_DESC           = LangString.of("Command.Migrate.Desc", "Migrate data from other plugin(s).");
     public static final LangString COMMAND_RESET_DESC             = LangString.of("Command.Reset.Desc", "Reset player's balances.");
     public static final LangString COMMAND_WIPE_DESC              = LangString.of("Command.Wipe.Desc", "Reset currency for all users.");
-    public static final LangString COMMAND_CURRENCY_ROOT_DESC     = LangString.of("Command.Currency.Root.Desc", CURRENCY_NAME + " currency commands.");
+    public static final LangString COMMAND_CURRENCY_ROOT_DESC     = LangString.of("Command.Currency.Root.Desc", CURRENCY_NAME + " commands.");
     public static final LangString COMMAND_CURRENCY_BALANCE_DESC  = LangString.of("Command.Currency.Balance.Desc", "View balance.");
     public static final LangString COMMAND_CURRENCY_GIVE_DESC     = LangString.of("Command.Currency.Give.Desc", "Add currency to a player.");
     public static final LangString COMMAND_CURRENCY_GIVE_ALL_DESC = LangString.of("Command.Currency.GiveAll.Desc", "Add currency to all online players.");
@@ -110,6 +110,7 @@ public class Lang extends CoreLang {
 
     public static final LangText COMMAND_CURRENCY_TOP_LIST = LangText.of("Command.Currency.Top.List",
         TAG_NO_PREFIX,
+        " ",
         CYAN.enclose(BOLD.enclose(CURRENCY_NAME + " Top:")),
         " ",
         GENERIC_ENTRY,
@@ -150,6 +151,10 @@ public class Lang extends CoreLang {
     public static final LangText CURRENCY_EXCHANGE_SUCCESS = LangText.of("Currency.Exchange.Success",
         LIGHT_GRAY.enclose("You exchanged " + LIGHT_YELLOW.enclose(GENERIC_BALANCE) + " for " + LIGHT_YELLOW.enclose(GENERIC_AMOUNT) + "!"));
 
+
+    public static final LangString ECONOMY_ERROR_INVALID_PLAYER = LangString.of("VaultEconomy.Error.InvalidPlayer", "Player not found.");
+
+    public static final LangString ECONOMY_ERROR_INSUFFICIENT_FUNDS = LangString.of("VaultEconomy.Error.InsufficientFunds", "Insufficient Funds!");
 
 
     public static final LangText ERROR_COMMAND_ARGUMENT_INVALID_CURRENCY = LangText.of("Currency.Error.Invalid",
