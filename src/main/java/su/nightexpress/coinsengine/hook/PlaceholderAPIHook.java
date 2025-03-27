@@ -72,7 +72,11 @@ public class PlaceholderAPIHook {
                 return NightMessage.asLegacy(currency.format(plugin.getCurrencyManager().getTotalBalance(currency)));
             });
 
-
+            
+            this.placeholders.put("symbol", (player, currency) -> {
+                return currency.getSymbol();
+            });
+            
 
             this.placeholders.put("payments_state", (player, currency) -> {
                 return handleUserCurrency(player, user -> {
