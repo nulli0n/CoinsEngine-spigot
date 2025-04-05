@@ -33,7 +33,7 @@
 ## Dependencies
 **REQUIRED:**
 - **Java 21** or higher.
-- [nightcore](https://nightexpressdev.com/nightcore/) 2.7.3 or newer.
+- [nightcore](https://nightexpressdev.com/nightcore/) 2.7.5 or newer.
 
 **OPTIONAL:**
 - [Vault](https://spigotmc.org/resources/34315/)
