@@ -1,12 +1,9 @@
-# About
 <div align="center">
   <img src="https://nightexpressdev.com/img/coinsengine/logo.png">
-  
-  <a href="https://discord.gg/EwNFGsnGaW"><img src="https://nightexpressdev.com/img/generic/btn_discord.png"></a>
-  <a href="https://ko-fi.com/nightexpress"><img src="https://nightexpressdev.com/img/generic/btn_donate.png"></a>
-  <a href="https://nightexpressdev.com/coinsengine/"><img src="https://nightexpressdev.com/img/generic/btn_wiki.png"></a>
-  
-  ![](https://repo.nightexpressdev.com/api/badge/latest/releases/su/nightexpress/coinsengine/CoinsEngine?color=40c14a&name=CoinsEngine&prefix=v)
+
+<a href="https://discord.gg/EwNFGsnGaW"><img src="https://nightexpressdev.com/img/generic/btn_discord.png"></a>
+<a href="https://ko-fi.com/nightexpress"><img src="https://nightexpressdev.com/img/generic/btn_donate.png"></a>
+<a href="https://nightexpressdev.com/coinsengine/"><img src="https://nightexpressdev.com/img/generic/btn_wiki.png"></a>
 
 **CoinsEngine** is a lightweight, highly customizable economy & custom currency plugin with built-in [Vault integration](https://nightexpressdev.com/coinsengine/hooks/vault/).
 </div>
@@ -33,24 +30,20 @@
 - [Vault](https://nightexpressdev.com/coinsengine/hooks/vault/) Support. Set desired currency to handle your economy.
 - [PlaceholderAPI](https://nightexpressdev.com/coinsengine/hooks/placeholder_api/) Support.
 
-# Compatibility
-- **Java Version:** 21 or higher.
-- **Server Software:** Spigot / Paper / Purpur
-- **Server Version:** 1.20.1 or higher.
-
-# Dependencies
+## Dependencies
 **REQUIRED:**
+- **Java 21** or higher.
 - [nightcore](https://nightexpressdev.com/nightcore/) 2.7.3 or newer.
 
 **OPTIONAL:**
 - [Vault](https://spigotmc.org/resources/34315/)
 
-# Downloads & Documentation
+## Downloads & Documentation
 - [SpigotMC](https://spigotmc.org/resources/84121/)
 - [Hangar](https://hangar.papermc.io/NightExpress/CoinsEngine)
 - [Modrinth](https://modrinth.com/plugin/coinsengine)
 - [Documentation](https://nightexpressdev.com/coinsengine/)
 - [Developer API](https://nightexpressdev.com/coinsengine/developer-api/)
 
-# Donate
+## Donate
 If you like my work or enjoy using my plugins, feel free to [Buy me a coffee](https://ko-fi.com/nightexpress) :) Thank you! 🧡

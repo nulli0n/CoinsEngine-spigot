@@ -46,7 +46,7 @@ public interface Currency {
     }
 
     default double fine(double amount) {
-        return Math.max(0D, this.isDecimal() ? amount : Math.floor(amount));
+        return this.isDecimal() ? amount : Math.floor(amount);
     }
 
     default double limit(double amount) {

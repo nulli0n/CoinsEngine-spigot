@@ -79,6 +79,7 @@ public class CoinsUser extends AbstractUser {
     }
 
     private void changeBalance(@NotNull Currency currency, double amount) {
+        amount = Math.max(0, amount);
         double oldBalance = this.getBalance(currency);
 
         this.balanceMap.put(currency.getId(), currency.fineAndLimit(amount));
