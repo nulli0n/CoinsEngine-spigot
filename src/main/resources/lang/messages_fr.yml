@@ -1,0 +1,96 @@
+Command:
+  Migrate:
+    Desc: "Migrer les données depuis d'autres plugins."
+    Usage: "<plugin> <currency>"
+    Error:
+      Plugin: "<light_gray>Ce plugin n'est pas supporté ou installé !</light_gray>"
+    Start: "<light_gray>Début de la migration des données depuis <light_yellow>%name%</light_yellow> ! Cela peut prendre un moment.</light_gray>"
+    Done: "<light_gray>Données migrées depuis <light_yellow>%name%</light_yellow> !</light_gray>"
+  Reset:
+    Desc: "Réinitialiser les soldes d'un joueur."
+    Usage: "<player>"
+    Done: "<light_gray>Soldes de toutes les devises réinitialisés pour <light_yellow>%player_name%</light_yellow> !</light_gray>"
+  Wipe:
+    Desc: "Réinitialiser une devise pour tous les utilisateurs."
+    Usage: "<currency>"
+    Start: "<light_gray>Début de la réinitialisation de la devise <light_yellow>%currency_name%</light_yellow>. Cela peut prendre un moment...</light_gray>"
+    Finish: "<light_gray>Réinitialisation de la devise <light_yellow>%currency_name%</light_yellow> terminée.</light_gray>"
+  Currency:
+    Balance:
+      Usage: '[player]'
+      Desc: "Voir le solde [d'un joueur] en devise."
+    Give:
+      Usage: "<player> <amount> [-s]"
+      Desc: "Ajouter de la devise à un joueur."
+      Done: '<light_gray><light_yellow>%amount%</light_yellow> ajoutés au solde de <light_yellow>%player_name%</light_yellow>. Nouveau solde : <light_yellow>%balance%</light_yellow>.</light_gray>'
+      Notify: "<light_gray><light_yellow>%amount%</light_yellow> ont été ajoutés à votre compte !</light_gray>"
+    Take:
+      Usage: "<player> <amount> [-s]"
+      Desc: "Retirer de la devise à un joueur."
+      Done: '<light_gray><light_yellow>%amount%</light_yellow> retirés du solde de <light_yellow>%player_name%</light_yellow>. Nouveau solde : <light_yellow>%balance%</light_yellow>.</light_gray>'
+      Notify: "<light_gray><light_yellow>%amount%</light_yellow> ont été retirés de votre compte !</light_gray>"
+    Set:
+      Usage: "<player> <amount> [-s]"
+      Desc: "Définir le solde en devise d'un joueur."
+      Done: "<light_gray>Solde de <light_yellow>%currency_name%</light_yellow> pour <light_yellow>%player_name%</light_yellow> défini à <light_yellow>%balance%</light_yellow>.</light_gray>"
+      Notify: "<light_gray>Votre solde en <light_yellow>%currency_name%</light_yellow> a été défini à <light_yellow>%amount%</light_yellow>.</light_gray>"
+    Send:
+      Usage: "<player> <amount>"
+      Desc: "Transférer de la devise à un joueur."
+      Error:
+        NotEnough: "<light_gray>Vous n'avez pas assez de <light_red>%currency_name%</light_red> !</light_gray>"
+        TooLow: "<light_gray>Vous ne pouvez pas envoyer moins de <light_red>%amount%</light_red> !</light_gray>"
+        NoPayments: "<light_gray><light_red>%player_name%</light_red> n'accepte pas les <light_red>%currency_name%</light_red> !</light_gray>"
+      Done:
+        Sender: "<light_gray>Vous avez envoyé <light_yellow>%amount%</light_yellow> à <light_yellow>%player_name%</light_yellow> !</light_gray>"
+        Notify: "<light_gray>Vous avez reçu <light_yellow>%amount%</light_yellow> de <light_yellow>%player_name%</light_yellow> !</light_gray>"
+    Payments:
+      Usage: '[player] [-s]'
+      Desc: "Activer/désactiver la réception de paiements."
+      Toggle: '<light_gray>Acceptation des paiements en <light_yellow>%currency_name%</light_yellow> : <light_yellow>%state%</light_yellow>.</light_gray>'
+      Target: '<light_gray>Acceptation des paiements en <light_yellow>%currency_name%</light_yellow> pour <light_yellow>%player_name%</light_yellow> : <light_yellow>%state%</light_yellow>.</light_gray>'
+    Exchange:
+      Usage: "<currency> <amount>"
+      Desc: "Échanger de la devise."
+    Top:
+      Usage: '[page]'
+      Desc: "Classement des joueurs avec le plus de solde."
+      List:
+      - "<noprefix>"
+      - "<cyan><b>Classement %currency_name% :</b></cyan>"
+      - ' '
+      - '%entry%'
+      - ' '
+      - ''
+      - "<light_gray>Page <cyan>%current%</cyan> sur <cyan>%max%</cyan>.</light_gray>"
+      - ' '
+      Entry: '<cyan>%pos%. <gray>%player_name% : </gray>%balance%</cyan>'
+    Root:
+      Desc: 'Commandes liées à %currency_name%.'
+    GiveAll:
+      Desc: "Ajouter de la devise à tous les joueurs connectés."
+      Done: "<light_gray><light_yellow>%amount%</light_yellow> ajoutés à tous les joueurs connectés.</light_gray>"
+  Argument:
+    Name:
+      Currency: "devise"
+      Page: "page"
+      Plugin: "plugin"
+Currency:
+  Balance:
+    Display:
+      Own: '<light_gray>Solde : <light_yellow>%balance%</light_yellow>.</light_gray>'
+      Others: '<light_gray>Solde de <light_yellow>%player_name%</light_yellow> : <light_yellow>%balance%</light_yellow>.</light_gray>'
+  Exchange:
+    Error:
+      Disabled: "<light_gray><light_red>%currency_name%</light_red> ne peut pas être échangé !</light_gray>"
+      NoRate: "<light_gray><light_red>%currency_name%</light_red> ne peut pas être échangé contre <light_red>%name%</light_red> !</light_gray>"
+      LowAmount: "<light_gray>Le montant de <light_red>%currency_name%</light_red> est trop faible !</light_gray>"
+      LimitExceed: "<light_gray>Vous pourriez obtenir <light_red>%amount%</light_red>, mais vous ne pouvez pas dépasser <light_red>%max%</light_red> !</light_gray>"
+      LowBalance: "<light_gray>Vous n'avez pas <light_red>%amount%</light_red> à échanger !</light_gray>"
+    Success: "<light_gray>Vous avez échangé <light_yellow>%balance%</light_yellow> contre <light_yellow>%amount%</light_yellow> !</light_gray>"
+  Error:
+    Invalid: "<light_red>Devise invalide !</light_red>"
+VaultEconomy:
+  Error:
+    InvalidPlayer: "Joueur introuvable."
+    InsufficientFunds: "Fonds insuffisants !"
