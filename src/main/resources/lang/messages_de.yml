@@ -1,1 +1,85 @@
-
+Command:
+  Argument:
+    Name:
+      Currency: Währung
+      Page: Seite
+      Plugin: Plugin
+  Migrate:
+    Desc: Daten von anderen Plugin(s) übertragen.
+    Error:
+      Plugin: <lgray>Plugin ist nicht unterstützt oder installiert!</lgray>
+    Start: <lgray>Datenmigration von <lyellow>%name%</lyellow> gestartet! Dies kann eine Weile dauern.</lgray>
+    Done: <lgray>Daten von <lyellow>%name%</lyellow> erfolgreich übertragen!</lgray>
+  Reset:
+    Desc: Alle Kontostände eines Spielers zurücksetzen.
+    Done: <lgray>Alle Kontostände von <lyellow>%player_name%</lyellow> zurückgesetzt!</lgray>
+  Wipe:
+    Desc: Setzte die Kontostände einer Währung für alle Spieler zurück.
+    Start: <lgray>Währungsdaten für <lyellow>%currency_name%</lyellow> werden gelöscht. Dies kann eine Weile dauern...</lgray>
+    Finish: <lgray>Währungsdaten für <lyellow>%currency_name%</lyellow> wurden gelöscht.</lgray>
+  Currency:
+    Root:
+      Desc: '%currency_name% commands.'
+    Balance:
+      Desc: Kontostand anzeigen.
+    Give:
+      Desc: Einem Spieler Währung hinzufügen.
+      Done: '<lgray><lyellow>%amount%</lyellow> wurden dem Kontostand von <lyellow>%player_name%</lyellow> hinzugefügt. Neuer Kontostand: <lyellow>%balance%</lyellow>.</lgray>'
+      Notify: <lgray><lyellow>%amount%</lyellow> wurden deinem Konto hinzugefügt!</lgray>
+    GiveAll:
+      Desc: Allen Online-Spielern Währung hinzufügen.
+      Done: <lgray><lyellow>%amount%</lyellow> wurde allen <lyellow>Online-Spielern</lyellow> hinzugefügt.</lgray>
+    Take:
+      Desc: Einem Spieler Währung abziehen.
+      Done: '<lgray><lyellow>%amount%</lyellow> wurde vom Kontostand von <lyellow>%player_name%</lyellow> abgezogen. Neuer Kontostand: <lyellow>%balance%</lyellow>.</lgray>'
+      Notify: <lgray><lyellow>%amount%</lyellow> wurde von deinem Konto abgezogen!</lgray>
+    Set:
+      Desc: Setze den Kontostand eines Spielers.
+      Done: <lgray>Setze den Kontostand von <lyellow>%player_name%</lyellow> in <lyellow>%currency_name%</lyellow> auf <lyellow>%balance%</lyellow>.</lgray>
+      Notify: <lgray>Dein Kontostand in <lyellow>%currency_name%</lyellow> wurde auf <lyellow>%amount%</lyellow> gesetzt.</lgray>
+    Send:
+      Desc: Währung an einen Spieler senden.
+      Error:
+        NotEnough: <lgray>Du hast nicht ausreichend <lred>%currency_name%</lred>!</lgray>
+        TooLow: <lgray>Du kannst nicht weniger als <lred>%amount%</lred> senden!</lgray>
+        NoPayments: <lgray><lred>%player_name%</lred> akzeptiert <lred>%currency_name%</lred> nicht!</lgray>
+      Done:
+        Sender: <lgray>Du hast <lyellow>%amount%</lyellow> an <lyellow>%player_name%</lyellow> gesendet!</lgray>
+        Notify: <lgray>Du hast <lyellow>%amount%</lyellow> von <lyellow>%player_name%</lyellow> erhalten!</lgray>
+    Payments:
+      Desc: Zahlungen von anderen Spielern an- oder ausschalten.
+      Toggle: '<lgray>Akzeptanz von <lyellow>%currency_name%</lyellow>-Zahlungen: <lyellow>%state%</lyellow>.</lgray>'
+      Target: '<lgray>Akzeptanz von <lyellow>%currency_name%</lyellow>-Zahlungen für <lyellow>%player_name%</lyellow>: <lyellow>%state%</lyellow>.</lgray>'
+    Exchange:
+      Desc: Tausche Währungen.
+    Top:
+      Desc: Spielerliste mit dem größten Guthaben.
+      List:
+      - <noprefix>
+      - ' '
+      - <cyan><b>%currency_name% Top:</b></cyan>
+      - ' '
+      - '%entry%'
+      - ' '
+      - <lgray>Seite <cyan>%current%</cyan> von <cyan>%max%</cyan>.</lgray>
+      - ' '
+      Entry: '<cyan>%pos%. <gray>%player_name%: </gray>%balance%</cyan>'
+Currency:
+  Balance:
+    Display:
+      Own: '<lgray>Kontostand: <lyellow>%balance%</lyellow>.</lgray>'
+      Others: '<lgray><lyellow>%player_name%</lyellow>''s Kontostand: <lyellow>%balance%</lyellow>.</lgray>'
+  Exchange:
+    Error:
+      Disabled: <lgray><lred>%currency_name%</lred> kann nicht umgetauscht werden!</lgray>
+      NoRate: <lgray><lred>%currency_name%</lred> kann nicht in <lred>%name%</lred> umgetauscht werden!</lgray>
+      LowAmount: <lgray><lred>%currency_name%</lred> Betrag ist zu gering für den Tausch!</lgray>
+      LimitExceed: <lgray>Du könntest <lred>%amount%</lred> erhalten, aber kannst nicht mehr als insgesammt <lred>%max%</lred> tragen!</lgray>
+      LowBalance: <lgray>Du hast weniger als <lred>%amount%</lred> für den Tausch!</lgray>
+    Success: <lgray>Du hast <lyellow>%balance%</lyellow> für <lyellow>%amount%</lyellow> umgetauscht!</lgray>
+  Error:
+    Invalid: <lgray><lred>%value%</lred> ist keine gültige Währung!</lgray>
+VaultEconomy:
+  Error:
+    InvalidPlayer: Spieler nicht gefunden.
+    InsufficientFunds: Guthaben nicht ausreichend!
