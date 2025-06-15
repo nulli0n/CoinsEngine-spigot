@@ -1,9 +1,9 @@
 Command:
   Argument:
     Name:
-      Currency: Währung
-      Page: Seite
-      Plugin: Plugin
+      Currency: currency
+      Page: page
+      Plugin: plugin
   Migrate:
     Desc: Daten von anderen Plugin(s) übertragen.
     Error:
