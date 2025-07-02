@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.api.event.BalanceLogEvent;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.nightcore.util.Colorizer;
@@ -76,5 +77,8 @@ public class CoinsLogger {
                 exception.printStackTrace();
             }
         }
+
+        BalanceLogEvent event = new BalanceLogEvent(text);
+        this.plugin.getServer().getPluginManager().callEvent(event);
     }
 }
