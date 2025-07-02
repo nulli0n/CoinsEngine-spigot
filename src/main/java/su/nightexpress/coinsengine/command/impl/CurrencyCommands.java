@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.api.event.SentBalanceEvent;
 import su.nightexpress.coinsengine.command.CommandArguments;
 import su.nightexpress.coinsengine.command.CommandFlags;
 import su.nightexpress.coinsengine.config.Config;
@@ -342,6 +343,9 @@ public class CurrencyCommands {
             plugin.getUserManager().save(targetUser);
             plugin.getUserManager().save(fromUser);
             plugin.getCoinsLogger().logSend(targetUser, currency, amount, from);
+
+            SentBalanceEvent event = new SentBalanceEvent(fromUser, targetUser, currency, amount);
+            plugin.getServer().getPluginManager().callEvent(event);
 
             currency.withPrefix(Lang.COMMAND_CURRENCY_SEND_DONE_SENDER.getMessage()).send(context.getSender(), replacer -> replacer
                 .replace(currency.replacePlaceholders())
