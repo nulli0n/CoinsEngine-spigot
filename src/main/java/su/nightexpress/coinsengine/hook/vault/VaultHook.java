@@ -2,6 +2,7 @@ package su.nightexpress.coinsengine.hook.vault;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.ServicesManager;
 import org.jetbrains.annotations.NotNull;
@@ -27,5 +28,10 @@ public class VaultHook {
             services.unregister(Economy.class, economy);
             economy = null;
         }
+    }
+
+    public static boolean hasEconomy() {
+        RegisteredServiceProvider<Economy> provider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        return provider != null;
     }
 }

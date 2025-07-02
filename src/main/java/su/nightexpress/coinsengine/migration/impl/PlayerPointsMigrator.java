@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.hook.HookId;
-import su.nightexpress.coinsengine.migration.MigrationPlugin;
+import su.nightexpress.coinsengine.migration.Migrator;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -15,10 +15,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class PlayerPointsPlugin extends MigrationPlugin {
+public class PlayerPointsMigrator extends Migrator {
 
-    public PlayerPointsPlugin(@NotNull CoinsEnginePlugin plugin) {
+    public PlayerPointsMigrator(@NotNull CoinsEnginePlugin plugin) {
         super(plugin, HookId.PLAYER_POINTS);
+    }
+
+    @Override
+    public boolean canMigrate(@NotNull Currency currency) {
+        return true;
     }
 
     @Override
@@ -26,7 +31,7 @@ public class PlayerPointsPlugin extends MigrationPlugin {
     public Map<OfflinePlayer, Double> getBalances(@NotNull Currency currency) {
         Map<OfflinePlayer, Double> balances = new HashMap<>();
 
-        PlayerPoints playerPoints = (PlayerPoints) this.getBackendPlugin();
+        PlayerPoints playerPoints = (PlayerPoints) this.getBackend();
         if (playerPoints == null) return balances;
 
         Map<UUID, Integer> pointsMap = new HashMap<>();

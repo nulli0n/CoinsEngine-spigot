@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.currency.CurrencyManager;
+import su.nightexpress.coinsengine.currency.CurrencyOperations;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
 public class DeluxeCoinflipHook {
@@ -28,17 +30,24 @@ public class DeluxeCoinflipHook {
     private static class Provider extends EconomyProvider {
 
         private final CoinsEnginePlugin plugin;
+        private final CurrencyManager manager;
         private final Currency          currency;
 
         public Provider(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
             super("coinsengine_" + currency.getId());
             this.plugin = plugin;
+            this.manager = plugin.getCurrencyManager();
             this.currency = currency;
         }
 
         @Override
         public void onEnable() {
 
+        }
+
+        @Override
+        public String getDisplayName() {
+            return this.currency.getName();
         }
 
         @Nullable
@@ -53,26 +62,19 @@ public class DeluxeCoinflipHook {
         }
 
         @Override
-        public void withdraw(OfflinePlayer offlinePlayer, double v) {
+        public void withdraw(OfflinePlayer offlinePlayer, double amount) {
             CoinsUser user = this.getUser(offlinePlayer);
-            if (user != null) {
-                user.removeBalance(currency, v);
-                plugin.getUserManager().save(user);
-            }
+            if (user == null) return;
+
+            this.manager.performOperation(CurrencyOperations.forRemoveSilently(this.currency, amount, user));
         }
 
         @Override
-        public void deposit(OfflinePlayer offlinePlayer, double v) {
+        public void deposit(OfflinePlayer offlinePlayer, double amount) {
             CoinsUser user = this.getUser(offlinePlayer);
-            if (user != null) {
-                user.addBalance(currency, v);
-                plugin.getUserManager().save(user);
-            }
-        }
+            if (user == null) return;
 
-        @Override
-        public String getDisplayName() {
-            return this.currency.getName();
+            this.manager.performOperation(CurrencyOperations.forAddSilently(this.currency, amount, user));
         }
     }
 }

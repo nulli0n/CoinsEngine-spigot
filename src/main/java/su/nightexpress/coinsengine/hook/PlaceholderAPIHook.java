@@ -3,12 +3,13 @@ package su.nightexpress.coinsengine.hook;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
-import su.nightexpress.coinsengine.util.TopEntry;
+import su.nightexpress.coinsengine.tops.TopEntry;
+import su.nightexpress.coinsengine.tops.TopManager;
 import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.text.NightMessage;
 
@@ -16,8 +17,6 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class PlaceholderAPIHook {
 
@@ -37,6 +36,16 @@ public class PlaceholderAPIHook {
         }
     }
 
+    private interface TopPlaceholder {
+
+        @NotNull String produce(@NotNull TopEntry entry, @NotNull Currency currency, int position);
+    }
+
+    private interface PlayerPlaceholder {
+
+        @NotNull String produce(@NotNull Player player, @NotNull CoinsUser user, @NotNull Currency currency);
+    }
+
     private static class Expansion extends PlaceholderExpansion {
 
         private static final DecimalFormat RAW_FORMAT = new DecimalFormat("#");
@@ -45,76 +54,19 @@ public class PlaceholderAPIHook {
             RAW_FORMAT.setMaximumFractionDigits(8);
         }
 
-        private final CoinsEnginePlugin plugin;
-        private final Map<String, BiFunction<Player, Currency, String>> placeholders;
+        private final CoinsEnginePlugin              plugin;
+        private final Map<String, PlayerPlaceholder> playerPlaceholders;
+        private final Map<String, TopPlaceholder>    topPlaceholders;
 
         public Expansion(@NotNull CoinsEnginePlugin plugin) {
             this.plugin = plugin;
-            this.placeholders = new LinkedHashMap<>();
+            this.playerPlaceholders = new LinkedHashMap<>();
+            this.topPlaceholders = new LinkedHashMap<>();
 
-            this.placeholders.put("server_balance_raw", (player, currency) -> {
-                return RAW_FORMAT.format(plugin.getCurrencyManager().getTotalBalance(currency));
-            });
-
-            this.placeholders.put("server_balance_short_plain", (player, currency) -> {
-                return currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency));
-            });
-
-            this.placeholders.put("server_balance_short", (player, currency) -> {
-                return NightMessage.asLegacy(currency.formatCompact(plugin.getCurrencyManager().getTotalBalance(currency)));
-            });
-
-            this.placeholders.put("server_balance_plain", (player, currency) -> {
-                return currency.format(plugin.getCurrencyManager().getTotalBalance(currency));
-            });
-
-            this.placeholders.put("server_balance", (player, currency) -> {
-                return NightMessage.asLegacy(currency.format(plugin.getCurrencyManager().getTotalBalance(currency)));
-            });
-
-
-
-            this.placeholders.put("payments_state", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return NightMessage.asLegacy(Lang.getEnabledOrDisabled(user.getSettings(currency).isPaymentsEnabled()));
-                });
-            });
-
-            this.placeholders.put("balance_raw", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return RAW_FORMAT.format(currency.fine(user.getBalance(currency)));
-                });
-            });
-
-            this.placeholders.put("balance_rounded", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return NumberUtil.format(currency.fine(user.getBalance(currency)));
-                });
-            });
-
-            this.placeholders.put("balance_short_plain", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return currency.formatCompact(user.getBalance(currency));
-                });
-            });
-
-            this.placeholders.put("balance_short", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return NightMessage.asLegacy(currency.formatCompact(user.getBalance(currency)));
-                });
-            });
-
-            this.placeholders.put("balance_plain", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return currency.format(user.getBalance(currency));
-                });
-            });
-
-            this.placeholders.put("balance", (player, currency) -> {
-                return handleUserCurrency(player, user -> {
-                    return NightMessage.asLegacy(currency.format(user.getBalance(currency)));
-                });
-            });
+            if (Config.isTopsEnabled()) {
+                this.loadTopPlaceholders();
+            }
+            this.loadPlayerPlaceholders();
         }
 
         @Override
@@ -140,56 +92,114 @@ public class PlaceholderAPIHook {
             return true;
         }
 
+        private void loadTopPlaceholders() {
+            this.topPlaceholders.put("balance_short_clean", (entry, currency, position) -> NightMessage.stripTags(currency.formatCompact(entry.getBalance())));
+            this.topPlaceholders.put("balance_short_legacy", (entry, currency, position) -> NightMessage.asLegacy(currency.formatCompact(entry.getBalance())));
+            this.topPlaceholders.put("balance_short", (entry, currency, position) -> currency.formatCompact(entry.getBalance()));
+
+            this.topPlaceholders.put("balance_clean", (entry, currency, position) -> NightMessage.stripTags(currency.formatCompact(entry.getBalance())));
+            this.topPlaceholders.put("balance_legacy", (entry, currency, position) -> NightMessage.asLegacy(currency.format(entry.getBalance())));
+            this.topPlaceholders.put("balance", (entry, currency, position) -> currency.format(entry.getBalance()));
+
+            this.topPlaceholders.put("player", (entry, currency, position) -> entry.getName());
+
+            this.playerPlaceholders.put("leaderboard_position", (player, user, currency) -> {
+                return this.plugin.getTopManager().map(topManager -> topManager.getTopEntry(currency, player.getName())).map(TopEntry::getPosition).map(String::valueOf).orElse("?");
+            });
+        }
+
+        private void loadPlayerPlaceholders() {
+            this.playerPlaceholders.put("server_balance_short_clean", (player, user, currency) -> {
+                return NightMessage.stripTags(currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
+            });
+
+            this.playerPlaceholders.put("server_balance_short_legacy", (player, user, currency) -> {
+                return NightMessage.asLegacy(currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
+            });
+
+            this.playerPlaceholders.put("server_balance_short", (player, user, currency) -> {
+                return currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency));
+            });
+
+            this.playerPlaceholders.put("server_balance_clean", (player, user, currency) -> {
+                return NightMessage.stripTags(currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
+            });
+
+            this.playerPlaceholders.put("server_balance_legacy", (player, user, currency) -> {
+                return NightMessage.asLegacy(currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
+            });
+
+            this.playerPlaceholders.put("server_balance_raw", (player, user, currency) -> {
+                return RAW_FORMAT.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency));
+            });
+
+            this.playerPlaceholders.put("server_balance", (player, user, currency) -> {
+                return currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency));
+            });
+
+            this.playerPlaceholders.put("payments_state", (player, user, currency) -> NightMessage.asLegacy(Lang.getEnabledOrDisabled(user.getSettings(currency).isPaymentsEnabled())));
+
+            this.playerPlaceholders.put("balance_short_clean", (player, user, currency) -> NightMessage.stripTags(currency.formatCompact(user.getBalance(currency))));
+            this.playerPlaceholders.put("balance_short_legacy", (player, user, currency) -> NightMessage.asLegacy(currency.formatCompact(user.getBalance(currency))));
+            this.playerPlaceholders.put("balance_short", (player, user, currency) -> currency.formatCompact(user.getBalance(currency)));
+
+            this.playerPlaceholders.put("balance_clean", (player, user, currency) -> NightMessage.stripTags(currency.format(user.getBalance(currency))));
+            this.playerPlaceholders.put("balance_legacy", (player, user, currency) -> NightMessage.asLegacy(currency.format(user.getBalance(currency))));
+            this.playerPlaceholders.put("balance_raw", (player, user, currency) -> NightMessage.stripTags(RAW_FORMAT.format(currency.floorIfNeeded(user.getBalance(currency)))));
+            this.playerPlaceholders.put("balance", (player, user, currency) -> currency.format(user.getBalance(currency)));
+        }
+
         @Override
         public String onPlaceholderRequest(Player player, @NotNull String params) {
-            // top_balance_coins_1
-            // top_player_coins_1
-            if (params.startsWith("top_")) {
-                String cut = params.substring("top_".length()); // balance_coins_1
-                String[] split = cut.split("_");
-                if (split.length < 3) return null;
+            TopManager topManager = this.plugin.getTopManager().orElse(null);
 
-                String type = split[0];
-                String currencyId = split[1];
-                Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
-                if (currency == null) return null;
+            if (params.startsWith("top_") && topManager != null) {
+                String type = params.substring("top_".length());
 
-                int pos = NumberUtil.getIntegerAbs(split[2]);
-                if (pos <= 0) return null;
+                for (var entry : this.topPlaceholders.entrySet()) {
+                    String key = entry.getKey() + "_";
+                    if (!type.startsWith(key)) continue;
 
-                List<TopEntry> baltop = plugin.getCurrencyManager().getTopBalances(currency);
-                if (pos > baltop.size()) return "-";
+                    String posAndCurrency = type.substring(key.length());
+                    int index = posAndCurrency.indexOf('_');
+                    if (index < 0) break;
 
-                TopEntry entry = baltop.get(pos - 1);
-                if (type.equalsIgnoreCase("balance-short")) return NightMessage.asLegacy(currency.formatCompact(entry.balance()));
-                if (type.equalsIgnoreCase("balance-short-plain")) return currency.formatCompact(entry.balance());
-                if (type.equalsIgnoreCase("balance-plain")) return currency.format(entry.balance());
-                if (type.equalsIgnoreCase("balance")) return NightMessage.asLegacy(currency.format(entry.balance()));
-                if (type.equalsIgnoreCase("player")) return entry.name();
+                    String posRaw = posAndCurrency.substring(0, index);
+                    String currencyId = posAndCurrency.substring(index + 1);
+
+                    Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
+                    if (currency == null) break;
+
+                    int position = NumberUtil.getIntegerAbs(posRaw);
+                    if (position <= 0) return null;
+
+                    List<TopEntry> baltop = topManager.getTopEntries(currency);
+                    if (position > baltop.size()) return Lang.OTHER_NO_TOP_ENTRY.getString();
+
+                    TopEntry topEntry = baltop.get(position - 1);
+
+                    return entry.getValue().produce(topEntry, currency, position);
+                }
 
                 return null;
             }
 
-            if (player == null) return "";
+            if (player != null) {
+                CoinsUser user = plugin.getUserManager().getOrFetch(player);
 
-            for (var entry : this.placeholders.entrySet()) {
-                String prefix = entry.getKey() + "_";
-                if (!params.startsWith(prefix)) continue;
+                for (var entry : this.playerPlaceholders.entrySet()) {
+                    String key = entry.getKey() + "_";
+                    if (!params.startsWith(key)) continue;
 
-                String currencyId = params.substring(prefix.length());
-                Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
-                if (currency == null) continue;
+                    String currencyId = params.substring(key.length());
+                    Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
+                    if (currency == null) continue;
 
-                return entry.getValue().apply(player, currency);
+                    return entry.getValue().produce(player, user, currency);
+                }
             }
 
             return null;
-        }
-
-        @Nullable
-        private String handleUserCurrency(@NotNull Player player, @NotNull Function<CoinsUser, String> function) {
-            CoinsUser user = plugin.getUserManager().getOrFetch(player);
-            return function.apply(user);
         }
     }
 }
