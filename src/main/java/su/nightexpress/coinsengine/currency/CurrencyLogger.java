@@ -55,14 +55,14 @@ public class CurrencyLogger {
                     String date = TimeUtil.getLocalDateTimeOf(result.getTimestamp()).format(this.timeFormatter);
                     String message = String.format("[%s] %s", date, result.getLog());
 
-                    plugin.getScheduler().runTask(plugin, () -> {
-                        CurrencyLoggerEvent event = new CurrencyLoggerEvent(message);
-                        plugin.getServer().getPluginManager().callEvent(event);
-                    });
+                    CurrencyLoggerEvent event = new CurrencyLoggerEvent(message);
+                    plugin.getServer().getPluginManager().callEvent(event);
 
-                    this.writer.append(message);
-                    this.writer.newLine();
-                    this.writer.flush();
+                    if (!event.isCancelled()) {
+                        this.writer.append(message);
+                        this.writer.newLine();
+                        this.writer.flush();
+                    }
                 }
             }
         } catch (Exception exception) {
