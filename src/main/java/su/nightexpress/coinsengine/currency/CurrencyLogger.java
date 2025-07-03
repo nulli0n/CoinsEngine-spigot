@@ -3,6 +3,7 @@ package su.nightexpress.coinsengine.currency;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.OperationResult;
+import su.nightexpress.coinsengine.api.event.CurrencyLoggerEvent;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.nightcore.util.TimeUtil;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CurrencyLogger {
 
-    //private final CoinsEnginePlugin plugin;
+    private final CoinsEnginePlugin plugin;
     private final BlockingQueue<OperationResult> queue;
     private final DateTimeFormatter timeFormatter;
     private final BufferedWriter writer;
@@ -24,7 +25,7 @@ public class CurrencyLogger {
     private boolean running;
 
     public CurrencyLogger(@NotNull CoinsEnginePlugin plugin) throws IOException {
-        //this.plugin = plugin;
+        this.plugin = plugin;
         this.queue = new LinkedBlockingQueue<>();
         this.timeFormatter = DateTimeFormatter.ofPattern(Config.LOGS_DATE_FORMAT.get());
         this.writer = new BufferedWriter(new FileWriter(plugin.getDataFolder() + "/" + Config.LOG_FILENAME, true));
@@ -37,8 +38,7 @@ public class CurrencyLogger {
 
         try {
             this.writer.close();
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
@@ -53,13 +53,19 @@ public class CurrencyLogger {
                 OperationResult result = this.queue.poll(500, TimeUnit.MILLISECONDS);
                 if (result != null) {
                     String date = TimeUtil.getLocalDateTimeOf(result.getTimestamp()).format(this.timeFormatter);
-                    this.writer.append("[").append(date).append("] ").append(result.getLog());
-                    this.writer.newLine();
-                    this.writer.flush();
+                    String message = String.format("[%s] %s", date, result.getLog());
+
+                    CurrencyLoggerEvent event = new CurrencyLoggerEvent(message);
+                    plugin.getServer().getPluginManager().callEvent(event);
+
+                    if (!event.isCancelled()) {
+                        this.writer.append(message);
+                        this.writer.newLine();
+                        this.writer.flush();
+                    }
                 }
             }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
     }
