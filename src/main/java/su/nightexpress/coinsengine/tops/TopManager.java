@@ -34,7 +34,14 @@ public class TopManager extends AbstractManager<CoinsEnginePlugin> {
     @Override
     protected void onLoad() {
         if (Config.TOPS_USE_GUI.get()) {
-            this.topMenu = this.addMenu(new TopMenu(this.plugin, this), Config.DIR_MENU, "leaderboard.yml");
+            try {
+                // checking whether symbol MenuType has existence because it is an Experimental class
+                // or just adapt each menu windows for each version like MythicMobs?
+                Class<?> menuTypeClass = Class.forName("org.bukkit.inventory.MenuType");
+                this.topMenu = this.addMenu(new TopMenu(this.plugin, this), Config.DIR_MENU, "leaderboard.yml");
+            } catch (ClassNotFoundException e) {
+                this.plugin.error("Couldn't enabling top menu because your server's Minecraft version is not supported.");
+            }
         }
 
         this.addListener(new TopsListener(this.plugin, this));
