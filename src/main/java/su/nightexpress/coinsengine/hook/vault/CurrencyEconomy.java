@@ -60,8 +60,6 @@ public class CurrencyEconomy implements Economy {
         return this.currency.getName();
     }
 
-
-
     @Override
     public boolean createPlayerAccount(OfflinePlayer player) {
         return false;
@@ -81,8 +79,6 @@ public class CurrencyEconomy implements Economy {
     public boolean createPlayerAccount(String playerName) {
         return false;
     }
-
-
 
     @Override
     public double getBalance(OfflinePlayer player, String world) {
@@ -110,8 +106,6 @@ public class CurrencyEconomy implements Economy {
         return user == null ? 0D : user.getBalance(this.currency);
     }
 
-
-
     @Override
     public boolean hasAccount(OfflinePlayer player, String worldName) {
         return this.hasAccount(player);
@@ -131,8 +125,6 @@ public class CurrencyEconomy implements Economy {
     public boolean hasAccount(String playerName) {
         return this.plugin.getDataHandler().isUserExists(playerName);
     }
-
-
 
     @Override
     public boolean has(OfflinePlayer player, String worldName, double amount) {
@@ -159,8 +151,6 @@ public class CurrencyEconomy implements Economy {
     private boolean has(@Nullable CoinsUser user, double amount) {
         return user != null && user.hasEnough(this.currency, amount);
     }
-
-
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
@@ -197,8 +187,6 @@ public class CurrencyEconomy implements Economy {
 
         return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.SUCCESS, null);
     }
-
-
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
@@ -241,8 +229,6 @@ public class CurrencyEconomy implements Economy {
 
         return new EconomyResponse(amount, lookup.balance(), EconomyResponse.ResponseType.SUCCESS, null);
     }
-
-
 
     @Override
     public EconomyResponse createBank(String name, String player) {

@@ -281,7 +281,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             return;
         }
 
-        this.plugin.runTaskAsync(task -> {
+        this.plugin.runTaskAsync(() -> {
             this.disableOperations();
             if (currency == null) {
                 Lang.RESET_ALL_STARTED_GLOBAL.getMessage().send(sender);

@@ -109,33 +109,19 @@ public class PlaceholderAPIHook {
         }
 
         private void loadPlayerPlaceholders() {
-            this.playerPlaceholders.put("server_balance_short_clean", (player, user, currency) -> {
-                return NightMessage.stripTags(currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
-            });
+            this.playerPlaceholders.put("server_balance_short_clean", (player, user, currency) -> NightMessage.stripTags(currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency))));
 
-            this.playerPlaceholders.put("server_balance_short_legacy", (player, user, currency) -> {
-                return NightMessage.asLegacy(currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
-            });
+            this.playerPlaceholders.put("server_balance_short_legacy", (player, user, currency) -> NightMessage.asLegacy(currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency))));
 
-            this.playerPlaceholders.put("server_balance_short", (player, user, currency) -> {
-                return currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency));
-            });
+            this.playerPlaceholders.put("server_balance_short", (player, user, currency) -> currency.formatCompact(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
 
-            this.playerPlaceholders.put("server_balance_clean", (player, user, currency) -> {
-                return NightMessage.stripTags(currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
-            });
+            this.playerPlaceholders.put("server_balance_clean", (player, user, currency) -> NightMessage.stripTags(currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency))));
 
-            this.playerPlaceholders.put("server_balance_legacy", (player, user, currency) -> {
-                return NightMessage.asLegacy(currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
-            });
+            this.playerPlaceholders.put("server_balance_legacy", (player, user, currency) -> NightMessage.asLegacy(currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency))));
 
-            this.playerPlaceholders.put("server_balance_raw", (player, user, currency) -> {
-                return RAW_FORMAT.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency));
-            });
+            this.playerPlaceholders.put("server_balance_raw", (player, user, currency) -> RAW_FORMAT.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
 
-            this.playerPlaceholders.put("server_balance", (player, user, currency) -> {
-                return currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency));
-            });
+            this.playerPlaceholders.put("server_balance", (player, user, currency) -> currency.format(plugin.getTopManager().orElseThrow().getTotalBalance(currency)));
 
             this.playerPlaceholders.put("payments_state", (player, user, currency) -> NightMessage.asLegacy(Lang.getEnabledOrDisabled(user.getSettings(currency).isPaymentsEnabled())));
 

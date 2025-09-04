@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 public class CurrencyLogger {
 
-    //private final CoinsEnginePlugin plugin;
     private final BlockingQueue<OperationResult> queue;
     private final DateTimeFormatter timeFormatter;
     private final BufferedWriter writer;

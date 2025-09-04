@@ -67,8 +67,6 @@ public class CoinsEngineAPI {
         getCurrencyManager().registerCurrency(currency);
     }
 
-
-
     public static double getBalance(@NotNull UUID playerId, @NotNull String currencyName) {
         Currency currency = getCurrency(currencyName);
 
@@ -85,8 +83,6 @@ public class CoinsEngineAPI {
         return getUserData(player).getBalance(currency);
     }
 
-
-
     public static boolean addBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
         Currency currency = getCurrency(currencyName);
         return currency != null && addBalance(playerId, currency, amount);
@@ -100,8 +96,6 @@ public class CoinsEngineAPI {
         editBalance(player, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forAddSilently(currency, amount, user));
     }
 
-
-
     public static boolean setBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
         Currency currency = getCurrency(currencyName);
         return currency != null && setBalance(playerId, currency, amount);
@@ -114,8 +108,6 @@ public class CoinsEngineAPI {
     public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
         editBalance(player, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forSetSilently(currency, amount, user));
     }
-
-
 
     public static boolean removeBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
         Currency currency = getCurrency(currencyName);
@@ -137,7 +129,6 @@ public class CoinsEngineAPI {
         CurrencyOperation operation = function.apply(user);
         return getCurrencyManager().performOperation(operation);
     }
-
 
     @NotNull
     public static CoinsUser getUserData(@NotNull Player player) {

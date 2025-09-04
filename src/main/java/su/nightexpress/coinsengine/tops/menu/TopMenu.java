@@ -51,18 +51,16 @@ public class TopMenu extends LinkedMenu<CoinsEnginePlugin, Currency> implements 
         return MenuFiller.builder(this)
             .setSlots(this.entrySlots)
             .setItems(this.topManager.getTopEntries(currency))
-            .setItemCreator(entry -> {
-                return NightItem.fromType(Material.PLAYER_HEAD)
-                    .hideAllComponents()
-                    .setDisplayName(this.entryName)
-                    .setLore(this.entryLore)
-                    .setPlayerProfile(Players.createProfile(entry.getPlayerId(), entry.getName()))
-                    .replacement(replacer -> replacer
-                        .replace(GENERIC_POS, entry.getPosition())
-                        .replace(PLAYER_NAME, entry.getName())
-                        .replace(GENERIC_BALANCE, currency.format(entry.getBalance()))
-                    );
-            })
+            .setItemCreator(entry -> NightItem.fromType(Material.PLAYER_HEAD)
+                .hideAllComponents()
+                .setDisplayName(this.entryName)
+                .setLore(this.entryLore)
+                .setPlayerProfile(Players.createProfile(entry.getPlayerId(), entry.getName()))
+                .replacement(replacer -> replacer
+                    .replace(GENERIC_POS, entry.getPosition())
+                    .replace(PLAYER_NAME, entry.getName())
+                    .replace(GENERIC_BALANCE, currency.format(entry.getBalance()))
+                ))
             .build();
     }
 

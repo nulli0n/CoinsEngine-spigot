@@ -33,8 +33,6 @@ public class Lang extends CoreLang {
     public static final LangString COMMAND_CURRENCY_EXCHANGE_DESC = LangString.of("Command.Currency.Exchange.Desc", "Exchange currency.");
     public static final LangString COMMAND_CURRENCY_TOP_DESC      = LangString.of("Command.Currency.Top.Desc", "List of players with the most balance.");
 
-
-
     public static final LangText MIGRATION_START_BLOCKED = LangText.of("Migration.Start.Blocked",
         LIGHT_RED.wrap("Could not start migration due to background tasks already running!"));
 
@@ -66,12 +64,8 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-
-
     public static final LangText COMMAND_RESET_DONE = LangText.of("Command.Reset.Done",
         LIGHT_GRAY.wrap("Reset all currency balances for " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "!"));
-
-
 
     public static final LangText RESET_ALL_START_BLOCKED = LangText.of("ResetAll.Start.Blocked",
         LIGHT_RED.wrap("Could not start balance reset due to background tasks already running!"));
@@ -120,8 +114,6 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-
-
     public static final LangText CURRENCY_CREATE_BAD_NAME = LangText.of("Currency.Create.BadName",
         LIGHT_RED.wrap("Invalid name provided! Only latin letters and digits are supported.")
     );
@@ -134,20 +126,15 @@ public class Lang extends CoreLang {
         GRAY.wrap("Created new currency: " + GREEN.wrap(CURRENCY_NAME) + " (ID: " + WHITE.wrap(CURRENCY_ID) + ")")
     );
 
-
     public static final LangText COMMAND_CURRENCY_GIVE_DONE = LangText.of("Command.Currency.Give.Done",
         LIGHT_GRAY.wrap("Added " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
     public static final LangText COMMAND_CURRENCY_GIVE_NOTIFY = LangText.of("Command.Currency.Give.Notify",
         LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " has been added to your account!"));
 
-
-
     public static final LangText COMMAND_CURRENCY_GIVE_ALL_DONE = LangText.of("Command.Currency.GiveAll.Done",
         LIGHT_GRAY.wrap("Added " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + LIGHT_YELLOW.wrap("All Online") + " players.")
     );
-
-
 
     public static final LangText COMMAND_CURRENCY_TAKE_DONE = LangText.of("Command.Currency.Take.Done",
         LIGHT_GRAY.wrap("Taken " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
@@ -155,15 +142,11 @@ public class Lang extends CoreLang {
     public static final LangText COMMAND_CURRENCY_TAKE_NOTIFY = LangText.of("Command.Currency.Take.Notify",
         LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " has been taken from your account!"));
 
-
-
     public static final LangText COMMAND_CURRENCY_SET_DONE = LangText.of("Command.Currency.Set.Done",
         LIGHT_GRAY.wrap("Set " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s " + LIGHT_YELLOW.wrap(CURRENCY_NAME) + " balance to " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
     public static final LangText COMMAND_CURRENCY_SET_NOTIFY = LangText.of("Command.Currency.Set.Notify",
         LIGHT_GRAY.wrap("Your " + LIGHT_YELLOW.wrap(CURRENCY_NAME) + " balance has been set to " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + "."));
-
-
 
     public static final LangText CURRENCY_SEND_ERROR_NOT_ENOUGH = LangText.of("Command.Currency.Send.Error.NotEnough",
         LIGHT_GRAY.wrap("You don't have enough " + LIGHT_RED.wrap(CURRENCY_NAME) + "!"));
@@ -180,15 +163,11 @@ public class Lang extends CoreLang {
     public static final LangText CURRENCY_SEND_DONE_NOTIFY = LangText.of("Command.Currency.Send.Done.Notify",
         LIGHT_GRAY.wrap("You received " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "!"));
 
-
-
     public static final LangText COMMAND_CURRENCY_PAYMENTS_TOGGLE = LangText.of("Command.Currency.Payments.Toggle",
         LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(CURRENCY_NAME) + " payments acception: " + LIGHT_YELLOW.wrap(GENERIC_STATE) + "."));
 
     public static final LangText COMMAND_CURRENCY_PAYMENTS_TARGET = LangText.of("Command.Currency.Payments.Target",
         LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(CURRENCY_NAME) + " payments acception for " + LIGHT_YELLOW.wrap(PLAYER_NAME) + ": " + LIGHT_YELLOW.wrap(GENERIC_STATE) + "."));
-
-
 
     public static final LangText TOP_LIST = LangText.of("Command.Currency.Top.List",
         TAG_NO_PREFIX,
@@ -231,15 +210,11 @@ public class Lang extends CoreLang {
         HOVER.wrapShowText(GRAY.wrap("[←]"), GRAY.wrap("There are no more pages."))
     );
 
-
-
     public static final LangText CURRENCY_BALANCE_DISPLAY_OWN = LangText.of("Currency.Balance.Display.Own",
         LIGHT_GRAY.wrap("Balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
     public static final LangText CURRENCY_BALANCE_DISPLAY_OTHERS = LangText.of("Currency.Balance.Display.Others",
         LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
-
-
 
     public static final LangText CURRENCY_WALLET_OWN = LangText.of("Currency.Wallet.Own",
         TAG_NO_PREFIX,
@@ -263,7 +238,6 @@ public class Lang extends CoreLang {
         YELLOW.wrap("•") + " " + WHITE.wrap(CURRENCY_NAME + ":") + " " + GREEN.wrap(GENERIC_BALANCE)
     );
 
-
     public static final LangText CURRENCY_EXCHANGE_ERROR_DISABLED = LangText.of("Currency.Exchange.Error.Disabled",
         LIGHT_GRAY.wrap(LIGHT_RED.wrap(CURRENCY_NAME) + " can not be exchanged!"));
 
@@ -282,10 +256,8 @@ public class Lang extends CoreLang {
     public static final LangText CURRENCY_EXCHANGE_SUCCESS = LangText.of("Currency.Exchange.Success",
         LIGHT_GRAY.wrap("You exchanged " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + " for " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + "!"));
 
-
     public static final LangString ECONOMY_ERROR_INVALID_PLAYER     = LangString.of("VaultEconomy.Error.InvalidPlayer", "Player not found.");
     public static final LangString ECONOMY_ERROR_INSUFFICIENT_FUNDS = LangString.of("VaultEconomy.Error.InsufficientFunds", "Insufficient Funds!");
-
 
     public static final LangString OTHER_NO_TOP_ENTRY = LangString.of("Other.NoTopEntry", "<none>");
 
