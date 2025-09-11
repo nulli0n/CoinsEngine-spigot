@@ -1,56 +1,51 @@
-# About
 <div align="center">
-  <img src="https://i.imgur.com/l25IJgi.png">
-  
-  <a href="https://discord.gg/EwNFGsnGaW"><img src="https://i.imgur.com/oJLlroF.png"></a>
-  <a href="https://ko-fi.com/nightexpress"><img src="https://i.imgur.com/fxoe3Xr.png"></a>
-  <a href="https://nightexpressdev.com/coinsengine/"><img src="https://i.imgur.com/gCaEmxj.png"></a>
-  
-  ![](https://repo.nightexpressdev.com/api/badge/latest/releases/su/nightexpress/coinsengine/CoinsEngine?color=40c14a&name=CoinsEngine&prefix=v)
+  <img src="https://nightexpressdev.com/img/coinsengine/logo.png">
 
-**CoinsEngine** is a lightweight, highly customizable custom currency provider with built-in [Vault integration](https://nightexpressdev.com/coinsengine/hooks/vault/).
+<a href="https://discord.gg/EwNFGsnGaW"><img src="https://img.shields.io/discord/903053383475277844?style=for-the-badge&label=Discord&color=%2333a8ff"></a>
+<a href="https://ko-fi.com/nightexpress"><img src="https://img.shields.io/badge/donate-%E2%9D%A4%EF%B8%8F_to_support-dff33?style=for-the-badge"></a>
+<a href="https://nightexpressdev.com/coinsengine/"><img src="https://img.shields.io/badge/wiki-documentation-ff9c33?style=for-the-badge"></a>
+
+[![](https://nightexpressdev.com/img/badge/modrinth.svg)](https://modrinth.com/plugin/coinsengine)
+[![](https://nightexpressdev.com/img/badge/spigotmc.svg)](https://spigotmc.org/resources/84121/)
+[![](https://nightexpressdev.com/img/badge/hangar.svg)](https://hangar.papermc.io/NightExpress/CoinsEngine)
+
+**CoinsEngine** is a lightweight, highly customizable economy & custom virtual currency provider with built-in [Vault integration](https://nightexpressdev.com/coinsengine/hooks/vault/).
 </div>
 
 # Features
-- [Unlimited Currencies](https://nightexpressdev.com/coinsengine/configuration/currencies/). Create as many currencies as you want.
-- [Data Migration](https://nightexpressdev.com/coinsengine/migration/). Migrate player balances from other plugins with a single command.
-- [Cross-Server](https://nightexpressdev.com/coinsengine/configuration/cross-server/). Share currency balances between your servers.
-- [Plugin Integrations](https://nightexpressdev.com/coinsengine/hooks/plugins/). CoinsEngine is supported by many popular plugins.
-- Database with SQLite and MySQL options.
-- Currency Decimals. Set whether currency is decimal or not.
-- Currency Prefix. Set custom currency prefix for all currency messages.
-- Start Value. Set currency start value for new players.
-- [Amount Shortcuts](https://nightexpressdev.com/nightcore/configuration/number-formation/#number-shortcuts). Provide large amounts in commands by using aliases.
-- Currency Format. Set custom format for each currency.
-- Currency Commands. Create direct, custom commands for your currencies.
-- Economy Commands. Provides common `/pay`, `/balance` and `/balancetop` commands when linked with Vault.
-- [Permission Requirement](https://nightexpressdev.com/coinsengine/permissions/). Restrict currency access by permissions.
-- [Currency Exchange](https://nightexpressdev.com/coinsengine/configuration/exchange/). Exchange one currency for another.
-- Balance Limit. Set max. possible balance value for each currency.
-- Balance Tops. View top players by their currency balance.
-- Toggle Payments. Toggle payments acception from other players for each currency individually.
-- Opertation Logs. Log all command-based currency operations into separate file!
+- [Unlimited Currencies](https://nightexpressdev.com/coinsengine/features/currencies). Create as many currencies as you want.
+- [Data Migration](https://nightexpressdev.com/coinsengine/features/migration). Migrate player balances from other plugins with a single command.
+- [Cross-Server](https://nightexpressdev.com/coinsengine/features/cross-server). Share currency balances between your servers.
+- [Plugin Integrations](https://nightexpressdev.com/coinsengine/hooks/plugins). CoinsEngine is supported by many popular plugins.
 - [Vault](https://nightexpressdev.com/coinsengine/hooks/vault/) Support. Set desired currency to handle your economy.
 - [PlaceholderAPI](https://nightexpressdev.com/coinsengine/hooks/placeholder_api/) Support.
+- **SQL Database**. With SQLite and MySQL support.
+- **Decimals & Integers**. Create decimal and integer currencies.
+- **Start Value**. Set start currency value for new players.
+- **Max. Value**. Set max. currency value for player balance.
+- **Payments**. Send currency to other players. Toggleable per currency.
+- [Amount Shortcuts](https://nightexpressdev.com/nightcore/configuration/number-formation/#number-shortcuts). Provide large amounts in commands by using aliases.
+- [Wallet](https://nightexpressdev.com/coinsengine/features/wallet). View balance of all currencies with a single command!
+- [Currency Prefix](https://nightexpressdev.com/coinsengine/features/prefix). Set custom currency prefix for all currency messages.
+- [Currency Format](https://nightexpressdev.com/coinsengine/features/prefix). Set custom format for each currency.
+- [Currency Exchange](https://nightexpressdev.com/coinsengine/features/exchange). Exchange one currency for another.
+- [Currency Commands](https://nightexpressdev.com/coinsengine/commands/#currency-commands). Create direct, custom commands for your currencies.
+- [Economy Commands](https://nightexpressdev.com/coinsengine/commands/#dedicated-commands). Provides customizable `/pay`, `/balance` and `/balancetop` commands.
+- [Permission Requirement](https://nightexpressdev.com/coinsengine/permissions). Restrict currency access by permissions.
+- [Leaderboards](https://nightexpressdev.com/coinsengine/features/leaderboards). View top players by their currency balance.
+- [Opertation Logs](https://nightexpressdev.com/coinsengine/features/logs). Log all command-based currency operations into separate file!
 
-# Compatibility
-- **Java Version:** 21 or higher.
-- **Server Software:** Spigot / Paper / Purpur
-- **Server Version:** 1.20.1 or higher.
-
-# Dependencies
+## Dependencies
 **REQUIRED:**
-- [nightcore](https://nightexpressdev.com/nightcore/) 2.7.3 or newer.
+- **Java 21** or higher.
+- [nightcore](https://nightexpressdev.com/nightcore/) - Plugin engine.
 
 **OPTIONAL:**
-- [Vault](https://spigotmc.org/resources/34315/)
+- [Vault](https://spigotmc.org/resources/34315/) - Economy integration.
 
-# Downloads & Documentation
-- [SpigotMC](https://spigotmc.org/resources/84121/)
-- [Hangar](https://hangar.papermc.io/NightExpress/CoinsEngine)
-- [Modrinth](https://modrinth.com/plugin/coinsengine)
+## Documentation
 - [Documentation](https://nightexpressdev.com/coinsengine/)
 - [Developer API](https://nightexpressdev.com/coinsengine/developer-api/)
 
-# Donate
+## Donate
 If you like my work or enjoy using my plugins, feel free to [Buy me a coffee](https://ko-fi.com/nightexpress) :) Thank you! 🧡

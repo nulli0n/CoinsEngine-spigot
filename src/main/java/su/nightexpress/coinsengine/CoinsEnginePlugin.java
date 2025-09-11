@@ -2,6 +2,7 @@ package su.nightexpress.coinsengine;
 
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
+import su.nightexpress.coinsengine.command.currency.CurrencyCommands;
 import su.nightexpress.coinsengine.command.impl.BasicCommands;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
@@ -13,27 +14,25 @@ import su.nightexpress.coinsengine.hook.DeluxeCoinflipHook;
 import su.nightexpress.coinsengine.hook.HookId;
 import su.nightexpress.coinsengine.hook.PlaceholderAPIHook;
 import su.nightexpress.coinsengine.migration.MigrationManager;
-import su.nightexpress.coinsengine.util.CoinsLogger;
+import su.nightexpress.coinsengine.tops.TopManager;
 import su.nightexpress.nightcore.NightPlugin;
 import su.nightexpress.nightcore.command.experimental.ImprovedCommands;
 import su.nightexpress.nightcore.config.PluginDetails;
 import su.nightexpress.nightcore.util.Plugins;
 
+import java.util.Optional;
+
 public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
 
-    private CurrencyManager  currencyManager;
-    private MigrationManager migrationManager;
     private DataHandler      dataHandler;
     private UserManager      userManager;
-
-    private CoinsLogger coinsLogger;
+    private CurrencyManager  currencyManager;
+    private TopManager       topManager;
+    private MigrationManager migrationManager;
 
     @Override
     public void enable() {
-        CoinsEngineAPI.load(this);
-
-        this.coinsLogger = new CoinsLogger(this);
-        this.registerCommands();
+        this.loadEngine();
         
         this.dataHandler = new DataHandler(this);
         this.dataHandler.setup();
@@ -44,8 +43,15 @@ public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
         this.currencyManager = new CurrencyManager(this);
         this.currencyManager.setup();
 
-        this.migrationManager = new MigrationManager(this);
-        this.migrationManager.setup();
+        if (Config.isTopsEnabled()) {
+            this.topManager = new TopManager(this);
+            this.topManager.setup();
+        }
+
+        if (Config.isMigrationEnabled()) {
+            this.migrationManager = new MigrationManager(this);
+            this.migrationManager.setup();
+        }
 
         if (Plugins.hasPlaceholderAPI()) {
             PlaceholderAPIHook.setup(this);
@@ -56,7 +62,9 @@ public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
         }
     }
 
-    private void registerCommands() {
+    private void loadEngine() {
+        CoinsEngineAPI.load(this);
+        CurrencyCommands.load(this);
         BasicCommands.load(this);
     }
 
@@ -66,12 +74,14 @@ public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
             PlaceholderAPIHook.shutdown();
         }
 
+        if (this.topManager != null) this.topManager.shutdown();
         if (this.migrationManager != null) this.migrationManager.shutdown();
         if (this.userManager != null) this.userManager.shutdown();
         if (this.dataHandler != null) this.dataHandler.shutdown();
         if (this.currencyManager != null) this.currencyManager.shutdown();
 
-        CoinsEngineAPI.unload();
+        CurrencyCommands.clear();
+        CoinsEngineAPI.clear();
     }
 
     @Override
@@ -84,22 +94,22 @@ public class CoinsEnginePlugin extends NightPlugin implements ImprovedCommands {
     }
 
     @NotNull
-    public CoinsLogger getCoinsLogger() {
-        return this.coinsLogger;
-    }
-
-    @NotNull
     public CurrencyManager getCurrencyManager() {
         return this.currencyManager;
     }
 
     @NotNull
-    public MigrationManager getMigrationManager() {
-        return this.migrationManager;
+    public Optional<TopManager> getTopManager() {
+        return Optional.ofNullable(this.topManager);
     }
 
     @NotNull
-    public DataHandler getData() {
+    public Optional<MigrationManager> getMigrationManager() {
+        return Optional.ofNullable(this.migrationManager);
+    }
+
+    @NotNull
+    public DataHandler getDataHandler() {
         return this.dataHandler;
     }
 

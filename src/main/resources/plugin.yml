@@ -2,7 +2,7 @@ main: su.nightexpress.coinsengine.CoinsEnginePlugin
 version: '${project.version}'
 name: CoinsEngine
 author: NightExpress
-desciption: Unlimited virtual currencies with Vault Economy support!
+desciption: Unlimited virtual currencies and server economy.
 depend: [ nightcore ]
 softdepend:
   - Vault
@@ -10,4 +10,4 @@ softdepend:
   - PlayerPoints
   - DeluxeCoinflip
 load: STARTUP
-api-version: 1.19
+api-version: 1.20

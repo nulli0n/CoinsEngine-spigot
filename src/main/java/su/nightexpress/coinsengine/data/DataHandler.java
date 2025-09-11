@@ -1,175 +1,137 @@
 package su.nightexpress.coinsengine.data;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.data.serialize.CurrencySettingsSerializer;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencySettings;
-import su.nightexpress.coinsengine.data.serialize.CurrencySettingsSerializer;
 import su.nightexpress.nightcore.db.AbstractUserDataManager;
 import su.nightexpress.nightcore.db.sql.column.Column;
 import su.nightexpress.nightcore.db.sql.column.ColumnType;
 import su.nightexpress.nightcore.db.sql.query.impl.SelectQuery;
-import su.nightexpress.nightcore.db.sql.query.impl.UpdateQuery;
 import su.nightexpress.nightcore.db.sql.query.type.ValuedQuery;
+import su.nightexpress.nightcore.util.Lists;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, CoinsUser> {
 
-    private static final Column COLUMN_SETTINGS = Column.of("settings", ColumnType.STRING);
+    static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+        .registerTypeAdapter(CurrencySettings.class, new CurrencySettingsSerializer())
+        .create();
+
+    static final Column COLUMN_SETTINGS = Column.of("settings", ColumnType.STRING);
+    static final Column COLUMN_HIDE_FROM_TOPS = Column.of("hiddenFromTops", ColumnType.BOOLEAN);
+
+    static final Map<String, Column> CURRENCY_COLUMNS = new HashMap<>();
 
     public DataHandler(@NotNull CoinsEnginePlugin plugin) {
         super(plugin);
     }
 
     @Override
+    protected void onClose() {
+        super.onClose();
+        CURRENCY_COLUMNS.clear();
+    }
+
+    @Override
     @NotNull
     protected Function<ResultSet, CoinsUser> createUserFunction() {
-        return resultSet -> {
-            try {
-                UUID uuid = UUID.fromString(resultSet.getString(COLUMN_USER_ID.getName()));
-                String name = resultSet.getString(COLUMN_USER_NAME.getName());
-                long dateCreated = resultSet.getLong(COLUMN_USER_DATE_CREATED.getName());
-                long lastOnline = resultSet.getLong(COLUMN_USER_LAST_ONLINE.getName());
-
-                Map<String, CurrencySettings> settingsMap = gson.fromJson(resultSet.getString(COLUMN_SETTINGS.getName()), new TypeToken<Map<String, CurrencySettings>>(){}.getType());
-                if (settingsMap == null) settingsMap = new HashMap<>();
-
-                Map<String, Double> balanceMap = new HashMap<>();
-
-                for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-                    double balance = resultSet.getDouble(currency.getColumnName());
-
-                    balanceMap.put(currency.getId(), balance);
-                }
-
-                return new CoinsUser(plugin, uuid, name, dateCreated, lastOnline, balanceMap, settingsMap);
-            }
-            catch (SQLException exception) {
-                exception.printStackTrace();
-                return null;
-            }
-        };
+        return DataQueries.USER_LOADER;
     }
 
     @Override
     @NotNull
     protected GsonBuilder registerAdapters(@NotNull GsonBuilder builder) {
-        return builder
-            .registerTypeAdapter(CurrencySettings.class, new CurrencySettingsSerializer());
+        return builder;
     }
 
     @Override
-    protected void createUserTable() {
-        super.createUserTable();
+    protected void onInitialize() {
+        super.onInitialize();
 
         this.dropColumn(this.tableUsers, "balances", "currencyData");
         this.addColumn(this.tableUsers, COLUMN_SETTINGS, "{}");
+        this.addColumn(this.tableUsers, COLUMN_HIDE_FROM_TOPS, String.valueOf(0));
+    }
+
+    @NotNull
+    public static Column getCurrencyColumn(@NotNull Currency currency) {
+        return getCurrencyColumn(currency.getId());
+    }
+
+    @NotNull
+    public static Column getCurrencyColumn(@NotNull String currencyId) {
+        return CURRENCY_COLUMNS.get(currencyId);
+    }
+
+    public static boolean isCurrencyColumnCached(@NotNull Currency currency) {
+        return CURRENCY_COLUMNS.containsKey(currency.getId());
+    }
+
+    public void onCurrencyRegister(@NotNull Currency currency) {
+        this.addCurrencyColumn(currency);
+    }
+
+    public void onCurrencyUnload(@NotNull Currency currency) {
+        CURRENCY_COLUMNS.remove(currency.getId());
+    }
+
+    public void addCurrencyColumn(@NotNull Currency currency) {
+        Column column = Column.of(currency.getColumnName(), ColumnType.DOUBLE);
+        this.addColumn(this.tableUsers, column, String.valueOf(currency.getStartValue()));
+        CURRENCY_COLUMNS.put(currency.getId(), column);
     }
 
     @Override
     protected void addUpsertQueryData(@NotNull ValuedQuery<?, CoinsUser> query) {
         query.setValue(COLUMN_SETTINGS, user -> this.gson.toJson(user.getSettingsMap()));
+        query.setValue(COLUMN_HIDE_FROM_TOPS, user -> String.valueOf(user.isHiddenFromTops() ? 1 : 0));
 
         for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-            query.setValue(currency.getColumn(), user -> String.valueOf(user.getBalance(currency)));
+            query.setValue(getCurrencyColumn(currency), user -> String.valueOf(user.getBalance(currency)));
         }
     }
 
     @Override
     protected void addSelectQueryData(@NotNull SelectQuery<CoinsUser> query) {
         query.column(COLUMN_SETTINGS);
+        query.column(COLUMN_HIDE_FROM_TOPS);
 
         for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-            query.column(currency.getColumn());
+            query.column(getCurrencyColumn(currency));
         }
     }
 
     @Override
     protected void addTableColumns(@NotNull List<Column> columns) {
         columns.add(COLUMN_SETTINGS);
-    }
-
-    public void createCurrencyColumn(@NotNull Currency currency) {
-        this.addColumn(this.tableUsers, currency.getColumn(), String.valueOf(currency.getStartValue()));
+        columns.add(COLUMN_HIDE_FROM_TOPS);
     }
 
     @Override
     public void onSynchronize() {
-        this.plugin.getUserManager().getLoaded().forEach(this::updateUserBalance);
-    }
-
-    private void updateUserBalance(@NotNull CoinsUser user) {
-        if (user.isAutoSavePlanned()) return;
-
-        CoinsUser fresh = this.getUser(user.getId());
-        if (fresh == null) return;
-
-        if (!user.isAutoSyncReady()) return;
-
-        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-            if (!currency.isSynchronizable()) continue;
-
-            double balance = fresh.getBalance(currency);
-            user.setBalance(currency, balance);
-        }
+        this.plugin.getUserManager().synchronize();
     }
 
     public void resetBalances(@NotNull Currency currency) {
-        UpdateQuery<Currency> query = new UpdateQuery<>();
-
-        query.setValue(currency.getColumn(), c -> String.valueOf(c.getStartValue()));
-
-        this.update(this.tableUsers, query, currency);
+        this.resetBalances(Lists.newSet(currency));
     }
 
     public void resetBalances() {
-        UpdateQuery<Currency> query = new UpdateQuery<>();
-
-        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-            query.setValue(currency.getColumn(), c -> String.valueOf(c.getStartValue()));
-        }
-
-        this.update(this.tableUsers, query, plugin.getCurrencyManager().getCurrencies());
+        this.resetBalances(this.plugin.getCurrencyManager().getCurrencies());
     }
 
-    @NotNull
-    public Map<Currency, Map<String, Double>> getBalances() {
-        Map<Currency, Map<String, Double>> map = new HashMap<>();
-
-        SelectQuery<Void> query = new SelectQuery<>(resultSet -> {
-            try {
-                String name = resultSet.getString(COLUMN_USER_NAME.getName());
-
-                for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-                    double balance = resultSet.getDouble(currency.getColumnName());
-                    map.computeIfAbsent(currency, k -> new HashMap<>()).put(name, balance);
-                }
-            }
-            catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-            return null;
-        });
-
-        query.column(COLUMN_USER_NAME);
-        for (Currency currency : plugin.getCurrencyManager().getCurrencies()) {
-            query.column(currency.getColumn());
-        }
-
-        this.select(this.tableUsers, query);
-
-//        for (int i = 0; i < 30; i++) {
-//            String name = "DummyPlayer_" + i;
-//            map.values().forEach(data -> data.put(name, Rnd.getDouble(1000)));
-//        }
-
-        return map;
+    public void resetBalances(@NotNull Collection<Currency> currencies) {
+        this.update(this.tableUsers, DataQueries.forCurrencyReset(currencies), new Object()); // Little hack to bypass query params.
     }
 }

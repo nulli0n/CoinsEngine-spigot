@@ -6,7 +6,7 @@
 
     <groupId>su.nightexpress.coinsengine</groupId>
     <artifactId>CoinsEngine</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -29,7 +29,6 @@
 
         <repository>
             <id>nightexpress-releases</id>
-            <name>NightExpress's Repository</name>
             <url>https://repo.nightexpressdev.com/releases</url>
         </repository>
 
@@ -58,7 +57,8 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <version>1.21.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -70,14 +70,14 @@
 
         <dependency>
             <groupId>su.nightexpress.nightcore</groupId>
-            <artifactId>nightcore</artifactId>
-            <version>2.7.3</version>
+            <artifactId>main</artifactId>
+            <version>2.7.8</version>
         </dependency>
 
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
-            <version>2.10.10</version>
+            <version>2.11.6</version>
             <scope>provided</scope>
         </dependency>
 
@@ -92,6 +92,7 @@
             <groupId>com.github.ItzSave</groupId>
             <artifactId>DeluxeCoinflipAPI</artifactId>
             <version>1.0.4</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -1,24 +1,32 @@
 package su.nightexpress.coinsengine.hook.vault;
 
-import net.milkbowl.vault.economy.AbstractEconomy;
+import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.config.Lang;
+import su.nightexpress.coinsengine.currency.CurrencyManager;
+import su.nightexpress.coinsengine.currency.CurrencyOperations;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
+import su.nightexpress.coinsengine.user.BalanceLookup;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class CurrencyEconomy extends AbstractEconomy {
+public class CurrencyEconomy implements Economy {
+
+    private static final EconomyResponse NO_BANKS = new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
 
     private final CoinsEnginePlugin plugin;
+    private final CurrencyManager   manager;
     private final Currency          currency;
 
     public CurrencyEconomy(@NotNull CoinsEnginePlugin plugin, @NotNull Currency currency) {
         this.plugin = plugin;
+        this.manager = plugin.getCurrencyManager();
         this.currency = currency;
     }
 
@@ -52,8 +60,15 @@ public class CurrencyEconomy extends AbstractEconomy {
         return this.currency.getName();
     }
 
+
+
     @Override
-    public boolean createPlayerAccount(String playerName) {
+    public boolean createPlayerAccount(OfflinePlayer player) {
+        return false;
+    }
+
+    @Override
+    public boolean createPlayerAccount(OfflinePlayer player, String worldName) {
         return false;
     }
 
@@ -63,6 +78,13 @@ public class CurrencyEconomy extends AbstractEconomy {
     }
 
     @Override
+    public boolean createPlayerAccount(String playerName) {
+        return false;
+    }
+
+
+
+    @Override
     public double getBalance(OfflinePlayer player, String world) {
         return this.getBalance(player);
     }
@@ -70,7 +92,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public double getBalance(OfflinePlayer player) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(player.getUniqueId());
-        return user == null ? 0D : user.getBalance(this.currency);
+        return this.getBalance(user);
     }
 
     @Override
@@ -81,8 +103,14 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public double getBalance(String playerName) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(playerName);
+        return this.getBalance(user);
+    }
+
+    private double getBalance(@Nullable CoinsUser user) {
         return user == null ? 0D : user.getBalance(this.currency);
     }
+
+
 
     @Override
     public boolean hasAccount(OfflinePlayer player, String worldName) {
@@ -91,7 +119,7 @@ public class CurrencyEconomy extends AbstractEconomy {
 
     @Override
     public boolean hasAccount(OfflinePlayer player) {
-        return this.plugin.getData().isUserExists(player.getUniqueId());
+        return this.plugin.getDataHandler().isUserExists(player.getUniqueId());
     }
 
     @Override
@@ -101,8 +129,10 @@ public class CurrencyEconomy extends AbstractEconomy {
 
     @Override
     public boolean hasAccount(String playerName) {
-        return this.plugin.getData().isUserExists(playerName);
+        return this.plugin.getDataHandler().isUserExists(playerName);
     }
+
+
 
     @Override
     public boolean has(OfflinePlayer player, String worldName, double amount) {
@@ -112,7 +142,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public boolean has(OfflinePlayer player, double amount) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(player.getUniqueId());
-        return user != null && user.getBalance(this.currency) >= amount;
+        return this.has(user, amount);
     }
 
     @Override
@@ -123,8 +153,14 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public boolean has(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(playerName);
-        return user != null && user.getBalance(this.currency) >= amount;
+        return this.has(user, amount);
     }
+
+    private boolean has(@Nullable CoinsUser user, double amount) {
+        return user != null && user.hasEnough(this.currency, amount);
+    }
+
+
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
@@ -134,15 +170,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(player.getUniqueId());
-        if (user == null) {
-            return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INVALID_PLAYER.getLegacy());
-        }
-
-        user.addBalance(this.currency, amount);
-        this.plugin.getUserManager().save(user);
-        double balance = user.getBalance(this.currency);
-
-        return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+        return this.depositUser(user, amount);
     }
 
     @Override
@@ -153,16 +181,24 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(playerName);
+        return this.depositUser(user, amount);
+    }
+
+    @NotNull
+    private EconomyResponse depositUser(@Nullable CoinsUser user, double amount) {
         if (user == null) {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INVALID_PLAYER.getLegacy());
         }
+        if (!this.manager.canPerformOperations()) {
+            return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.FAILURE, "Operations are not available at this time.");
+        }
 
-        user.addBalance(this.currency, amount);
-        this.plugin.getUserManager().save(user);
-        double balance = user.getBalance(this.currency);
+        this.manager.performOperation(CurrencyOperations.forAddSilently(this.currency, amount, user));
 
-        return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+        return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.SUCCESS, null);
     }
+
+
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
@@ -172,19 +208,7 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(player.getUniqueId());
-        if (user == null) {
-            return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INVALID_PLAYER.getLegacy());
-        }
-
-        if (user.getBalance(this.currency) < amount) {
-            return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INSUFFICIENT_FUNDS.getLegacy());
-        }
-
-        user.removeBalance(this.currency, amount);
-        this.plugin.getUserManager().save(user);
-        double balance = user.getBalance(this.currency);
-
-        return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+        return this.withdrawUser(user, amount);
     }
 
     @Override
@@ -195,64 +219,89 @@ public class CurrencyEconomy extends AbstractEconomy {
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
         CoinsUser user = this.plugin.getUserManager().getOrFetch(playerName);
+        return this.withdrawUser(user, amount);
+    }
+
+    @NotNull
+    private EconomyResponse withdrawUser(@Nullable CoinsUser user, double amount) {
         if (user == null) {
             return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INVALID_PLAYER.getLegacy());
         }
 
-        if (user.getBalance(this.currency) < amount) {
-            return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INSUFFICIENT_FUNDS.getLegacy());
+        BalanceLookup lookup = user.balanceLookup(this.currency);
+
+        if (!user.hasEnough(this.currency, amount)) {
+            return new EconomyResponse(amount, lookup.balance(), EconomyResponse.ResponseType.FAILURE, Lang.ECONOMY_ERROR_INSUFFICIENT_FUNDS.getLegacy());
+        }
+        if (!this.manager.canPerformOperations()) {
+            return new EconomyResponse(amount, user.getBalance(this.currency), EconomyResponse.ResponseType.FAILURE, "Operations are not available at this time.");
         }
 
-        user.removeBalance(this.currency, amount);
-        this.plugin.getUserManager().save(user);
-        double balance = user.getBalance(this.currency);
+        this.manager.performOperation(CurrencyOperations.forRemoveSilently(this.currency, amount, user));
 
-        return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+        return new EconomyResponse(amount, lookup.balance(), EconomyResponse.ResponseType.SUCCESS, null);
     }
+
+
 
     @Override
     public EconomyResponse createBank(String name, String player) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
+    }
+
+    @Override
+    public EconomyResponse createBank(String name, OfflinePlayer player) {
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse deleteBank(String name) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse bankHas(String name, double amount) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse bankWithdraw(String name, double amount) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse bankDeposit(String name, double amount) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
+    }
+
+    @Override
+    public EconomyResponse isBankOwner(String name, OfflinePlayer player) {
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse isBankOwner(String name, String playerName) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
+    }
+
+    @Override
+    public EconomyResponse isBankMember(String name, OfflinePlayer player) {
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse isBankMember(String name, String playerName) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
     }
 
     @Override
     public EconomyResponse bankBalance(String name) {
-        return new EconomyResponse(0D, 0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "CoinsEngine does not support bank accounts!");
+        return NO_BANKS;
     }
 
     @Override
     public List<String> getBanks() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

@@ -9,25 +9,27 @@ import su.nightexpress.coinsengine.api.currency.Currency;
 
 import java.util.Map;
 
-public abstract class MigrationPlugin {
+public abstract class Migrator {
 
     protected final CoinsEnginePlugin plugin;
-    protected final String            pluginName;
+    protected final String            name;
 
-    public MigrationPlugin(@NotNull CoinsEnginePlugin plugin, @NotNull String pluginName) {
+    public Migrator(@NotNull CoinsEnginePlugin plugin, @NotNull String name) {
         this.plugin = plugin;
-        this.pluginName = pluginName;
+        this.name = name;
     }
 
     @NotNull
-    public String getPluginName() {
-        return pluginName;
+    public String getName() {
+        return name;
     }
 
     @Nullable
-    public Plugin getBackendPlugin() {
-        return this.plugin.getPluginManager().getPlugin(this.getPluginName());
+    public Plugin getBackend() {
+        return this.plugin.getPluginManager().getPlugin(this.name);
     }
+
+    public abstract boolean canMigrate(@NotNull Currency currency);
 
     @NotNull
     public abstract Map<OfflinePlayer, Double> getBalances(@NotNull Currency currency);

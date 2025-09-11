@@ -5,14 +5,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
+import su.nightexpress.coinsengine.api.currency.CurrencyOperation;
 import su.nightexpress.coinsengine.currency.CurrencyManager;
+import su.nightexpress.coinsengine.currency.CurrencyOperations;
 import su.nightexpress.coinsengine.data.UserManager;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class CoinsEngineAPI {
 
@@ -22,18 +24,34 @@ public class CoinsEngineAPI {
         CoinsEngineAPI.plugin = plugin;
     }
 
-    public static void unload() {
+    public static void clear() {
         plugin = null;
+    }
+
+    public static boolean isLoaded() {
+        return plugin != null;
+    }
+
+    @NotNull
+    public static CoinsEnginePlugin plugin() {
+        if (plugin == null) throw new IllegalStateException("API is not yet initialized!");
+
+        return plugin;
     }
 
     @NotNull
     public static UserManager getUserManager() {
-        return plugin.getUserManager();
+        return plugin().getUserManager();
     }
 
     @NotNull
     public static CurrencyManager getCurrencyManager() {
-        return plugin.getCurrencyManager();
+        return plugin().getCurrencyManager();
+    }
+
+    @NotNull
+    public static Collection<Currency> getCurrencies() { // keep it Collection for the API compatibility
+        return getCurrencyManager().getCurrencies();
     }
 
     @Nullable
@@ -42,7 +60,7 @@ public class CoinsEngineAPI {
     }
 
     public static boolean hasCurrency(@NotNull String id) {
-        return getCurrency(id) != null;
+        return getCurrencyManager().isRegistered(id);
     }
 
     public static void regsiterCurrency(@NotNull Currency currency) {
@@ -51,8 +69,10 @@ public class CoinsEngineAPI {
 
 
 
-    public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
-        return getUserData(player).getBalance(currency);
+    public static double getBalance(@NotNull UUID playerId, @NotNull String currencyName) {
+        Currency currency = getCurrency(currencyName);
+
+        return currency == null ? 0D : getBalance(playerId, currency);
     }
 
     public static double getBalance(@NotNull UUID playerId, @NotNull Currency currency) {
@@ -61,37 +81,10 @@ public class CoinsEngineAPI {
         return user == null ? 0D : user.getBalance(currency);
     }
 
-    public static double getBalance(@NotNull UUID playerId, @NotNull String currencyName) {
-        Currency currency = getCurrency(currencyName);
-
-        return currency == null ? 0D : getBalance(playerId, currency);
+    public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
+        return getUserData(player).getBalance(currency);
     }
 
-
-    public static void addBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        editBalance(() -> getUserData(player), user -> user.addBalance(currency, amount));
-    }
-
-    public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        editBalance(() -> getUserData(player), user -> user.setBalance(currency, amount));
-    }
-
-    public static void removeBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
-        editBalance(() -> getUserData(player), user -> user.removeBalance(currency, amount));
-    }
-
-
-    public static boolean addBalance(@NotNull UUID playerId, @NotNull Currency currency, double amount) {
-        return editBalance(() -> getUserData(playerId), user -> user.addBalance(currency, amount));
-    }
-
-    public static boolean setBalance(@NotNull UUID playerId, @NotNull Currency currency, double amount) {
-        return editBalance(() -> getUserData(playerId), user -> user.setBalance(currency, amount));
-    }
-
-    public static boolean removeBalance(@NotNull UUID playerId, @NotNull Currency currency, double amount) {
-        return editBalance(() -> getUserData(playerId), user -> user.removeBalance(currency, amount));
-    }
 
 
     public static boolean addBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
@@ -99,24 +92,50 @@ public class CoinsEngineAPI {
         return currency != null && addBalance(playerId, currency, amount);
     }
 
+    public static boolean addBalance(@NotNull UUID playerId, @NotNull Currency currency, double amount) {
+        return editBalance(playerId, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forAddSilently(currency, amount, user));
+    }
+
+    public static void addBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
+        editBalance(player, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forAddSilently(currency, amount, user));
+    }
+
+
+
     public static boolean setBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
         Currency currency = getCurrency(currencyName);
         return currency != null && setBalance(playerId, currency, amount);
     }
+
+    public static boolean setBalance(@NotNull UUID playerId, @NotNull Currency currency, double amount) {
+        return editBalance(playerId, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forSetSilently(currency, amount, user));
+    }
+
+    public static void setBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
+        editBalance(player, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forSetSilently(currency, amount, user));
+    }
+
+
 
     public static boolean removeBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
         Currency currency = getCurrency(currencyName);
         return currency != null && removeBalance(playerId, currency, amount);
     }
 
+    public static boolean removeBalance(@NotNull UUID playerId, @NotNull Currency currency, double amount) {
+        return editBalance(playerId, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forRemoveSilently(currency, amount, user));
+    }
 
-    private static boolean editBalance(@NotNull Supplier<CoinsUser> supplier, @NotNull Consumer<CoinsUser> consumer) {
-        CoinsUser user = supplier.get();
+    public static void removeBalance(@NotNull Player player, @NotNull Currency currency, double amount) {
+        editBalance(player, CoinsEngineAPI::getUserData, user -> CurrencyOperations.forRemoveSilently(currency, amount, user));
+    }
+
+    private static <T> boolean editBalance(@NotNull T nameOrId, @NotNull Function<T, CoinsUser> supplier, @NotNull Function<CoinsUser, CurrencyOperation> function) {
+        CoinsUser user = supplier.apply(nameOrId);
         if (user == null) return false;
 
-        consumer.accept(user);
-        getUserManager().save(user);
-        return true;
+        CurrencyOperation operation = function.apply(user);
+        return getCurrencyManager().performOperation(operation);
     }
 
 

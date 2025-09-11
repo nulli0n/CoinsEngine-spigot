@@ -1,106 +1,78 @@
 package su.nightexpress.coinsengine.api.currency;
 
-import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.Placeholders;
-import su.nightexpress.coinsengine.config.Config;
-import su.nightexpress.coinsengine.config.Perms;
-import su.nightexpress.nightcore.db.sql.column.Column;
+import org.jetbrains.annotations.Nullable;
+import su.nightexpress.nightcore.language.entry.LangText;
 import su.nightexpress.nightcore.language.message.LangMessage;
-import su.nightexpress.nightcore.util.NumberUtil;
+import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.nightcore.util.number.CompactNumber;
+import su.nightexpress.nightcore.util.placeholder.Replacer;
 
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 public interface Currency {
 
-    @NotNull
-    default UnaryOperator<String> replacePlaceholders() {
-        return Placeholders.forCurrency(this);
-    }
+    @NotNull UnaryOperator<String> replacePlaceholders();
 
-    @NotNull
-    default LangMessage withPrefix(@NotNull LangMessage message) {
-        if (!Config.CURRENCY_PREFIX_ENABLED.get()) return message;
+    void sendPrefixed(@NotNull LangText text, @NotNull CommandSender sender);
 
-        String prefix = this.replacePlaceholders().apply(Config.CURRENCY_PREFIX_FORMAT.get());
-        return message.setPrefix(prefix);
-    }
+    void sendPrefixed(@NotNull LangText text, @NotNull CommandSender sender, @Nullable Consumer<Replacer> consumer);
 
-    default boolean isUnlimited() {
-        return this.getMaxValue() <= 0D;
-    }
+    void sendPrefixed(@NotNull LangMessage message, @NotNull CommandSender sender);
 
-    default boolean isLimited() {
-        return !this.isUnlimited();
-    }
+    void sendPrefixed(@NotNull LangMessage message, @NotNull CommandSender sender, @Nullable Consumer<Replacer> consumer);
 
-    default boolean isInteger() {
-        return !this.isDecimal();
-    }
+    boolean hasPermission(@NotNull Player player);
 
-    default boolean isUnderLimit(double value) {
-        return this.isUnlimited() || value <= this.getMaxValue();
-    }
+    boolean isUnlimited();
 
+    boolean isLimited();
+
+    boolean isInteger();
+
+    boolean isUnderLimit(double value);
+
+    @Deprecated
     default double fine(double amount) {
-        return Math.max(0D, this.isDecimal() ? amount : Math.floor(amount));
+        return this.floorIfNeeded(amount);
     }
 
+    double floorIfNeeded(double amount);
+
+    @Deprecated
     default double limit(double amount) {
-        return this.isLimited() ? Math.min(amount, this.getMaxValue()) : amount;
+        return this.limitIfNeeded(amount);
     }
 
+    double limitIfNeeded(double amount);
+
+    @Deprecated
     default double fineAndLimit(double amount) {
-        return this.fine(this.limit(amount));
+        return this.floorAndLimit(amount);
     }
 
-    default double getExchangeRate(@NotNull Currency currency) {
-        return this.getExchangeRate(currency.getId());
-    }
+    double floorAndLimit(double amount);
 
-    default double getExchangeRate(@NotNull String id) {
-        return this.getExchangeRates().getOrDefault(id.toLowerCase(), 0.0);
-    }
+    @NotNull String getPermission();
+
+    @NotNull String formatValue(double balance);
+
+    @NotNull String format(double balance);
 
     @NotNull
-    default String getPermission() {
-        return Perms.PREFIX_CURRENCY + this.getId();
-    }
-
-    @NotNull
-    default String formatValue(double balance) {
-        return NumberUtil.format(this.fine(balance));
-    }
-
-    @NotNull
-    default String format(double balance) {
-        String format = this.getFormat();
-        if (Config.useCurrencyFormatPAPI()) {
-            format = PlaceholderAPI.setPlaceholders(null, format);
-        }
-
-        return this.replacePlaceholders().apply(format).replace(Placeholders.GENERIC_AMOUNT, this.formatValue(balance));
-    }
-
-    @NotNull
+    @Deprecated
     default CompactNumber formatCompactValue(double balance) {
-        return NumberUtil.asCompact(this.fine(balance));
+        return this.compacted(balance);
     }
 
-    @NotNull
-    default String formatCompact(double balance) {
-        String format = this.getFormatShort();
-        if (Config.useCurrencyFormatPAPI()) {
-            format = PlaceholderAPI.setPlaceholders(null, format);
-        }
+    @NotNull CompactNumber compacted(double balance);
 
-        CompactNumber compact = this.formatCompactValue(balance);
-
-        return this.replacePlaceholders().apply(format).replace(Placeholders.GENERIC_AMOUNT, compact.format());
-    }
+    @NotNull String formatCompact(double balance);
 
     @NotNull String getId();
 
@@ -130,13 +102,17 @@ public interface Currency {
 
     @NotNull String getColumnName();
 
-    void setColumnName(@NotNull String columnName);
+    void setColumnName(@NotNull String dataColumn);
 
-    @NotNull Column getColumn();
-
+    @Deprecated
     @NotNull ItemStack getIcon();
 
+    @Deprecated
     void setIcon(@NotNull ItemStack icon);
+
+    @NotNull NightItem icon();
+
+    void setIcon(@NotNull NightItem icon);
 
     boolean isDecimal();
 
@@ -148,7 +124,7 @@ public interface Currency {
 
     boolean isSynchronizable();
 
-    void setSynchronizable(boolean synchronizable);
+    void setSynchronizable(boolean dataSync);
 
     boolean isTransferAllowed();
 
@@ -175,5 +151,15 @@ public interface Currency {
     void setExchangeAllowed(boolean exchangeAllowed);
 
     @NotNull Map<String, Double> getExchangeRates();
+
+    double getExchangeRate(@NotNull Currency currency);
+
+    double getExchangeRate(@NotNull String id);
+
+    boolean canExchangeTo(@NotNull Currency other);
+
+    double getExchangeResult(@NotNull Currency other, double amount);
+
+    boolean isLeaderboardEnabled();
 }
 

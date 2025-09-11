@@ -2,20 +2,26 @@ package su.nightexpress.coinsengine.migration.impl;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.migration.MigrationPlugin;
-import su.nightexpress.nightcore.integration.VaultHook;
+import su.nightexpress.coinsengine.migration.Migrator;
 import su.nightexpress.nightcore.util.Plugins;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class VaultPlugin extends MigrationPlugin {
+public class VaultMigrator extends Migrator {
 
-    public VaultPlugin(@NotNull CoinsEnginePlugin plugin) {
+    public VaultMigrator(@NotNull CoinsEnginePlugin plugin) {
         super(plugin, Plugins.VAULT);
+    }
+
+    @Override
+    public boolean canMigrate(@NotNull Currency currency) {
+        Currency vaultCurrency = this.plugin.getCurrencyManager().getVaultCurrency().orElse(null);
+        return vaultCurrency != currency;
     }
 
     @Override
@@ -23,8 +29,10 @@ public class VaultPlugin extends MigrationPlugin {
     public Map<OfflinePlayer, Double> getBalances(@NotNull Currency currency) {
         Map<OfflinePlayer, Double> balances = new HashMap<>();
 
-        Economy economy = VaultHook.getEconomy();
-        if (economy == null) return balances;
+        RegisteredServiceProvider<Economy> provider = this.plugin.getServer().getServicesManager().getRegistration(Economy.class);
+        if (provider == null) return balances;
+
+        Economy economy = provider.getProvider();
 
         for (OfflinePlayer offlinePlayer : this.plugin.getServer().getOfflinePlayers()) {
             try {

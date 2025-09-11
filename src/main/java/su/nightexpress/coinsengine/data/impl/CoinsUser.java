@@ -2,56 +2,81 @@ package su.nightexpress.coinsengine.data.impl;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.api.event.ChangeBalanceEvent;
+import su.nightexpress.coinsengine.user.BalanceLookup;
+import su.nightexpress.coinsengine.user.UserBalance;
 import su.nightexpress.nightcore.db.AbstractUser;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class CoinsUser extends AbstractUser {
 
-    private final Map<String, Double>           balanceMap;
+    private final UserBalance                   balance;
     private final Map<String, CurrencySettings> settingsMap;
 
+    private boolean hiddenFromTops;
+
     @NotNull
-    public static CoinsUser create(@NotNull CoinsEnginePlugin plugin, @NotNull UUID uuid, @NotNull String name) {
+    public static CoinsUser create(@NotNull UUID uuid, @NotNull String name) {
         long dateCreated = System.currentTimeMillis();
-
-        Map<String, Double> balanceMap = new HashMap<>();
-        for (Currency currency : plugin.getCurrencyManager().getCurrencies()) {
-            balanceMap.put(currency.getId(), currency.getStartValue());
-        }
-
+        UserBalance balance = UserBalance.createDefault();
         Map<String, CurrencySettings> settingsMap = new HashMap<>();
+        boolean hiddenFromTops = false;
 
-        return new CoinsUser(plugin, uuid, name, dateCreated, dateCreated, balanceMap, settingsMap);
+        return new CoinsUser(uuid, name, dateCreated, dateCreated, balance, settingsMap, hiddenFromTops);
     }
 
-    public CoinsUser(@NotNull CoinsEnginePlugin plugin,
-                     @NotNull UUID uuid,
+    public CoinsUser(@NotNull UUID uuid,
                      @NotNull String name,
                      long dateCreated,
                      long lastLogin,
-                     @NotNull Map<String, Double> balanceMap,
-                     @NotNull Map<String, CurrencySettings> settingsMap
-    ) {
+                     @NotNull UserBalance balance,
+                     @NotNull Map<String, CurrencySettings> settingsMap,
+                     boolean hiddenFromTops) {
         super(uuid, name, dateCreated, lastLogin);
-        this.balanceMap = new HashMap<>(balanceMap);
+        this.balance = balance;
         this.settingsMap = new HashMap<>(settingsMap);
+        this.setHiddenFromTops(hiddenFromTops);
     }
 
     @NotNull
+    @Deprecated
     public Map<String, Double> getBalanceMap() {
-        return balanceMap;
+        return this.balance.getBalanceMap();
     }
 
     @NotNull
-    public Map<String, CurrencySettings> getSettingsMap() {
-        return settingsMap;
+    public UserBalance getBalance() {
+        return this.balance;
+    }
+
+    @NotNull
+    public BalanceLookup balanceLookup(@NotNull Currency currency) {
+        return this.balance.lookup(currency);
+    }
+
+    /**
+     * Edits user's balance of specific currency and fires the ChangeBalanceEvent event. If event was cancelled, the balance is set back to previous (old) value.
+     *
+     * @param currency Currency to edit balance of.
+     * @param consumer balance function.
+     */
+    public void editBalance(@NotNull Currency currency, @NotNull Consumer<BalanceLookup> consumer) {
+        double oldBalance = this.getBalance(currency);
+
+        this.balance.edit(currency, consumer);
+
+        ChangeBalanceEvent event = new ChangeBalanceEvent(this, currency, oldBalance, this.getBalance(currency));
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            this.balance.set(currency, oldBalance);
+        }
     }
 
     public void resetBalance() {
@@ -59,36 +84,44 @@ public class CoinsUser extends AbstractUser {
     }
 
     public void resetBalance(@NotNull Currency currency) {
-        this.setBalance(currency, currency.getStartValue());
+        this.editBalance(currency, lookup -> lookup.set(currency.getStartValue()));
+    }
+
+    public boolean hasEnough(@NotNull Currency currency, double amount) {
+        return this.balance.has(currency, amount);
     }
 
     public double getBalance(@NotNull Currency currency) {
-        return this.balanceMap.computeIfAbsent(currency.getId(), k -> 0D);
+        return this.balance.get(currency);
     }
 
     public void addBalance(@NotNull Currency currency, double amount) {
-        this.changeBalance(currency, this.getBalance(currency) + Math.abs(amount));
+        this.editBalance(currency, lookup -> lookup.add(amount));
     }
 
     public void removeBalance(@NotNull Currency currency, double amount) {
-        this.changeBalance(currency, this.getBalance(currency) - Math.abs(amount));
+        this.editBalance(currency, lookup -> lookup.remove(amount));
     }
 
     public void setBalance(@NotNull Currency currency, double amount) {
-        this.changeBalance(currency, Math.abs(amount));
+        this.editBalance(currency, lookup -> lookup.set(amount));
     }
 
-    private void changeBalance(@NotNull Currency currency, double amount) {
-        double oldBalance = this.getBalance(currency);
-
-        this.balanceMap.put(currency.getId(), currency.fineAndLimit(amount));
-
-        ChangeBalanceEvent changeBalanceEvent = new ChangeBalanceEvent(this, currency, oldBalance, this.getBalance(currency));
-        Bukkit.getPluginManager().callEvent(changeBalanceEvent);
+    @NotNull
+    public Map<String, CurrencySettings> getSettingsMap() {
+        return settingsMap;
     }
 
     @NotNull
     public CurrencySettings getSettings(@NotNull Currency currency) {
         return this.settingsMap.computeIfAbsent(currency.getId(), k -> CurrencySettings.create(currency));
+    }
+
+    public boolean isHiddenFromTops() {
+        return this.hiddenFromTops;
+    }
+
+    public void setHiddenFromTops(boolean hiddenFromTops) {
+        this.hiddenFromTops = hiddenFromTops;
     }
 }
