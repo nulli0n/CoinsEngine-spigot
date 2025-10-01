@@ -20,18 +20,9 @@ public class UserManager extends AbstractUserManager<CoinsEnginePlugin, CoinsUse
         return CoinsUser.create(uuid, name);
     }
 
-    public void synchronize() {
-        // Do not synchronize data if operations are disabled to prevent data loss/clash.
-        if (!this.plugin.getCurrencyManager().canPerformOperations()) return;
-
-        this.getLoaded().forEach(this::handleSynchronization);
-    }
-
-    public void handleSynchronization(@NotNull CoinsUser user) {
-        if (user.isAutoSavePlanned() || !user.isAutoSyncReady()) return;
-
-        CoinsUser fresh = this.getFromDatabase(user.getId());
-        if (fresh == null) return;
+    public void handleSynchronization(@NotNull CoinsUser fresh) {
+        CoinsUser user = this.getLoaded(fresh.getId());
+        if (user == null) return;
 
         for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
             if (!currency.isSynchronizable()) continue;

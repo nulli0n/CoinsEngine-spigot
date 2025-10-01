@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.data.serialize.CurrencySettingsSerializer;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencySettings;
+import su.nightexpress.coinsengine.data.serialize.CurrencySettingsSerializer;
 import su.nightexpress.nightcore.db.AbstractUserDataManager;
 import su.nightexpress.nightcore.db.sql.column.Column;
 import su.nightexpress.nightcore.db.sql.column.ColumnType;
@@ -62,6 +62,11 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
         this.dropColumn(this.tableUsers, "balances", "currencyData");
         this.addColumn(this.tableUsers, COLUMN_SETTINGS, "{}");
         this.addColumn(this.tableUsers, COLUMN_HIDE_FROM_TOPS, String.valueOf(0));
+
+        this.addTableSync(this.tableUsers, resultSet -> {
+            CoinsUser user = DataQueries.USER_LOADER.apply(resultSet);
+            this.plugin.getUserManager().handleSynchronization(user);
+        });
     }
 
     @NotNull
@@ -94,7 +99,7 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
 
     @Override
     protected void addUpsertQueryData(@NotNull ValuedQuery<?, CoinsUser> query) {
-        query.setValue(COLUMN_SETTINGS, user -> this.gson.toJson(user.getSettingsMap()));
+        query.setValue(COLUMN_SETTINGS, user -> GSON.toJson(user.getSettingsMap()));
         query.setValue(COLUMN_HIDE_FROM_TOPS, user -> String.valueOf(user.isHiddenFromTops() ? 1 : 0));
 
         for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
@@ -120,7 +125,10 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
 
     @Override
     public void onSynchronize() {
-        this.plugin.getUserManager().synchronize();
+        // Do not synchronize data if operations are disabled to prevent data loss/clash.
+        if (!this.plugin.getCurrencyManager().canPerformOperations()) return;
+
+        this.synchronizer.syncAll();
     }
 
     public void resetBalances(@NotNull Currency currency) {

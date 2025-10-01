@@ -20,7 +20,6 @@ import su.nightexpress.nightcore.ui.menu.data.MenuLoader;
 import su.nightexpress.nightcore.ui.menu.item.MenuItem;
 import su.nightexpress.nightcore.ui.menu.type.LinkedMenu;
 import su.nightexpress.nightcore.util.Lists;
-import su.nightexpress.nightcore.util.Players;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
 
 import java.util.List;
@@ -56,7 +55,7 @@ public class TopMenu extends LinkedMenu<CoinsEnginePlugin, Currency> implements 
                     .hideAllComponents()
                     .setDisplayName(this.entryName)
                     .setLore(this.entryLore)
-                    .setPlayerProfile(Players.createProfile(entry.getPlayerId(), entry.getName()))
+                    .setPlayerProfile(entry.getProfile())
                     .replacement(replacer -> replacer
                         .replace(GENERIC_POS, entry.getPosition())
                         .replace(PLAYER_NAME, entry.getName())
