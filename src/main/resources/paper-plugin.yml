@@ -1,0 +1,19 @@
+main: su.nightexpress.coinsengine.CoinsEnginePlugin
+version: '${project.version}'
+name: CoinsEngine
+author: NightExpress
+desciption: Unlimited virtual currencies and server economy.
+api-version: 1.21
+dependencies:
+  server:
+    nightcore:
+      load: BEFORE
+      required: true
+    Vault:
+      required: false
+    PlaceholderAPI:
+      required: false
+    PlayerPoints:
+      required: false
+    DeluxeCoinflip:
+      required: false
