@@ -172,7 +172,6 @@ public class CurrencyCommands {
         economyCommands.clear();
     }
 
-
     private static void buildBalance(@NotNull Currency currency, @NotNull DirectNodeBuilder builder) {
         builder
             .permission(Perms.COMMAND_CURRENCY_BALANCE)

@@ -162,4 +162,3 @@ public interface Currency {
 
     boolean isLeaderboardEnabled();
 }
-

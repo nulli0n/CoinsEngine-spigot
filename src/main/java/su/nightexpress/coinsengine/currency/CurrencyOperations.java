@@ -26,8 +26,6 @@ public class CurrencyOperations {
         return operation;
     }
 
-
-
     @NotNull
     public static AddOperation forAddSilently(@NotNull Currency currency, double amount, @NotNull CoinsUser user) {
         return createSilently(currency, amount, user, AddOperation::new);
@@ -42,8 +40,6 @@ public class CurrencyOperations {
     public static AddOperation forAdd(@NotNull Currency currency, double amount, @NotNull CoinsUser user, @NotNull CommandSender sender) {
         return create(currency, amount, user, sender, AddOperation::new);
     }
-
-
 
     @NotNull
     public static SetOperation forSetSilently(@NotNull Currency currency, double amount, @NotNull CoinsUser user) {
@@ -60,8 +56,6 @@ public class CurrencyOperations {
         return create(currency, amount, user, sender, SetOperation::new);
     }
 
-
-
     @NotNull
     public static RemoveOperation forRemoveSilently(@NotNull Currency currency, double amount, @NotNull CoinsUser user) {
         return createSilently(currency, amount, user, RemoveOperation::new);
@@ -76,8 +70,6 @@ public class CurrencyOperations {
     public static RemoveOperation forRemove(@NotNull Currency currency, double amount, @NotNull CoinsUser user, @NotNull CommandSender sender) {
         return create(currency, amount, user, sender, RemoveOperation::new);
     }
-
-
 
     @NotNull
     private static <T extends CurrencyOperation> T createSilently(@NotNull Currency currency, double amount, @NotNull CoinsUser user, @NotNull OperationProvider<T> provider) {
