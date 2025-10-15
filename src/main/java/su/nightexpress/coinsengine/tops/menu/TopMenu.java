@@ -41,6 +41,8 @@ public class TopMenu extends LinkedMenu<CoinsEnginePlugin, Currency> implements 
         this.topManager = topManager;
     }
 
+    // TODO Limit to 10 entries only.
+
     @Override
     @NotNull
     public MenuFiller<TopEntry> createFiller(@NotNull MenuViewer viewer) {
@@ -54,7 +56,7 @@ public class TopMenu extends LinkedMenu<CoinsEnginePlugin, Currency> implements 
                 .hideAllComponents()
                 .setDisplayName(this.entryName)
                 .setLore(this.entryLore)
-                .setPlayerProfile(entry.getProfile())
+                .setPlayerProfile(entry.getProfile().query())
                 .replacement(replacer -> replacer
                     .replace(GENERIC_POS, entry.getPosition())
                     .replace(PLAYER_NAME, entry.getName())
