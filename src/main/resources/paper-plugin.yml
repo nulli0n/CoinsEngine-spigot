@@ -3,6 +3,7 @@ version: '${project.version}'
 name: CoinsEngine
 author: NightExpress
 desciption: Unlimited virtual currencies and server economy.
+load: STARTUP
 api-version: 1.21
 dependencies:
   server:

@@ -22,7 +22,6 @@ public class TopEntry {
         this.balance = balance;
 
         this.profile = PlayerProfiles.createProfile(this.playerId, this.name);
-        this.profile.update();
     }
 
     public int getPosition() {
