@@ -6,7 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.hook.HookId;
+import su.nightexpress.coinsengine.hook.HookPlugin;
 import su.nightexpress.coinsengine.migration.Migrator;
 
 import java.sql.ResultSet;
@@ -18,7 +18,7 @@ import java.util.UUID;
 public class PlayerPointsMigrator extends Migrator {
 
     public PlayerPointsMigrator(@NotNull CoinsEnginePlugin plugin) {
-        super(plugin, HookId.PLAYER_POINTS);
+        super(plugin, HookPlugin.PLAYER_POINTS);
     }
 
     @Override

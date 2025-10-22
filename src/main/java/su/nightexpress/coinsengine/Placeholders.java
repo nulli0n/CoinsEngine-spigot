@@ -10,15 +10,15 @@ public class Placeholders extends su.nightexpress.nightcore.util.Placeholders {
 
     public static final String WIKI_URL          = "https://nightexpressdev.com/coinsengine/";
     public static final String WIKI_PERMISSIONS  = WIKI_URL + "permissions";
-    public static final String WIKI_COMMANDS  = WIKI_URL + "commands";
-    public static final String WIKI_PLACEHOLDERS = WIKI_URL + "placeholders";
+    public static final String WIKI_COMMANDS     = WIKI_URL + "commands";
+    public static final String WIKI_PLACEHOLDERS = WIKI_URL + "placeholders/internal";
     public static final String WIKI_EXCHANGE     = WIKI_URL + "features/exchange";
     public static final String WIKI_CROSS_SERVER = WIKI_URL + "features/cross-server";
     public static final String WIKI_MIGRATION    = WIKI_URL + "features/migration";
     public static final String WIKI_TOPS         = WIKI_URL + "features/leaderboards";
     public static final String WIKI_PREFIXES     = WIKI_URL + "features/prefix";
     public static final String WIKI_WALLET       = WIKI_URL + "features/wallet";
-    public static final String WIKI_VAULT_HOOK = WIKI_URL + "hooks/vault";
+    public static final String WIKI_VAULT_HOOK   = WIKI_URL + "hooks/vault";
 
     public static final String GENERIC_NAME          = "%name%";
     public static final String GENERIC_BALANCE       = "%balance%";

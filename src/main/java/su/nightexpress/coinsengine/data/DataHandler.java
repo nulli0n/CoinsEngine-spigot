@@ -12,6 +12,7 @@ import su.nightexpress.nightcore.db.AbstractUserDataManager;
 import su.nightexpress.nightcore.db.sql.column.Column;
 import su.nightexpress.nightcore.db.sql.column.ColumnType;
 import su.nightexpress.nightcore.db.sql.query.impl.SelectQuery;
+import su.nightexpress.nightcore.db.sql.query.impl.UpdateQuery;
 import su.nightexpress.nightcore.db.sql.query.type.ValuedQuery;
 import su.nightexpress.nightcore.util.Lists;
 
@@ -28,13 +29,25 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
         .registerTypeAdapter(CurrencySettings.class, new CurrencySettingsSerializer())
         .create();
 
-    static final Column COLUMN_SETTINGS = Column.of("settings", ColumnType.STRING);
+    static final Column COLUMN_SETTINGS       = Column.of("settings", ColumnType.STRING);
     static final Column COLUMN_HIDE_FROM_TOPS = Column.of("hiddenFromTops", ColumnType.BOOLEAN);
 
     static final Map<String, Column> CURRENCY_COLUMNS = new HashMap<>();
 
+    private boolean synchronizationActive; // A little helper to pause synchronization during operations disable
+
     public DataHandler(@NotNull CoinsEnginePlugin plugin) {
         super(plugin);
+        this.setSynchronizationActive(true);
+    }
+
+    public void setSynchronizationActive(boolean synchronizationActive) {
+        this.synchronizationActive = synchronizationActive;
+    }
+
+    @NotNull
+    public String getUsersTable() {
+        return this.tableUsers;
     }
 
     @Override
@@ -62,11 +75,6 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
         this.dropColumn(this.tableUsers, "balances", "currencyData");
         this.addColumn(this.tableUsers, COLUMN_SETTINGS, "{}");
         this.addColumn(this.tableUsers, COLUMN_HIDE_FROM_TOPS, String.valueOf(0));
-
-        this.addTableSync(this.tableUsers, resultSet -> {
-            CoinsUser user = DataQueries.USER_LOADER.apply(resultSet);
-            this.plugin.getUserManager().handleSynchronization(user);
-        });
     }
 
     @NotNull
@@ -102,19 +110,16 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
         query.setValue(COLUMN_SETTINGS, user -> GSON.toJson(user.getSettingsMap()));
         query.setValue(COLUMN_HIDE_FROM_TOPS, user -> String.valueOf(user.isHiddenFromTops() ? 1 : 0));
 
-        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-            query.setValue(getCurrencyColumn(currency), user -> String.valueOf(user.getBalance(currency)));
-        }
+        CURRENCY_COLUMNS.forEach((id, column) -> {
+            query.setValue(column, user -> String.valueOf(user.getBalance().get(id)));
+        });
     }
 
     @Override
     protected void addSelectQueryData(@NotNull SelectQuery<CoinsUser> query) {
         query.column(COLUMN_SETTINGS);
         query.column(COLUMN_HIDE_FROM_TOPS);
-
-        for (Currency currency : this.plugin.getCurrencyManager().getCurrencies()) {
-            query.column(getCurrencyColumn(currency));
-        }
+        CURRENCY_COLUMNS.values().forEach(query::column);
     }
 
     @Override
@@ -126,7 +131,7 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
     @Override
     public void onSynchronize() {
         // Do not synchronize data if operations are disabled to prevent data loss/clash.
-        if (!this.plugin.getCurrencyManager().canPerformOperations()) return;
+        if (!this.synchronizationActive) return;
 
         this.synchronizer.syncAll();
     }
@@ -135,11 +140,13 @@ public class DataHandler extends AbstractUserDataManager<CoinsEnginePlugin, Coin
         this.resetBalances(Lists.newSet(currency));
     }
 
-    public void resetBalances() {
-        this.resetBalances(this.plugin.getCurrencyManager().getCurrencies());
-    }
-
     public void resetBalances(@NotNull Collection<Currency> currencies) {
-        this.update(this.tableUsers, DataQueries.forCurrencyReset(currencies), new Object()); // Little hack to bypass query params.
+        UpdateQuery<Object> query = new UpdateQuery<>();
+
+        for (Currency currency : currencies) {
+            query.setValue(getCurrencyColumn(currency), o -> String.valueOf(currency.getStartValue()));
+        }
+
+        this.update(this.tableUsers, query, new Object()); // Little hack to bypass query params.
     }
 }

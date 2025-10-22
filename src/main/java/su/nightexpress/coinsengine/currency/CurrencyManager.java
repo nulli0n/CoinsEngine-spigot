@@ -5,76 +5,137 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import su.nightexpress.coinsengine.COEFiles;
 import su.nightexpress.coinsengine.CoinsEnginePlugin;
 import su.nightexpress.coinsengine.Placeholders;
 import su.nightexpress.coinsengine.api.currency.Currency;
-import su.nightexpress.coinsengine.api.currency.CurrencyOperation;
-import su.nightexpress.coinsengine.api.currency.OperationResult;
-import su.nightexpress.coinsengine.command.currency.CurrencyCommands;
 import su.nightexpress.coinsengine.config.Config;
 import su.nightexpress.coinsengine.config.Lang;
-import su.nightexpress.coinsengine.currency.impl.ConfigCurrency;
-import su.nightexpress.coinsengine.currency.operation.impl.ExchangeOperation;
-import su.nightexpress.coinsengine.currency.operation.impl.SendOperation;
+import su.nightexpress.coinsengine.currency.impl.AbstractCurrency;
+import su.nightexpress.coinsengine.currency.impl.NormalCurrency;
+import su.nightexpress.coinsengine.currency.operation.NotificationTarget;
+import su.nightexpress.coinsengine.currency.operation.OperationContext;
+import su.nightexpress.coinsengine.currency.operation.OperationExecutor;
+import su.nightexpress.coinsengine.currency.operation.OperationResult;
 import su.nightexpress.coinsengine.data.DataHandler;
 import su.nightexpress.coinsengine.data.impl.CoinsUser;
 import su.nightexpress.coinsengine.data.impl.CurrencySettings;
-import su.nightexpress.coinsengine.hook.vault.VaultHook;
+import su.nightexpress.coinsengine.hook.HookPlugin;
+import su.nightexpress.coinsengine.user.UserManager;
 import su.nightexpress.nightcore.config.FileConfig;
+import su.nightexpress.nightcore.core.config.CoreLang;
+import su.nightexpress.nightcore.db.AbstractUser;
 import su.nightexpress.nightcore.manager.AbstractManager;
 import su.nightexpress.nightcore.util.FileUtil;
 import su.nightexpress.nightcore.util.Plugins;
-import su.nightexpress.nightcore.util.StringUtil;
+import su.nightexpress.nightcore.util.Strings;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.nightcore.util.placeholder.Replacer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
-    private final Map<String, Currency> currencyMap;
+    private final CurrencyRegistry registry;
+    private final DataHandler      dataHandler;
+    private final UserManager      userManager;
 
     private boolean        operationsAllowed;
     private CurrencyLogger logger;
 
-    public CurrencyManager(@NotNull CoinsEnginePlugin plugin) {
+    public CurrencyManager(@NotNull CoinsEnginePlugin plugin, @NotNull CurrencyRegistry registry, @NotNull DataHandler dataHandler, @NotNull UserManager userManager) {
         super(plugin);
-        this.currencyMap = new HashMap<>();
+        this.registry = registry;
+        this.dataHandler = dataHandler;
+        this.userManager = userManager;
         this.allowOperations();
     }
 
     @Override
     protected void onLoad() {
         this.createDefaults();
+        this.migrateSettings();
+        FileUtil.findYamlFiles(this.getDirectory()).forEach(this::loadCurrency);
 
-        for (File file : FileUtil.getConfigFiles(this.getDirectory())) {
-            ConfigCurrency currency = new ConfigCurrency(plugin, file);
-            this.loadCurrency(currency);
+        try {
+            this.loadLogger();
         }
-
-        this.loadLogger();
+        catch (IOException | IllegalArgumentException exception) {
+            this.plugin.error("Could not create operations logger: " + exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     @Override
     protected void onShutdown() {
-        if (Plugins.hasVault()) {
-            VaultHook.shutdown();
-        }
-        this.getCurrencies().forEach(this::unregisterCurrency);
-        this.currencyMap.clear();
+        this.registry.getCurrencies().forEach(this::unregisterCurrency);
 
         if (this.logger != null) this.logger.shutdown();
         this.disableOperations();
     }
 
+    private void migrateSettings() {
+        FileUtil.findYamlFiles(this.getDirectory()).forEach(path -> {
+            String fileName = path.getFileName().toString();
+            if (!fileName.endsWith(FileConfig.EXTENSION)) return;
+
+            FileConfig config = FileConfig.load(path);
+            if (!config.contains("Economy")) return;
+
+            if (config.getBoolean("Economy.Vault")) {
+                String name = fileName.substring(0, fileName.length() - FileConfig.EXTENSION.length());
+                Config.INTEGRATION_VAULT_ECONOMY_CURRENCY.set(name);
+                Config.INTEGRATION_VAULT_ECONOMY_CURRENCY.write(this.plugin.getConfig());
+            }
+
+            config.remove("Economy");
+            config.saveChanges();
+        });
+    }
+
+    private void loadCurrency(@NotNull Path path) throws IllegalStateException {
+        String fileName = path.getFileName().toString();
+        if (!fileName.endsWith(FileConfig.EXTENSION)) return;
+
+        String name = fileName.substring(0, fileName.length() - FileConfig.EXTENSION.length());
+        String id = Strings.varStyle(name).orElseThrow(() -> new IllegalStateException("Malformed file name '" + fileName + "'"));
+
+        boolean isVault = Plugins.isInstalled(HookPlugin.VAULT) && Config.INTEGRATION_VAULT_ENABLED.get();
+        boolean isGoodId = Config.INTEGRATION_VAULT_ECONOMY_CURRENCY.get().equalsIgnoreCase(id);
+
+        AbstractCurrency currency;
+
+        if (isVault && isGoodId) {
+            currency = CurrencyFactory.createEconomy(path, id, this.plugin, this, this.dataHandler, this.userManager);
+        }
+        else {
+            currency = CurrencyFactory.createNormal(path, id);
+        }
+
+        // Currently useless, but will be useful once we remake the plugin reload system.
+        if (currency.isPrimary() && this.registry.hasPrimary()) {
+            this.plugin.warn("Could not load primary currency '" + currency.getId() + "' as there is already one present. Reboot the server if you want to change your primary currency.");
+            return;
+        }
+
+        currency.load();
+
+        this.registerCurrency(currency);
+    }
+
     private void createDefaults() {
         File dir = new File(this.getDirectory());
         if (dir.exists()) return;
-
-        boolean needEconomy = Plugins.hasVault() && !VaultHook.hasEconomy();
 
         this.createCurrency("coins", currency -> {
             currency.setSymbol("⛂");
@@ -88,37 +149,28 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             currency.setFormat(currency.getFormat());
             currency.setIcon(NightItem.fromType(Material.GOLD_NUGGET));
             currency.setDecimal(true);
-            currency.setVaultEconomy(needEconomy);
         });
     }
 
-    private void loadCurrency(@NotNull ConfigCurrency currency) {
-        if (currency.load()) {
-            this.registerCurrency(currency);
-        }
-    }
+    private void loadLogger() throws IOException, IllegalArgumentException {
+        boolean logToConsole = Config.LOGS_TO_CONSOLE.get();
+        boolean logToFile = Config.LOGS_TO_FILE.get();
+        if (!logToConsole && !logToFile) return;
 
-    private void loadLogger() {
-        try {
-            this.logger = new CurrencyLogger(this.plugin);
-            this.addAsyncTask(this::writeLogs, Config.LOGS_WRITE_INTERVAL.get());
-        }
-        catch (IOException exception) {
-            exception.printStackTrace();
-        }
-    }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Config.LOGS_DATE_FORMAT.get());
+        Path filePath = Paths.get(this.plugin.getDataFolder().getAbsolutePath(), COEFiles.FILE_OPERATIONS);
 
-    private void writeLogs() {
-        this.logger.write();
+        this.logger = new CurrencyLogger(this.plugin, formatter, filePath, logToConsole, logToFile);
+        this.addAsyncTask(() -> this.logger.write(), Config.LOGS_WRITE_INTERVAL.get());
     }
 
     @NotNull
     public String getDirectory() {
-        return this.plugin.getDataFolder() + Config.DIR_CURRENCIES;
+        return this.plugin.getDataFolder() + COEFiles.DIR_CURRENCIES;
     }
 
     public void registerCurrency(@NotNull Currency currency) {
-        if (this.getCurrency(currency.getId()) != null) {
+        if (this.registry.isRegistered(currency.getId())) {
             this.plugin.error("Could not register duplicated currency: '" + currency.getId() + "'!");
             return;
         }
@@ -128,23 +180,8 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             return;
         }
 
-        this.plugin.getDataHandler().onCurrencyRegister(currency);
-
-        boolean isEconomy = false;
-
-        if (currency.isVaultEconomy() && this.getVaultCurrency().isEmpty()) {
-            if (Plugins.hasVault()) {
-                VaultHook.setup(this.plugin, currency);
-                isEconomy = true;
-            }
-            else {
-                this.plugin.error("Found Vault Economy currency, but Vault is not installed!");
-            }
-        }
-
-        CurrencyCommands.loadCommands(currency, isEconomy);
-
-        this.currencyMap.put(currency.getId(), currency);
+        this.registry.add(currency);
+        this.dataHandler.onCurrencyRegister(currency);
         this.plugin.info("Currency registered: '" + currency.getId() + "'.");
     }
 
@@ -153,121 +190,75 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     }
 
     public boolean unregisterCurrency(@NotNull String id) {
-        Currency currency = this.currencyMap.remove(id);
+        Currency currency = this.registry.remove(id);
         if (currency == null) return false;
 
-        CurrencyCommands.unloadForCurrency(currency);
-
-        if (currency.isVaultEconomy()) {
-            CurrencyCommands.unloadForEconomy();
-        }
-
-        this.plugin.getDataHandler().onCurrencyUnload(currency);
+        this.dataHandler.onCurrencyUnload(currency);
         this.plugin.info("Currency unregistered: '" + currency.getId() + "'.");
         return true;
     }
 
-    public boolean isRegistered(@NotNull String id) {
-        return this.currencyMap.containsKey(id.toLowerCase());
-    }
-
-    @Nullable
-    public Currency getCurrency(@NotNull String id) {
-        return this.currencyMap.get(id.toLowerCase());
-    }
-
     @NotNull
-    public Map<String, Currency> getCurrencyMap() {
-        return this.currencyMap;
-    }
-
-    @NotNull
-    public List<String> getCurrencyIds() {
-        return new ArrayList<>(this.currencyMap.keySet());
-    }
-
-    @NotNull
-    public Optional<Currency> getVaultCurrency() {
-        return this.getCurrencies().stream().filter(Currency::isVaultEconomy).findFirst();
-    }
-
-    @NotNull
+    @Deprecated
     public Collection<Currency> getCurrencies() {
-        return new HashSet<>(this.currencyMap.values());
-    }
-
-    @NotNull
-    public ConfigCurrency createCurrency(@NotNull String id, @NotNull Consumer<ConfigCurrency> consumer) {
-        File file = new File(this.getDirectory(), FileConfig.withExtension(id));
-        ConfigCurrency currency = new ConfigCurrency(this.plugin, file);
-        currency.setName(StringUtil.capitalizeUnderscored(id));
-        currency.setFormat(Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SYMBOL);
-        currency.setFormatShort(Placeholders.GENERIC_AMOUNT + Placeholders.CURRENCY_SYMBOL);
-        currency.setCommandAliases(new String[]{id});
-        currency.setPermissionRequired(false);
-        currency.setTransferAllowed(true);
-        currency.setStartValue(0);
-        currency.setMaxValue(-1);
-        currency.setExchangeAllowed(true);
-        consumer.accept(currency);
-        currency.save();
-        return currency;
+        return this.registry.getCurrencies();
     }
 
     public void allowOperations() {
         this.operationsAllowed = true;
+        this.dataHandler.setSynchronizationActive(true);
     }
 
     public void disableOperations() {
         this.operationsAllowed = false;
+        this.dataHandler.setSynchronizationActive(false);
     }
 
     public boolean canPerformOperations() {
         return this.operationsAllowed;
     }
 
-    public boolean performOperation(@NotNull CurrencyOperation operation) {
-        if (!this.canPerformOperations()) return false;
-
-        OperationResult result = operation.perform();
-
-        if (operation.isLoggable()) {
-            if (Config.LOGS_TO_CONSOLE.get()) {
-                this.plugin.info(result.getLog());
-            }
-            if (Config.LOGS_TO_FILE.get()) {
-                this.logger.addOperation(result);
-            }
-        }
-
-        if (!result.isSuccess()) {
+    private boolean assertOperationsEnabled(@NotNull OperationContext context) {
+        if (!this.canPerformOperations()) {
+            context.getBukkitSender().ifPresent(sender -> Lang.CURRENCY_OPERATION_DISABLED.message().send(sender));
             return false;
         }
-
-        this.plugin.getUserManager().save(operation.getUser());
         return true;
     }
 
+    @NotNull
+    public NormalCurrency createCurrency(@NotNull String id, @NotNull Consumer<NormalCurrency> consumer) {
+        Path path = Paths.get(this.getDirectory(), FileConfig.withExtension(id));
+        NormalCurrency currency = new NormalCurrency(path, id);
+
+        consumer.accept(currency);
+        currency.write();
+        return currency;
+    }
+
     public boolean createCurrency(@NotNull CommandSender sender, @NotNull String name, @NotNull String symbol, boolean decimals) {
-        String id = StringUtil.transformForID(name);
-        if (id.isBlank()) {
-            Lang.CURRENCY_CREATE_BAD_NAME.getMessage().send(sender);
+        String id = Strings.varStyle(name).orElse(null);
+        if (id == null) {
+            Lang.CURRENCY_CREATE_BAD_NAME.message().send(sender);
             return false;
         }
 
-        if (this.isRegistered(id)) {
-            Lang.CURRENCY_CREATE_DUPLICATED.getMessage().send(sender);
+        if (this.registry.isRegistered(id)) {
+            Lang.CURRENCY_CREATE_DUPLICATED.message().send(sender);
             return false;
         }
 
-        ConfigCurrency created = this.createCurrency(id, currency -> {
+        NormalCurrency created = this.createCurrency(id, currency -> {
             currency.setSymbol(symbol);
-            currency.setIcon(NightItem.fromType(Material.EMERALD));
             currency.setDecimal(decimals);
         });
 
-        this.loadCurrency(created);
-        Lang.CURRENCY_CREATE_SUCCESS.getMessage().send(sender, replacer -> replacer.replace(created.replacePlaceholders()));
+        created.updateMessagePrefix();
+
+        this.registerCurrency(created);
+        this.plugin.getCommander().getCurrencyCommands().loadCommands(created);
+
+        Lang.CURRENCY_CREATE_SUCCESS.message().send(sender, replacer -> replacer.replace(created.replacePlaceholders()));
         return true;
     }
 
@@ -277,23 +268,25 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
 
     public void resetBalances(@NotNull CommandSender sender, @Nullable Currency currency) {
         if (!this.canPerformOperations()) {
-            Lang.RESET_ALL_START_BLOCKED.getMessage().send(sender);
+            Lang.RESET_ALL_START_BLOCKED.message().send(sender);
             return;
         }
 
         this.plugin.runTaskAsync(() -> {
             this.disableOperations();
             if (currency == null) {
-                Lang.RESET_ALL_STARTED_GLOBAL.getMessage().send(sender);
-                plugin.getDataHandler().resetBalances();
-                plugin.getUserManager().getLoaded().forEach(CoinsUser::resetBalance);
-                Lang.RESET_ALL_COMPLETED_GLOBAL.getMessage().send(sender);
+                Collection<Currency> currencies = this.registry.getCurrencies();
+
+                Lang.RESET_ALL_STARTED_GLOBAL.message().send(sender);
+                this.dataHandler.resetBalances(currencies);
+                this.userManager.getLoaded().forEach(user -> user.resetBalance(currencies));
+                Lang.RESET_ALL_COMPLETED_GLOBAL.message().send(sender);
             }
             else {
-                Lang.RESET_ALL_STARTED_CURRENCY.getMessage().send(sender, replacer -> replacer.replace(currency.replacePlaceholders()));
-                plugin.getDataHandler().resetBalances(currency);
-                plugin.getUserManager().getLoaded().forEach(user -> user.resetBalance(currency));
-                Lang.RESET_ALL_COMPLETED_CURRENCY.getMessage().send(sender, replacer -> replacer.replace(currency.replacePlaceholders()));
+                Lang.RESET_ALL_STARTED_CURRENCY.message().send(sender, replacer -> replacer.replace(currency.replacePlaceholders()));
+                this.dataHandler.resetBalances(currency);
+                this.userManager.getLoaded().forEach(user -> user.resetBalance(currency));
+                Lang.RESET_ALL_COMPLETED_CURRENCY.message().send(sender, replacer -> replacer.replace(currency.replacePlaceholders()));
             }
             this.allowOperations();
         });
@@ -306,14 +299,13 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     public void showBalance(@NotNull CommandSender sender, @NotNull String name, @NotNull Currency currency) {
         boolean isOwn = sender.getName().equalsIgnoreCase(name);
 
-        plugin.getUserManager().manageUser(name, user -> {
+        this.userManager.manageUser(name, user -> {
             if (user == null) {
-                Lang.ERROR_INVALID_PLAYER.getMessage(this.plugin).send(sender);
+                CoreLang.ERROR_INVALID_PLAYER.withPrefix(this.plugin).send(sender);
                 return;
             }
 
             currency.sendPrefixed((isOwn ? Lang.CURRENCY_BALANCE_DISPLAY_OWN : Lang.CURRENCY_BALANCE_DISPLAY_OTHERS), sender, replacer -> replacer
-                .replace(currency.replacePlaceholders())
                 .replace(Placeholders.PLAYER_NAME, user.getName())
                 .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
             );
@@ -327,21 +319,21 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     public void showWallet(@NotNull CommandSender sender, @NotNull String name) {
         boolean isOwn = sender.getName().equalsIgnoreCase(name);
 
-        this.plugin.getUserManager().manageUser(name, user -> {
+        this.userManager.manageUser(name, user -> {
             if (user == null) {
-                Lang.ERROR_INVALID_PLAYER.getMessage(this.plugin).send(sender);
+                CoreLang.ERROR_INVALID_PLAYER.withPrefix(this.plugin).send(sender);
                 return;
             }
 
-            (isOwn ? Lang.CURRENCY_WALLET_OWN : Lang.CURRENCY_WALLET_OTHERS).getMessage().send(sender, replacer -> replacer
+            (isOwn ? Lang.CURRENCY_WALLET_OWN : Lang.CURRENCY_WALLET_OTHERS).message().send(sender, replacer -> replacer
                 .replace(Placeholders.GENERIC_ENTRY, list -> {
-                    this.getCurrencies().stream().sorted(Comparator.comparing(Currency::getId)).forEach(currency -> {
+                    this.registry.getCurrencies().stream().sorted(Comparator.comparing(Currency::getId)).forEach(currency -> {
                         if (sender instanceof Player player && !currency.hasPermission(player)) return;
 
                         list.add(Replacer.create()
                             .replace(currency.replacePlaceholders())
                             .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
-                            .apply(Lang.CURRENCY_WALLET_ENTRY.getString())
+                            .apply(Lang.CURRENCY_WALLET_ENTRY.text())
                         );
                     });
                 })
@@ -357,124 +349,376 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
     public void togglePayments(@NotNull CommandSender sender, @NotNull String name, @NotNull Currency currency, boolean silent) {
         boolean isOwn = sender.getName().equalsIgnoreCase(name);
 
-        this.plugin.getUserManager().manageUser(name, user -> {
+        this.userManager.manageUser(name, user -> {
             if (user == null) {
-                Lang.ERROR_INVALID_PLAYER.getMessage(this.plugin).send(sender);
+                CoreLang.ERROR_INVALID_PLAYER.withPrefix(this.plugin).send(sender);
                 return;
             }
 
             CurrencySettings settings = user.getSettings(currency);
             settings.setPaymentsEnabled(!settings.isPaymentsEnabled());
-            plugin.getUserManager().save(user);
+            this.userManager.save(user);
 
             if (!isOwn) {
                 currency.sendPrefixed(Lang.COMMAND_CURRENCY_PAYMENTS_TARGET, sender, replacer -> replacer
-                    .replace(currency.replacePlaceholders())
                     .replace(Placeholders.PLAYER_NAME, user.getName())
-                    .replace(Placeholders.GENERIC_STATE, Lang.getEnabledOrDisabled(settings.isPaymentsEnabled()))
+                    .replace(Placeholders.GENERIC_STATE, CoreLang.STATE_ENABLED_DISALBED.get(settings.isPaymentsEnabled()))
                 );
             }
 
             Player target = user.getPlayer();
             if (!silent && target != null) {
                 currency.sendPrefixed(Lang.COMMAND_CURRENCY_PAYMENTS_TOGGLE, target, replacer -> replacer
-                    .replace(currency.replacePlaceholders())
-                    .replace(Placeholders.GENERIC_STATE, Lang.getEnabledOrDisabled(settings.isPaymentsEnabled()))
+                    .replace(Placeholders.GENERIC_STATE, CoreLang.STATE_ENABLED_DISALBED.get(settings.isPaymentsEnabled()))
                 );
             }
         });
     }
 
-    public boolean sendCurrency(@NotNull Player from, @NotNull String targetName, @NotNull Currency currency, double rawAmount) {
+    @NotNull
+    public OperationResult give(@NotNull OperationContext context, @NotNull Player player, @NotNull Currency currency, double amount) {
+        return this.give(context, this.userManager.getOrFetch(player), currency, amount);
+    }
+
+    @NotNull
+    public OperationResult give(@NotNull OperationContext context, @NotNull CoinsUser user, @NotNull Currency currency, double amount) {
+        if (!this.assertOperationsEnabled(context)) return OperationResult.FAILURE;
+
+        OperationExecutor executor = context.getExecutor();
+
+        user.addBalance(currency, amount);
+        this.userManager.save(user);
+
+        if (this.logger != null && context.shouldNotifyLogger()) {
+            this.logger.addEntry(context, "[%s] %s gave %s to %s. New balance: %s"
+                .formatted(currency.getId(), executor.getName(), currency.format(amount), user.getName(), currency.format(user.getBalance(currency)))
+            );
+        }
+
+        if (context.shouldNotify(NotificationTarget.EXECUTOR)) {
+            executor.getBukkitSender().ifPresent(sender -> {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_GIVE_DONE, sender, replacer -> replacer
+                    .replace(Placeholders.PLAYER_NAME, user::getName)
+                    .replace(Placeholders.GENERIC_AMOUNT, () -> currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, () -> currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        if (context.shouldNotify(NotificationTarget.USER)) {
+            Player target = user.getPlayer();
+            if (target != null) {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_GIVE_NOTIFY, target, replacer -> replacer
+                    .replace(Placeholders.GENERIC_AMOUNT, () -> currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, () -> currency.format(user.getBalance(currency)))
+                );
+            }
+        }
+
+        return OperationResult.SUCCESS;
+    }
+
+    @NotNull
+    public OperationResult giveAll(@NotNull OperationContext context, @NotNull Currency currency, double amount) {
+        if (!this.assertOperationsEnabled(context)) return OperationResult.FAILURE;
+
+        OperationExecutor executor = context.getExecutor();
+        Set<CoinsUser> users = this.userManager.getLoaded();
+
+        users.forEach(user -> {
+            Player target = user.getPlayer();
+            if (target == null) return; // Only online players should be affected.
+
+            user.addBalance(currency, amount);
+            this.userManager.save(user);
+
+            if (context.shouldNotify(NotificationTarget.USER)) {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_GIVE_NOTIFY, target, replacer -> replacer
+                    .replace(Placeholders.GENERIC_AMOUNT, () -> currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, () -> currency.format(user.getBalance(currency)))
+                );
+            }
+        });
+
+        if (this.logger != null && context.shouldNotifyLogger()) {
+            this.logger.addEntry(context, "[%s] %s gave %s to all online players. Affected players (%s): %s"
+                .formatted(currency.getId(), executor.getName(), currency.format(amount), users.size(), users.stream().map(AbstractUser::getName).collect(Collectors.joining(", ")))
+            );
+        }
+
+        if (context.shouldNotify(NotificationTarget.EXECUTOR)) {
+            executor.getBukkitSender().ifPresent(sender -> {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_GIVE_ALL_DONE, sender, replacer -> replacer
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                );
+            });
+        }
+
+        return OperationResult.SUCCESS;
+    }
+
+    @NotNull
+    public OperationResult remove(@NotNull OperationContext context, @NotNull Player player, @NotNull Currency currency, double amount) {
+        return this.remove(context, this.userManager.getOrFetch(player), currency, amount);
+    }
+
+    @NotNull
+    public OperationResult remove(@NotNull OperationContext context, @NotNull CoinsUser user, @NotNull Currency currency, double amount) {
+        if (!this.assertOperationsEnabled(context)) return OperationResult.FAILURE;
+
+        OperationExecutor executor = context.getExecutor();
+
+        user.removeBalance(currency, amount);
+        this.userManager.save(user);
+
+        if (this.logger != null && context.shouldNotifyLogger()) {
+            this.logger.addEntry(context, "[%s] %s took %s from %s's balance. New balance: %s"
+                .formatted(currency.getId(), executor.getName(), currency.format(amount), user.getName(), currency.format(user.getBalance(currency))));
+        }
+
+        if (context.shouldNotify(NotificationTarget.EXECUTOR)) {
+            executor.getBukkitSender().ifPresent(sender -> {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_TAKE_DONE, sender, replacer -> replacer
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        if (context.shouldNotify(NotificationTarget.USER)) {
+            Optional.ofNullable(user.getPlayer()).ifPresent(target -> {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_TAKE_NOTIFY, target, replacer -> replacer
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        return OperationResult.SUCCESS;
+    }
+
+    @NotNull
+    public OperationResult set(@NotNull OperationContext context, @NotNull Player player, @NotNull Currency currency, double amount) {
+        return this.set(context, this.userManager.getOrFetch(player), currency, amount);
+    }
+
+    @NotNull
+    public OperationResult set(@NotNull OperationContext context, @NotNull CoinsUser user, @NotNull Currency currency, double amount) {
+        if (!this.assertOperationsEnabled(context)) return OperationResult.FAILURE;
+
+        OperationExecutor executor = context.getExecutor();
+
+        user.setBalance(currency, amount);
+        this.userManager.save(user);
+
+        if (this.logger != null && context.shouldNotifyLogger()) {
+            this.logger.addEntry(context, "[%s] %s set %s's balance to %s. New balance: %s"
+                .formatted(currency.getId(), executor.getName(), user.getName(), currency.format(amount), currency.format(user.getBalance(currency)))
+            );
+        }
+
+        if (context.shouldNotify(NotificationTarget.EXECUTOR)) {
+            executor.getBukkitSender().ifPresent(sender -> {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_SET_DONE, sender, replacer -> replacer
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        if (context.shouldNotify(NotificationTarget.USER)) {
+            Optional.ofNullable(user.getPlayer()).ifPresent(target -> {
+                currency.sendPrefixed(Lang.COMMAND_CURRENCY_SET_NOTIFY, target, replacer -> replacer
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        return OperationResult.SUCCESS;
+    }
+
+    @NotNull
+    public OperationResult reset(@NotNull OperationContext context, @NotNull Player player, @NotNull Currency currency) {
+        return this.reset(context, this.userManager.getOrFetch(player), currency);
+    }
+
+    @NotNull
+    public OperationResult reset(@NotNull OperationContext context, @NotNull CoinsUser user, @NotNull Currency currency) {
+        if (!this.assertOperationsEnabled(context)) return OperationResult.FAILURE;
+
+        OperationExecutor executor = context.getExecutor();
+
+        user.resetBalance(currency);
+        this.userManager.save(user);
+
+        if (this.logger != null && context.shouldNotifyLogger()) {
+            this.logger.addEntry(context, "[%s] %s reset %s's balance of %s to %s."
+                .formatted(currency.getId(), executor.getName(), user.getName(), currency.getName(), currency.format(user.getBalance(currency)))
+            );
+        }
+
+        if (context.shouldNotify(NotificationTarget.EXECUTOR)) {
+            executor.getBukkitSender().ifPresent(sender -> {
+                currency.sendPrefixed(Lang.CURRENCY_OPERATION_RESET_FEEDBACK, sender, replacer -> replacer
+                    .replace(Placeholders.PLAYER_NAME, user.getName())
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        if (context.shouldNotify(NotificationTarget.USER)) {
+            Optional.ofNullable(user.getPlayer()).ifPresent(target -> {
+                currency.sendPrefixed(Lang.CURRENCY_OPERATION_RESET_NOTIFY, target, replacer -> replacer
+                    .replace(Placeholders.GENERIC_BALANCE, currency.format(user.getBalance(currency)))
+                );
+            });
+        }
+
+        return OperationResult.SUCCESS;
+    }
+
+    public boolean send(@NotNull Player sender, @NotNull String targetName, @NotNull Currency currency, double rawAmount) {
+        OperationContext context = OperationContext.of(sender);
+
+        if (!this.assertOperationsEnabled(context)) return false;
+
         double amount = currency.floorIfNeeded(rawAmount);
         if (amount <= 0D) return false;
 
-        if (from.getName().equalsIgnoreCase(targetName)) {
-            Lang.ERROR_COMMAND_NOT_YOURSELF.getMessage().send(from);
+        if (sender.getName().equalsIgnoreCase(targetName)) {
+            CoreLang.COMMAND_EXECUTION_NOT_YOURSELF.withPrefix(this.plugin).send(sender);
             return false;
         }
 
         double minAmount = currency.getMinTransferAmount();
         if (minAmount > 0 && amount < minAmount) {
-            currency.sendPrefixed(Lang.CURRENCY_SEND_ERROR_TOO_LOW, from, replacer -> replacer.replace(Placeholders.GENERIC_AMOUNT, currency.format(minAmount)));
+            currency.sendPrefixed(Lang.CURRENCY_SEND_ERROR_TOO_LOW, sender, replacer -> replacer.replace(Placeholders.GENERIC_AMOUNT, currency.format(minAmount)));
             return false;
         }
 
-        CoinsUser fromUser = plugin.getUserManager().getOrFetch(from);
+        CoinsUser fromUser = this.userManager.getOrFetch(sender);
         if (amount > fromUser.getBalance(currency)) {
-            currency.sendPrefixed(Lang.CURRENCY_SEND_ERROR_NOT_ENOUGH, from, replacer -> replacer.replace(currency.replacePlaceholders()));
+            currency.sendPrefixed(Lang.CURRENCY_SEND_ERROR_NOT_ENOUGH, sender);
             return false;
         }
 
-        this.plugin.getUserManager().manageUser(targetName, targetUser -> {
+        this.userManager.manageUser(targetName, targetUser -> {
             if (targetUser == null) {
-                Lang.ERROR_INVALID_PLAYER.getMessage(this.plugin).send(from);
+                CoreLang.ERROR_INVALID_PLAYER.withPrefix(this.plugin).send(sender);
                 return;
             }
 
             CurrencySettings settings = targetUser.getSettings(currency);
             if (!settings.isPaymentsEnabled()) {
-                currency.sendPrefixed(Lang.CURRENCY_SEND_ERROR_NO_PAYMENTS, from, replacer -> replacer
+                currency.sendPrefixed(Lang.CURRENCY_SEND_ERROR_NO_PAYMENTS, sender, replacer -> replacer
                     .replace(Placeholders.PLAYER_NAME, targetUser.getName())
-                    .replace(currency.replacePlaceholders())
                 );
                 return;
             }
 
-            SendOperation operation = new SendOperation(currency, amount, targetUser, from, fromUser);
-            this.performOperation(operation);
-            this.plugin.getUserManager().save(fromUser);
+            targetUser.addBalance(currency, amount);
+            fromUser.removeBalance(currency, amount);
+
+            this.userManager.save(targetUser);
+            this.userManager.save(fromUser);
+
+            currency.sendPrefixed(Lang.CURRENCY_SEND_DONE_SENDER, sender, replacer -> replacer
+                .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                .replace(Placeholders.GENERIC_BALANCE, fromUser.getBalance(currency))
+                .replace(Placeholders.PLAYER_NAME, targetUser.getName())
+            );
+
+            Optional.ofNullable(targetUser.getPlayer()).ifPresent(target -> {
+                currency.sendPrefixed(Lang.CURRENCY_SEND_DONE_NOTIFY, target, replacer -> replacer
+                    .replace(Placeholders.GENERIC_AMOUNT, currency.format(amount))
+                    .replace(Placeholders.GENERIC_BALANCE, targetUser.getBalance(currency))
+                    .replace(Placeholders.PLAYER_NAME, sender.getName())
+                );
+            });
+
+            this.logger.addEntry(context, "[%s] %s paid %s to %s. New balances: %s and %s.".formatted(
+                currency.getId(),
+                sender.getName(),
+                currency.format(amount),
+                targetUser.getName(),
+                currency.format(fromUser.getBalance(currency)),
+                currency.format(targetUser.getBalance(currency))
+            ));
         });
 
         return true;
     }
 
-    public boolean exchange(@NotNull Player player, @NotNull Currency from, @NotNull Currency to, double initAmount) {
-        if (!from.isExchangeAllowed()) {
-            from.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_DISABLED, player, replacer -> replacer.replace(from.replacePlaceholders()));
+    public boolean exchange(@NotNull Player player, @NotNull Currency sourceCurrency, @NotNull Currency targetCurrency, double initAmount) {
+        OperationContext context = OperationContext.of(player);
+
+        if (!this.assertOperationsEnabled(context)) return false;
+
+        if (!sourceCurrency.isExchangeAllowed()) {
+            sourceCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_DISABLED, player);
             return false;
         }
 
-        double amount = from.floorIfNeeded(initAmount);
+        double amount = sourceCurrency.floorIfNeeded(initAmount);
         if (amount <= 0D) {
-            from.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT, player, replacer -> replacer.replace(from.replacePlaceholders()));
+            sourceCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT, player);
             return false;
         }
 
-        CoinsUser user = this.plugin.getUserManager().getOrFetch(player);
-        if (user.getBalance(from) < amount) {
-            from.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LOW_BALANCE, player, replacer -> replacer
-                .replace(from.replacePlaceholders())
-                .replace(Placeholders.GENERIC_AMOUNT, from.format(amount))
+        CoinsUser user = this.userManager.getOrFetch(player);
+        if (user.getBalance(sourceCurrency) < amount) {
+            sourceCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LOW_BALANCE, player, replacer -> replacer
+                .replace(Placeholders.GENERIC_AMOUNT, sourceCurrency.format(amount))
             );
             return false;
         }
 
-        if (!from.canExchangeTo(to)) {
-            from.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_NO_RATE, player, replacer -> replacer
-                .replace(from.replacePlaceholders())
-                .replace(Placeholders.GENERIC_NAME, to.getName())
+        if (!sourceCurrency.canExchangeTo(targetCurrency)) {
+            sourceCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_NO_RATE, player, replacer -> replacer
+                .replace(Placeholders.GENERIC_NAME, targetCurrency.getName())
             );
             return false;
         }
 
-        double result = from.getExchangeResult(to, amount);
+        double result = sourceCurrency.getExchangeResult(targetCurrency, amount);
         if (result <= 0D) {
-            from.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT, player, replacer -> replacer.replace(from.replacePlaceholders()));
+            sourceCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT, player);
             return false;
         }
 
-        double newBalance = user.getBalance(to) + result;
-        if (!to.isUnderLimit(newBalance)) {
-            to.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED, player, replacer -> replacer
-                .replace(Placeholders.GENERIC_AMOUNT, to.format(result))
-                .replace(Placeholders.GENERIC_MAX, to.format(to.getMaxValue()))
+        double newBalance = user.getBalance(targetCurrency) + result;
+        if (!targetCurrency.isUnderLimit(newBalance)) {
+            targetCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED, player, replacer -> replacer
+                .replace(Placeholders.GENERIC_AMOUNT, targetCurrency.format(result))
+                .replace(Placeholders.GENERIC_MAX, targetCurrency.format(targetCurrency.getMaxValue()))
             );
             return false;
         }
 
-        ExchangeOperation operation = new ExchangeOperation(from, amount, user, player, to);
-        this.performOperation(operation);
+        user.removeBalance(sourceCurrency, amount);
+        user.addBalance(targetCurrency, result);
+        this.userManager.save(user);
+
+        sourceCurrency.sendPrefixed(Lang.CURRENCY_EXCHANGE_SUCCESS, player, replacer -> replacer
+            .replace(Placeholders.GENERIC_BALANCE, sourceCurrency.format(amount))
+            .replace(Placeholders.GENERIC_AMOUNT, targetCurrency.format(result))
+        );
+
+        this.logger.addEntry(context, "[%s] %s exchanged %s for %s [%s]. New balances: %s and %s."
+            .formatted(
+                sourceCurrency.getId(),
+                user.getName(),
+                sourceCurrency.format(amount),
+                targetCurrency.format(result),
+                targetCurrency.getId(),
+                sourceCurrency.format(user.getBalance(sourceCurrency)),
+                targetCurrency.format(user.getBalance(targetCurrency))
+            )
+        );
+
         return true;
     }
 }
