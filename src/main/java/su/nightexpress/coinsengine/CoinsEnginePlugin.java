@@ -66,7 +66,7 @@ public class CoinsEnginePlugin extends NightPlugin {
         }
 
         if (Plugins.isInstalled(HookPlugin.DELUXE_COINFLIP)) {
-            this.runTask(task -> DeluxeCoinflipHook.setup(this));
+            this.runTask(() -> DeluxeCoinflipHook.setup(this));
         }
     }
 
