@@ -1,12 +1,10 @@
 package su.nightexpress.coinsengine.user;
 
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class UserBalance {
 
@@ -21,26 +19,8 @@ public class UserBalance {
     }
 
     @NotNull
-    public static UserBalance createDefault() {
-        UserBalance balance = new UserBalance();
-
-        CoinsEngineAPI.getCurrencies().forEach(currency -> balance.set(currency, currency.getStartValue()));
-
-        return balance;
-    }
-
-    @NotNull
     public Map<String, Double> getBalanceMap() {
         return this.balanceMap;
-    }
-
-    public void edit(@NotNull Currency currency, @NotNull Consumer<BalanceLookup> consumer) {
-        consumer.accept(this.lookup(currency));
-    }
-
-    @NotNull
-    public BalanceLookup lookup(@NotNull Currency currency) {
-        return new BalanceLookup(this, currency);
     }
 
     public void clear() {
@@ -52,7 +32,7 @@ public class UserBalance {
     }
 
     public void clear(@NotNull String currencyId) {
-        this.balanceMap.remove(currencyId.toLowerCase());
+        this.balanceMap.remove(currencyId);
     }
 
     public boolean has(@NotNull Currency currency, double amount) {
@@ -88,6 +68,6 @@ public class UserBalance {
     }
 
     public void set(@NotNull String currencyId, double amount) {
-        this.balanceMap.put(currencyId.toLowerCase(), amount);
+        this.balanceMap.put(currencyId, amount);
     }
 }

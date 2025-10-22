@@ -2,7 +2,7 @@ main: su.nightexpress.coinsengine.CoinsEnginePlugin
 version: '${project.version}'
 name: CoinsEngine
 author: NightExpress
-desciption: Unlimited virtual currencies and server economy.
+desciption: A lightweight and modern plugin for virtual currencies and server economy.
 depend: [ nightcore ]
 softdepend:
   - Vault

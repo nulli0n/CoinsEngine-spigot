@@ -1,51 +1,68 @@
 package su.nightexpress.coinsengine.config;
 
-import su.nightexpress.coinsengine.command.currency.CurrencyCommands;
-import su.nightexpress.nightcore.core.CoreLang;
-import su.nightexpress.nightcore.language.entry.LangString;
-import su.nightexpress.nightcore.language.entry.LangText;
+import su.nightexpress.coinsengine.command.CommandNames;
+import su.nightexpress.nightcore.locale.LangContainer;
+import su.nightexpress.nightcore.locale.LangEntry;
+import su.nightexpress.nightcore.locale.entry.MessageLocale;
+import su.nightexpress.nightcore.locale.entry.TextLocale;
+import su.nightexpress.nightcore.locale.message.MessageData;
 
 import static su.nightexpress.coinsengine.Placeholders.*;
-import static su.nightexpress.nightcore.util.text.tag.Tags.*;
+import static su.nightexpress.nightcore.util.text.night.wrapper.TagWrappers.*;
 
-public class Lang extends CoreLang {
+public class Lang implements LangContainer {
 
-    public static final LangString COMMAND_ARGUMENT_NAME_CURRENCY = LangString.of("Command.Argument.Name.Currency", "currency");
-    public static final LangString COMMAND_ARGUMENT_NAME_PAGE     = LangString.of("Command.Argument.Name.Page", "page");
-    public static final LangString COMMAND_ARGUMENT_NAME_PLUGIN   = LangString.of("Command.Argument.Name.Plugin", "plugin");
-    public static final LangString COMMAND_ARGUMENT_NAME_SYMBOL   = LangString.of("Command.Argument.Name.Symbol", "symbol");
-    public static final LangString COMMAND_ARGUMENT_NAME_DECIMAL   = LangString.of("Command.Argument.Name.Decimals", "allowDecimals");
+    public static final TextLocale COMMAND_ARGUMENT_NAME_CURRENCY = LangEntry.builder("Command.Argument.Name.Currency").text("currency");
+    public static final TextLocale COMMAND_ARGUMENT_NAME_PAGE     = LangEntry.builder("Command.Argument.Name.Page").text("page");
+    public static final TextLocale COMMAND_ARGUMENT_NAME_PLUGIN   = LangEntry.builder("Command.Argument.Name.Plugin").text("plugin");
+    public static final TextLocale COMMAND_ARGUMENT_NAME_SYMBOL   = LangEntry.builder("Command.Argument.Name.Symbol").text("symbol");
+    public static final TextLocale COMMAND_ARGUMENT_NAME_DECIMAL  = LangEntry.builder("Command.Argument.Name.Decimals").text("allowDecimals");
 
-    public static final LangString COMMAND_CREATE_DESC   = LangString.of("Command.Create.Desc", "Create a new currency.");
-    public static final LangString COMMAND_MIGRATE_DESC   = LangString.of("Command.Migrate.Desc", "Migrate data from other plugin(s).");
-    public static final LangString COMMAND_RESET_DESC     = LangString.of("Command.Reset.Desc", "Reset player's balances.");
-    public static final LangString COMMAND_RESET_ALL_DESC = LangString.of("Command.ResetAll.Desc", "Reset balances of all users.");
-    public static final LangString COMMAND_WALLET_DESC    = LangString.of("Command.Wallet.Desc", "View full balance.");
+    public static final TextLocale COMMAND_CREATE_DESC    = LangEntry.builder("Command.Create.Desc").text("Create a new currency.");
+    public static final TextLocale COMMAND_MIGRATE_DESC   = LangEntry.builder("Command.Migrate.Desc").text("Migrate data from other plugin(s).");
+    public static final TextLocale COMMAND_RESET_DESC     = LangEntry.builder("Command.Reset.Desc").text("Reset player's balances.");
+    public static final TextLocale COMMAND_RESET_ALL_DESC = LangEntry.builder("Command.ResetAll.Desc").text("Reset balances of all users.");
+    public static final TextLocale COMMAND_WALLET_DESC    = LangEntry.builder("Command.Wallet.Desc").text("View full balance.");
 
-    public static final LangString COMMAND_CURRENCY_ROOT_DESC     = LangString.of("Command.Currency.Root.Desc", CURRENCY_NAME + " commands.");
-    public static final LangString COMMAND_CURRENCY_BALANCE_DESC  = LangString.of("Command.Currency.Balance.Desc", "View balance.");
-    public static final LangString COMMAND_CURRENCY_GIVE_DESC     = LangString.of("Command.Currency.Give.Desc", "Add currency to a player.");
-    public static final LangString COMMAND_CURRENCY_GIVE_ALL_DESC = LangString.of("Command.Currency.GiveAll.Desc", "Add currency to all online players.");
-    public static final LangString COMMAND_CURRENCY_TAKE_DESC     = LangString.of("Command.Currency.Take.Desc", "Take player's currency.");
-    public static final LangString COMMAND_CURRENCY_SET_DESC      = LangString.of("Command.Currency.Set.Desc", "Set player's currency balance.");
-    public static final LangString COMMAND_CURRENCY_SEND_DESC     = LangString.of("Command.Currency.Send.Desc", "Transfer currency to a player.");
-    public static final LangString COMMAND_CURRENCY_PAYMENTS_DESC = LangString.of("Command.Currency.Payments.Desc", "Toggle payments acception from other players.");
-    public static final LangString COMMAND_CURRENCY_EXCHANGE_DESC = LangString.of("Command.Currency.Exchange.Desc", "Exchange currency.");
-    public static final LangString COMMAND_CURRENCY_TOP_DESC      = LangString.of("Command.Currency.Top.Desc", "List of players with the most balance.");
+    public static final TextLocale COMMAND_CURRENCY_ROOT_DESC     = LangEntry.builder("Command.Currency.Root.Desc").text(CURRENCY_NAME + " commands.");
+    public static final TextLocale COMMAND_CURRENCY_BALANCE_DESC  = LangEntry.builder("Command.Currency.Balance.Desc").text("View balance.");
+    public static final TextLocale COMMAND_CURRENCY_GIVE_DESC     = LangEntry.builder("Command.Currency.Give.Desc").text("Add currency to a player.");
+    public static final TextLocale COMMAND_CURRENCY_GIVE_ALL_DESC = LangEntry.builder("Command.Currency.GiveAll.Desc").text("Add currency to all online players.");
+    public static final TextLocale COMMAND_CURRENCY_TAKE_DESC     = LangEntry.builder("Command.Currency.Take.Desc").text("Take player's currency.");
+    public static final TextLocale COMMAND_CURRENCY_SET_DESC      = LangEntry.builder("Command.Currency.Set.Desc").text("Set player's currency balance.");
+    public static final TextLocale COMMAND_CURRENCY_SEND_DESC     = LangEntry.builder("Command.Currency.Send.Desc").text("Transfer currency to a player.");
+    public static final TextLocale COMMAND_CURRENCY_PAYMENTS_DESC = LangEntry.builder("Command.Currency.Payments.Desc").text("Toggle payments acception from other players.");
+    public static final TextLocale COMMAND_CURRENCY_EXCHANGE_DESC = LangEntry.builder("Command.Currency.Exchange.Desc").text("Exchange currency.");
+    public static final TextLocale COMMAND_CURRENCY_TOP_DESC      = LangEntry.builder("Command.Currency.Top.Desc").text("List of players with the most balance.");
+
+    public static final MessageLocale COMMAND_SYNTAX_INVALID_CURRENCY = LangEntry.builder("Command.Syntax.InvalidCurrency").chatMessage(
+        GRAY.wrap(SOFT_RED.wrap(GENERIC_INPUT) + " is not a valid currency!"));
 
 
 
-    public static final LangText MIGRATION_START_BLOCKED = LangText.of("Migration.Start.Blocked",
-        LIGHT_RED.wrap("Could not start migration due to background tasks already running!"));
+    public static final MessageLocale CURRENCY_OPERATION_DISABLED = LangEntry.builder("Currency.Operation.Disabled").chatMessage(
+        SOFT_RED.wrap("Currency operations are temporarily disabled.")
+    );
 
-    public static final LangText MIGRATION_START_BAD_PLUGIN = LangText.of("Migration.Start.BadPlugin",
-        LIGHT_RED.wrap("Plugin is not supported or installed!"));
+    public static final MessageLocale CURRENCY_OPERATION_RESET_FEEDBACK = LangEntry.builder("Currency.Operation.Reset.Feedback").chatMessage(
+        GRAY.wrap(SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance has been reset to " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
-    public static final LangText MIGRATION_START_BAD_CURRENCY = LangText.of("Migration.Start.BadCurrency",
-        LIGHT_RED.wrap("Could not migrate data from " + GENERIC_NAME + " to " + CURRENCY_NAME + "."));
+    public static final MessageLocale CURRENCY_OPERATION_RESET_NOTIFY = LangEntry.builder("Currency.Operation.Reset.Notify").chatMessage(
+        GRAY.wrap("Your balance has been reset to " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
-    public static final LangText MIGRATION_STARTED = LangText.of("Migration.Started",
-        TAG_NO_PREFIX,
+
+
+    public static final MessageLocale MIGRATION_START_BLOCKED = LangEntry.builder("Migration.Start.Blocked").chatMessage(
+        SOFT_RED.wrap("Could not start migration due to background tasks already running!"));
+
+    public static final MessageLocale MIGRATION_START_BAD_PLUGIN = LangEntry.builder("Migration.Start.BadPlugin").chatMessage(
+        SOFT_RED.wrap("Plugin is not supported or installed!"));
+
+    public static final MessageLocale MIGRATION_START_BAD_CURRENCY = LangEntry.builder("Migration.Start.BadCurrency").chatMessage(
+        SOFT_RED.wrap("Could not migrate data from " + GENERIC_NAME + " to " + CURRENCY_NAME + "."));
+
+    public static final MessageLocale MIGRATION_STARTED = LangEntry.builder("Migration.Started").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + RED.wrap("→") + "] Data Migration:"),
         " ",
@@ -55,8 +72,8 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangText MIGRATION_COMPLETED = LangText.of("Migration.Completed",
-        TAG_NO_PREFIX,
+    public static final MessageLocale MIGRATION_COMPLETED = LangEntry.builder("Migration.Completed").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + GREEN.wrap("→") + "] Data Migration:"),
         " ",
@@ -68,16 +85,11 @@ public class Lang extends CoreLang {
 
 
 
-    public static final LangText COMMAND_RESET_DONE = LangText.of("Command.Reset.Done",
-        LIGHT_GRAY.wrap("Reset all currency balances for " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "!"));
+    public static final MessageLocale RESET_ALL_START_BLOCKED = LangEntry.builder("ResetAll.Start.Blocked").chatMessage(
+        SOFT_RED.wrap("Could not start balance reset due to background tasks already running!"));
 
-
-
-    public static final LangText RESET_ALL_START_BLOCKED = LangText.of("ResetAll.Start.Blocked",
-        LIGHT_RED.wrap("Could not start balance reset due to background tasks already running!"));
-
-    public static final LangText RESET_ALL_STARTED_CURRENCY = LangText.of("ResetAll.Started.Currency",
-        TAG_NO_PREFIX,
+    public static final MessageLocale RESET_ALL_STARTED_CURRENCY = LangEntry.builder("ResetAll.Started.Currency").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + RED.wrap("$") + "] Balance Reset:"),
         " ",
@@ -87,8 +99,8 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangText RESET_ALL_COMPLETED_CURRENCY = LangText.of("ResetAll.Completed.Currency",
-        TAG_NO_PREFIX,
+    public static final MessageLocale RESET_ALL_COMPLETED_CURRENCY = LangEntry.builder("ResetAll.Completed.Currency").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + GREEN.wrap("$") + "] Balance Reset:"),
         " ",
@@ -98,8 +110,8 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangText RESET_ALL_STARTED_GLOBAL = LangText.of("ResetAll.Started.Global",
-        TAG_NO_PREFIX,
+    public static final MessageLocale RESET_ALL_STARTED_GLOBAL = LangEntry.builder("ResetAll.Started.Global").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + RED.wrap("$") + "] Balance Reset:"),
         " ",
@@ -109,8 +121,8 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangText RESET_ALL_COMPLETED_GLOBAL = LangText.of("ResetAll.Completed.Global",
-        TAG_NO_PREFIX,
+    public static final MessageLocale RESET_ALL_COMPLETED_GLOBAL = LangEntry.builder("ResetAll.Completed.Global").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + GREEN.wrap("$") + "] Balance Reset:"),
         " ",
@@ -121,77 +133,70 @@ public class Lang extends CoreLang {
     );
 
 
-
-    public static final LangText CURRENCY_CREATE_BAD_NAME = LangText.of("Currency.Create.BadName",
-        LIGHT_RED.wrap("Invalid name provided! Only latin letters and digits are supported.")
+    public static final MessageLocale CURRENCY_CREATE_BAD_NAME = LangEntry.builder("Currency.Create.BadName").chatMessage(
+        SOFT_RED.wrap("Invalid name provided! Only latin letters and digits are supported.")
     );
 
-    public static final LangText CURRENCY_CREATE_DUPLICATED = LangText.of("Currency.Create.Duplicated",
-        LIGHT_RED.wrap("There is already a currency with this name.")
+    public static final MessageLocale CURRENCY_CREATE_DUPLICATED = LangEntry.builder("Currency.Create.Duplicated").chatMessage(
+        SOFT_RED.wrap("There is already a currency with this name.")
     );
 
-    public static final LangText CURRENCY_CREATE_SUCCESS = LangText.of("Currency.Create.Success",
+    public static final MessageLocale CURRENCY_CREATE_SUCCESS = LangEntry.builder("Currency.Create.Success").chatMessage(
         GRAY.wrap("Created new currency: " + GREEN.wrap(CURRENCY_NAME) + " (ID: " + WHITE.wrap(CURRENCY_ID) + ")")
     );
 
 
-    public static final LangText COMMAND_CURRENCY_GIVE_DONE = LangText.of("Command.Currency.Give.Done",
-        LIGHT_GRAY.wrap("Added " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
+    public static final MessageLocale COMMAND_CURRENCY_GIVE_DONE = LangEntry.builder("Command.Currency.Give.Done").chatMessage(
+        GRAY.wrap("Added " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
-    public static final LangText COMMAND_CURRENCY_GIVE_NOTIFY = LangText.of("Command.Currency.Give.Notify",
-        LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " has been added to your account!"));
+    public static final MessageLocale COMMAND_CURRENCY_GIVE_NOTIFY = LangEntry.builder("Command.Currency.Give.Notify").chatMessage(
+        GRAY.wrap(SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " has been added to your account!"));
 
 
-
-    public static final LangText COMMAND_CURRENCY_GIVE_ALL_DONE = LangText.of("Command.Currency.GiveAll.Done",
-        LIGHT_GRAY.wrap("Added " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + LIGHT_YELLOW.wrap("All Online") + " players.")
+    public static final MessageLocale COMMAND_CURRENCY_GIVE_ALL_DONE = LangEntry.builder("Command.Currency.GiveAll.Done").chatMessage(
+        GRAY.wrap("Added " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + SOFT_YELLOW.wrap("All Online") + " players.")
     );
 
 
+    public static final MessageLocale COMMAND_CURRENCY_TAKE_DONE = LangEntry.builder("Command.Currency.Take.Done").chatMessage(
+        GRAY.wrap("Taken " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
-    public static final LangText COMMAND_CURRENCY_TAKE_DONE = LangText.of("Command.Currency.Take.Done",
-        LIGHT_GRAY.wrap("Taken " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
-
-    public static final LangText COMMAND_CURRENCY_TAKE_NOTIFY = LangText.of("Command.Currency.Take.Notify",
-        LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " has been taken from your account!"));
-
+    public static final MessageLocale COMMAND_CURRENCY_TAKE_NOTIFY = LangEntry.builder("Command.Currency.Take.Notify").chatMessage(
+        GRAY.wrap(SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " has been taken from your account!"));
 
 
-    public static final LangText COMMAND_CURRENCY_SET_DONE = LangText.of("Command.Currency.Set.Done",
-        LIGHT_GRAY.wrap("Set " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s " + LIGHT_YELLOW.wrap(CURRENCY_NAME) + " balance to " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
+    public static final MessageLocale COMMAND_CURRENCY_SET_DONE = LangEntry.builder("Command.Currency.Set.Done").chatMessage(
+        GRAY.wrap("Set " + SOFT_YELLOW.wrap(PLAYER_NAME) + "'s " + SOFT_YELLOW.wrap(CURRENCY_NAME) + " balance to " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
-    public static final LangText COMMAND_CURRENCY_SET_NOTIFY = LangText.of("Command.Currency.Set.Notify",
-        LIGHT_GRAY.wrap("Your " + LIGHT_YELLOW.wrap(CURRENCY_NAME) + " balance has been set to " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + "."));
-
-
-
-    public static final LangText CURRENCY_SEND_ERROR_NOT_ENOUGH = LangText.of("Command.Currency.Send.Error.NotEnough",
-        LIGHT_GRAY.wrap("You don't have enough " + LIGHT_RED.wrap(CURRENCY_NAME) + "!"));
-
-    public static final LangText CURRENCY_SEND_ERROR_TOO_LOW = LangText.of("Command.Currency.Send.Error.TooLow",
-        LIGHT_GRAY.wrap("You can not send smaller than " + LIGHT_RED.wrap(GENERIC_AMOUNT) + "!"));
-
-    public static final LangText CURRENCY_SEND_ERROR_NO_PAYMENTS = LangText.of("Command.Currency.Send.Error.NoPayments",
-        LIGHT_GRAY.wrap(LIGHT_RED.wrap(PLAYER_NAME) + " does not accept " + LIGHT_RED.wrap(CURRENCY_NAME) + "!"));
-
-    public static final LangText CURRENCY_SEND_DONE_SENDER = LangText.of("Command.Currency.Send.Done.Sender",
-        LIGHT_GRAY.wrap("You sent " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "!"));
-
-    public static final LangText CURRENCY_SEND_DONE_NOTIFY = LangText.of("Command.Currency.Send.Done.Notify",
-        LIGHT_GRAY.wrap("You received " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + LIGHT_YELLOW.wrap(PLAYER_NAME) + "!"));
+    public static final MessageLocale COMMAND_CURRENCY_SET_NOTIFY = LangEntry.builder("Command.Currency.Set.Notify").chatMessage(
+        GRAY.wrap("Your " + SOFT_YELLOW.wrap(CURRENCY_NAME) + " balance has been set to " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + "."));
 
 
+    public static final MessageLocale CURRENCY_SEND_ERROR_NOT_ENOUGH = LangEntry.builder("Command.Currency.Send.Error.NotEnough").chatMessage(
+        GRAY.wrap("You don't have enough " + SOFT_RED.wrap(CURRENCY_NAME) + "!"));
 
-    public static final LangText COMMAND_CURRENCY_PAYMENTS_TOGGLE = LangText.of("Command.Currency.Payments.Toggle",
-        LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(CURRENCY_NAME) + " payments acception: " + LIGHT_YELLOW.wrap(GENERIC_STATE) + "."));
+    public static final MessageLocale CURRENCY_SEND_ERROR_TOO_LOW = LangEntry.builder("Command.Currency.Send.Error.TooLow").chatMessage(
+        GRAY.wrap("You can not send smaller than " + SOFT_RED.wrap(GENERIC_AMOUNT) + "!"));
 
-    public static final LangText COMMAND_CURRENCY_PAYMENTS_TARGET = LangText.of("Command.Currency.Payments.Target",
-        LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(CURRENCY_NAME) + " payments acception for " + LIGHT_YELLOW.wrap(PLAYER_NAME) + ": " + LIGHT_YELLOW.wrap(GENERIC_STATE) + "."));
+    public static final MessageLocale CURRENCY_SEND_ERROR_NO_PAYMENTS = LangEntry.builder("Command.Currency.Send.Error.NoPayments").chatMessage(
+        GRAY.wrap(SOFT_RED.wrap(PLAYER_NAME) + " does not accept " + SOFT_RED.wrap(CURRENCY_NAME) + "!"));
+
+    public static final MessageLocale CURRENCY_SEND_DONE_SENDER = LangEntry.builder("Command.Currency.Send.Done.Sender").chatMessage(
+        GRAY.wrap("You sent " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + SOFT_YELLOW.wrap(PLAYER_NAME) + "!"));
+
+    public static final MessageLocale CURRENCY_SEND_DONE_NOTIFY = LangEntry.builder("Command.Currency.Send.Done.Notify").chatMessage(
+        GRAY.wrap("You received " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + SOFT_YELLOW.wrap(PLAYER_NAME) + "!"));
 
 
+    public static final MessageLocale COMMAND_CURRENCY_PAYMENTS_TOGGLE = LangEntry.builder("Command.Currency.Payments.Toggle").chatMessage(
+        GRAY.wrap(SOFT_YELLOW.wrap(CURRENCY_NAME) + " payments acception: " + SOFT_YELLOW.wrap(GENERIC_STATE) + "."));
 
-    public static final LangText TOP_LIST = LangText.of("Command.Currency.Top.List",
-        TAG_NO_PREFIX,
+    public static final MessageLocale COMMAND_CURRENCY_PAYMENTS_TARGET = LangEntry.builder("Command.Currency.Payments.Target").chatMessage(
+        GRAY.wrap(SOFT_YELLOW.wrap(CURRENCY_NAME) + " payments acception for " + SOFT_YELLOW.wrap(PLAYER_NAME) + ": " + SOFT_YELLOW.wrap(GENERIC_STATE) + "."));
+
+
+    public static final MessageLocale TOP_LIST = LangEntry.builder("Command.Currency.Top.List").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("Top players with " + WHITE.wrap(CURRENCY_NAME)),
         " ",
@@ -201,48 +206,44 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangString TOP_ENTRY = LangString.of("Command.Currency.Top.Entry",
+    public static final TextLocale TOP_ENTRY = LangEntry.builder("Command.Currency.Top.Entry").text(
         YELLOW.wrap("#" + GENERIC_POS) + " " + WHITE.wrap(PLAYER_NAME) + DARK_GRAY.wrap(" ▪ ") + GREEN.wrap(GENERIC_BALANCE)
     );
 
-    public static final LangString TOP_LIST_NEXT_PAGE_ACTIVE = LangString.of("TopList.NextPage.Active",
-        HOVER.wrapShowText(
-            CLICK.wrapRunCommand(
-                GREEN.wrap("[→]"), "/" + CURRENCY_LABEL + " " + CurrencyCommands.DEFAULT_TOP_ALIAS + " " + GENERIC_VALUE
-            ),
-            GRAY.wrap("Click to get to the next page.")
+    public static final TextLocale TOP_LIST_NEXT_PAGE_ACTIVE = LangEntry.builder("TopList.NextPage.Active").text(
+        SHOW_TEXT.with(GRAY.wrap("Click to get to the next page.")).wrap(
+            RUN_COMMAND.with("/" + CURRENCY_LABEL + " " + CommandNames.CURRENCY_TOP + " " + GENERIC_VALUE).wrap(
+                GREEN.wrap("[→]")
+            )
         )
     );
 
-    public static final LangString TOP_LIST_NEXT_PAGE_INACTIVE = LangString.of("TopList.NextPage.Inactive",
-        HOVER.wrapShowText(GRAY.wrap("[→]"), GRAY.wrap("There are no more pages."))
+    public static final TextLocale TOP_LIST_NEXT_PAGE_INACTIVE = LangEntry.builder("TopList.NextPage.Inactive").text(
+        SHOW_TEXT.with(GRAY.wrap("There are no more pages.")).wrap(GRAY.wrap("[→]"))
     );
 
-    public static final LangString TOP_LIST_PREVIOUS_PAGE_ACTIVE = LangString.of("TopList.PreviousPage.Active",
-        HOVER.wrapShowText(
-            CLICK.wrapRunCommand(
-                GREEN.wrap("[←]"), "/" + CURRENCY_LABEL + " " + CurrencyCommands.DEFAULT_TOP_ALIAS + " " + GENERIC_VALUE
-            ),
-            GRAY.wrap("Click to get to the previous page.")
+    public static final TextLocale TOP_LIST_PREVIOUS_PAGE_ACTIVE = LangEntry.builder("TopList.PreviousPage.Active").text(
+        SHOW_TEXT.with(GRAY.wrap("Click to get to the previous page.")).wrap(
+            RUN_COMMAND.with("/" + CURRENCY_LABEL + " " + CommandNames.CURRENCY_TOP + " " + GENERIC_VALUE).wrap(
+                GREEN.wrap("[←]")
+            )
         )
     );
 
-    public static final LangString TOP_LIST_PREVIOUS_PAGE_INACTIVE = LangString.of("TopList.PreviousPage.Inactive",
-        HOVER.wrapShowText(GRAY.wrap("[←]"), GRAY.wrap("There are no more pages."))
+    public static final TextLocale TOP_LIST_PREVIOUS_PAGE_INACTIVE = LangEntry.builder("TopList.PreviousPage.Inactive").text(
+        SHOW_TEXT.with(GRAY.wrap("There are no more pages.")).wrap(GRAY.wrap("[←]"))
     );
 
 
+    public static final MessageLocale CURRENCY_BALANCE_DISPLAY_OWN = LangEntry.builder("Currency.Balance.Display.Own").chatMessage(
+        GRAY.wrap("Balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
-    public static final LangText CURRENCY_BALANCE_DISPLAY_OWN = LangText.of("Currency.Balance.Display.Own",
-        LIGHT_GRAY.wrap("Balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
-
-    public static final LangText CURRENCY_BALANCE_DISPLAY_OTHERS = LangText.of("Currency.Balance.Display.Others",
-        LIGHT_GRAY.wrap(LIGHT_YELLOW.wrap(PLAYER_NAME) + "'s balance: " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + "."));
-
+    public static final MessageLocale CURRENCY_BALANCE_DISPLAY_OTHERS = LangEntry.builder("Currency.Balance.Display.Others").chatMessage(
+        GRAY.wrap(SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
 
-    public static final LangText CURRENCY_WALLET_OWN = LangText.of("Currency.Wallet.Own",
-        TAG_NO_PREFIX,
+    public static final MessageLocale CURRENCY_WALLET_OWN = LangEntry.builder("Currency.Wallet.Own").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + GREEN.wrap("$") + "] Your Wallet:"),
         " ",
@@ -250,8 +251,8 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangText CURRENCY_WALLET_OTHERS = LangText.of("Currency.Wallet.Others",
-        TAG_NO_PREFIX,
+    public static final MessageLocale CURRENCY_WALLET_OTHERS = LangEntry.builder("Currency.Wallet.Others").message(
+        MessageData.CHAT_NO_PREFIX,
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32))),
         GRAY.wrap("[" + GREEN.wrap("$") + "] " + WHITE.wrap(PLAYER_NAME) + "'s Wallet:"),
         " ",
@@ -259,36 +260,33 @@ public class Lang extends CoreLang {
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
 
-    public static final LangString CURRENCY_WALLET_ENTRY = LangString.of("Currency.Wallet.Entry",
+    public static final TextLocale CURRENCY_WALLET_ENTRY = LangEntry.builder("Currency.Wallet.Entry").text(
         YELLOW.wrap("•") + " " + WHITE.wrap(CURRENCY_NAME + ":") + " " + GREEN.wrap(GENERIC_BALANCE)
     );
 
 
-    public static final LangText CURRENCY_EXCHANGE_ERROR_DISABLED = LangText.of("Currency.Exchange.Error.Disabled",
-        LIGHT_GRAY.wrap(LIGHT_RED.wrap(CURRENCY_NAME) + " can not be exchanged!"));
+    public static final MessageLocale CURRENCY_EXCHANGE_ERROR_DISABLED = LangEntry.builder("Currency.Exchange.Error.Disabled").chatMessage(
+        GRAY.wrap(SOFT_RED.wrap(CURRENCY_NAME) + " can not be exchanged!"));
 
-    public static final LangText CURRENCY_EXCHANGE_ERROR_NO_RATE = LangText.of("Currency.Exchange.Error.NoRate",
-        LIGHT_GRAY.wrap(LIGHT_RED.wrap(CURRENCY_NAME) + " can not be exchanged for " + LIGHT_RED.wrap(GENERIC_NAME) + "!"));
+    public static final MessageLocale CURRENCY_EXCHANGE_ERROR_NO_RATE = LangEntry.builder("Currency.Exchange.Error.NoRate").chatMessage(
+        GRAY.wrap(SOFT_RED.wrap(CURRENCY_NAME) + " can not be exchanged for " + SOFT_RED.wrap(GENERIC_NAME) + "!"));
 
-    public static final LangText CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT = LangText.of("Currency.Exchange.Error.LowAmount",
-        LIGHT_GRAY.wrap(LIGHT_RED.wrap(CURRENCY_NAME) + " amount is too low for exchange!"));
+    public static final MessageLocale CURRENCY_EXCHANGE_ERROR_LOW_AMOUNT = LangEntry.builder("Currency.Exchange.Error.LowAmount").chatMessage(
+        GRAY.wrap(SOFT_RED.wrap(CURRENCY_NAME) + " amount is too low for exchange!"));
 
-    public static final LangText CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED = LangText.of("Currency.Exchange.Error.LimitExceed",
-        LIGHT_GRAY.wrap("You could get " + LIGHT_RED.wrap(GENERIC_AMOUNT) + ", but you can't hold more than " + LIGHT_RED.wrap(GENERIC_MAX) + " total!"));
+    public static final MessageLocale CURRENCY_EXCHANGE_ERROR_LIMIT_EXCEED = LangEntry.builder("Currency.Exchange.Error.LimitExceed").chatMessage(
+        GRAY.wrap("You could get " + SOFT_RED.wrap(GENERIC_AMOUNT) + ", but you can't hold more than " + SOFT_RED.wrap(GENERIC_MAX) + " total!"));
 
-    public static final LangText CURRENCY_EXCHANGE_ERROR_LOW_BALANCE = LangText.of("Currency.Exchange.Error.LowBalance",
-        LIGHT_GRAY.wrap("You don't have " + LIGHT_RED.wrap(GENERIC_AMOUNT) + " for exchange!"));
+    public static final MessageLocale CURRENCY_EXCHANGE_ERROR_LOW_BALANCE = LangEntry.builder("Currency.Exchange.Error.LowBalance").chatMessage(
+        GRAY.wrap("You don't have " + SOFT_RED.wrap(GENERIC_AMOUNT) + " for exchange!"));
 
-    public static final LangText CURRENCY_EXCHANGE_SUCCESS = LangText.of("Currency.Exchange.Success",
-        LIGHT_GRAY.wrap("You exchanged " + LIGHT_YELLOW.wrap(GENERIC_BALANCE) + " for " + LIGHT_YELLOW.wrap(GENERIC_AMOUNT) + "!"));
-
-
-    public static final LangString ECONOMY_ERROR_INVALID_PLAYER     = LangString.of("VaultEconomy.Error.InvalidPlayer", "Player not found.");
-    public static final LangString ECONOMY_ERROR_INSUFFICIENT_FUNDS = LangString.of("VaultEconomy.Error.InsufficientFunds", "Insufficient Funds!");
+    public static final MessageLocale CURRENCY_EXCHANGE_SUCCESS = LangEntry.builder("Currency.Exchange.Success").chatMessage(
+        GRAY.wrap("You exchanged " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + " for " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + "!"));
 
 
-    public static final LangString OTHER_NO_TOP_ENTRY = LangString.of("Other.NoTopEntry", "<none>");
+    public static final TextLocale ECONOMY_ERROR_INVALID_PLAYER     = LangEntry.builder("VaultEconomy.Error.InvalidPlayer").text("Player not found.");
+    public static final TextLocale ECONOMY_ERROR_INSUFFICIENT_FUNDS = LangEntry.builder("VaultEconomy.Error.InsufficientFunds").text("Insufficient Funds!");
 
-    public static final LangText ERROR_COMMAND_ARGUMENT_INVALID_CURRENCY = LangText.of("Currency.Error.Invalid",
-        GRAY.wrap(LIGHT_RED.wrap(GENERIC_VALUE) + " is not a valid currency!"));
+
+    public static final TextLocale OTHER_NO_TOP_ENTRY = LangEntry.builder("Other.NoTopEntry").text("<none>");
 }

@@ -5,8 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import su.nightexpress.nightcore.language.entry.LangText;
-import su.nightexpress.nightcore.language.message.LangMessage;
+import su.nightexpress.nightcore.locale.entry.MessageLocale;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.nightcore.util.number.CompactNumber;
 import su.nightexpress.nightcore.util.placeholder.Replacer;
@@ -17,17 +16,19 @@ import java.util.function.UnaryOperator;
 
 public interface Currency {
 
+    void onRegister();
+
+    void onUnregister();
+
     @NotNull UnaryOperator<String> replacePlaceholders();
 
-    void sendPrefixed(@NotNull LangText text, @NotNull CommandSender sender);
+    void sendPrefixed(@NotNull MessageLocale locale, @NotNull CommandSender sender);
 
-    void sendPrefixed(@NotNull LangText text, @NotNull CommandSender sender, @Nullable Consumer<Replacer> consumer);
-
-    void sendPrefixed(@NotNull LangMessage message, @NotNull CommandSender sender);
-
-    void sendPrefixed(@NotNull LangMessage message, @NotNull CommandSender sender, @Nullable Consumer<Replacer> consumer);
+    void sendPrefixed(@NotNull MessageLocale locale, @NotNull CommandSender sender, @Nullable Consumer<Replacer> consumer);
 
     boolean hasPermission(@NotNull Player player);
+
+    boolean isPrimary();
 
     boolean isUnlimited();
 
@@ -142,9 +143,8 @@ public interface Currency {
 
     void setMaxValue(double maxValue);
 
+    @Deprecated
     boolean isVaultEconomy();
-
-    void setVaultEconomy(boolean vaultEconomy);
 
     boolean isExchangeAllowed();
 

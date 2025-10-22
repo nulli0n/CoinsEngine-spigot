@@ -21,7 +21,7 @@ public class TopEntry {
         this.playerId = playerId;
         this.balance = balance;
 
-        this.profile = PlayerProfiles.createProfile(this.playerId, this.name);
+        this.profile = PlayerProfiles.createProfile(this.playerId, name.length() > 16 ? name.substring(0, 16) : name);
     }
 
     public int getPosition() {

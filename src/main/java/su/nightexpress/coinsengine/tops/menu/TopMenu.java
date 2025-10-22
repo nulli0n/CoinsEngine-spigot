@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static su.nightexpress.coinsengine.Placeholders.*;
-import static su.nightexpress.nightcore.util.text.tag.Tags.*;
+import static su.nightexpress.nightcore.util.text.night.wrapper.TagWrappers.*;
 
 public class TopMenu extends LinkedMenu<CoinsEnginePlugin, Currency> implements Filled<TopEntry>, ConfigBased {
 

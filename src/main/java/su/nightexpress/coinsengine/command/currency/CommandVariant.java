@@ -5,14 +5,14 @@ import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.config.Writeable;
 
-public class CommandVariant implements Writeable {
+public record CommandVariant(boolean enabled, String[] aliases) implements Writeable {
 
-    private final boolean  enabled;
-    private final String[] aliases;
+    @NotNull
+    public static CommandVariant read(@NotNull FileConfig config, @NotNull String path) {
+        boolean enabled = ConfigValue.create(path + ".Enabled", false).read(config);
+        String[] aliases = config.getStringArray(path + ".Aliases");
 
-    public CommandVariant(boolean enabled, String[] aliases) {
-        this.enabled = enabled;
-        this.aliases = aliases;
+        return new CommandVariant(enabled, aliases);
     }
 
     @NotNull
@@ -25,25 +25,9 @@ public class CommandVariant implements Writeable {
         return new CommandVariant(false, aliases);
     }
 
-    @NotNull
-    public static CommandVariant read(@NotNull FileConfig config, @NotNull String path) {
-        boolean enabled = ConfigValue.create(path + ".Enabled", false).read(config);
-        String[] aliases = config.getStringArray(path + ".Aliases");
-
-        return new CommandVariant(enabled, aliases);
-    }
-
     @Override
     public void write(@NotNull FileConfig config, @NotNull String path) {
         config.set(path + ".Enabled", this.enabled);
         config.setStringArray(path + ".Aliases", this.aliases);
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public String[] getAliases() {
-        return this.aliases;
     }
 }

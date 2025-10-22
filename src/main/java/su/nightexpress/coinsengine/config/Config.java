@@ -1,21 +1,29 @@
 package su.nightexpress.coinsengine.config;
 
+import su.nightexpress.coinsengine.COEFiles;
 import su.nightexpress.nightcore.config.ConfigValue;
 import su.nightexpress.nightcore.util.Plugins;
 
 import static su.nightexpress.coinsengine.Placeholders.*;
-import static su.nightexpress.nightcore.util.text.tag.Tags.*;
+import static su.nightexpress.nightcore.util.text.night.wrapper.TagWrappers.*;
 
 public class Config {
-
-    public static final String DIR_CURRENCIES = "/currencies/";
-    public static final String DIR_MENU = "/menu/";
-    public static final String LOG_FILENAME   = "operations.log";
 
     public static final ConfigValue<Boolean> GENERAL_PLACEHOLDER_API_FOR_CURRENCY_FORMAT = ConfigValue.create("General.PlaceholderAPI_For_Currency_Format",
         true,
         "Sets whether to apply PlaceholderAPI placeholders for currency 'Format' setting.",
         "Allows you to use custom images from Oraxen or ItemsAdder, as well as any other player unrelated placeholders."
+    );
+
+    public static final ConfigValue<Boolean> INTEGRATION_VAULT_ENABLED = ConfigValue.create("Integration.Vault.Enabled",
+        true,
+        "Controls whether Vault integration is enabled.",
+        WIKI_VAULT_HOOK
+    );
+
+    public static final ConfigValue<String> INTEGRATION_VAULT_ECONOMY_CURRENCY = ConfigValue.create("Integration.Vault.EconomyCurrency",
+        "money",
+        "Sets a currency used as primary sever economy using the Vault API."
     );
 
     public static final ConfigValue<Boolean> TOPS_ENABLED = ConfigValue.create("Top.Enabled",
@@ -34,7 +42,7 @@ public class Config {
     public static final ConfigValue<Integer> TOPS_ENTRIES_PER_PAGE = ConfigValue.create("Top.Entries_Per_Page",
         10,
         "Sets how many entries displayed per page for currency top commands.",
-        "[*] Works only for text leaderboards. GUI settings available in the '" + DIR_MENU + "' directory."
+        "[*] Works only for text leaderboards. GUI settings available in the '" + COEFiles.DIR_MENU + "' directory."
     );
 
     public static final ConfigValue<Integer> TOPS_UPDATE_INTERVAL = ConfigValue.create("Top.Update_Interval",
@@ -51,7 +59,7 @@ public class Config {
     );
 
     public static final ConfigValue<String> CURRENCY_PREFIX_FORMAT = ConfigValue.create("Currency.Prefix.Format",
-        LIGHT_YELLOW.wrap(BOLD.wrap(CURRENCY_PREFIX)) + DARK_GRAY.wrap(" » ") + GRAY.getBracketsName(),
+        SOFT_YELLOW.wrap(BOLD.wrap(CURRENCY_PREFIX)) + DARK_GRAY.wrap(" » "),
         "Sets custom prefix format for currency messages.",
         "You can use 'Currency' placeholders: " + WIKI_PLACEHOLDERS
     );

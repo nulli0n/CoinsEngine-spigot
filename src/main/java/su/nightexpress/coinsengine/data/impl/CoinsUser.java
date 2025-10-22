@@ -2,13 +2,12 @@ package su.nightexpress.coinsengine.data.impl;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 import su.nightexpress.coinsengine.api.event.ChangeBalanceEvent;
-import su.nightexpress.coinsengine.user.BalanceLookup;
 import su.nightexpress.coinsengine.user.UserBalance;
 import su.nightexpress.nightcore.db.AbstractUser;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -20,16 +19,6 @@ public class CoinsUser extends AbstractUser {
     private final Map<String, CurrencySettings> settingsMap;
 
     private boolean hiddenFromTops;
-
-    @NotNull
-    public static CoinsUser create(@NotNull UUID uuid, @NotNull String name) {
-        long dateCreated = System.currentTimeMillis();
-        UserBalance balance = UserBalance.createDefault();
-        Map<String, CurrencySettings> settingsMap = new HashMap<>();
-        boolean hiddenFromTops = false;
-
-        return new CoinsUser(uuid, name, dateCreated, dateCreated, balance, settingsMap, hiddenFromTops);
-    }
 
     public CoinsUser(@NotNull UUID uuid,
                      @NotNull String name,
@@ -55,21 +44,16 @@ public class CoinsUser extends AbstractUser {
         return this.balance;
     }
 
-    @NotNull
-    public BalanceLookup balanceLookup(@NotNull Currency currency) {
-        return this.balance.lookup(currency);
-    }
-
     /**
      * Edits user's balance of specific currency and fires the ChangeBalanceEvent event. If event was cancelled, the balance is set back to previous (old) value.
      *
      * @param currency Currency to edit balance of.
      * @param consumer balance function.
      */
-    public void editBalance(@NotNull Currency currency, @NotNull Consumer<BalanceLookup> consumer) {
+    public void editBalance(@NotNull Currency currency, @NotNull Consumer<UserBalance> consumer) {
         double oldBalance = this.getBalance(currency);
 
-        this.balance.edit(currency, consumer);
+        consumer.accept(this.balance);
 
         ChangeBalanceEvent event = new ChangeBalanceEvent(this, currency, oldBalance, this.getBalance(currency));
         Bukkit.getPluginManager().callEvent(event);
@@ -79,12 +63,12 @@ public class CoinsUser extends AbstractUser {
         }
     }
 
-    public void resetBalance() {
-        CoinsEngineAPI.getCurrencyManager().getCurrencies().forEach(this::resetBalance);
+    public void resetBalance(@NotNull Collection<Currency> currencies) {
+        currencies.forEach(this::resetBalance);
     }
 
     public void resetBalance(@NotNull Currency currency) {
-        this.editBalance(currency, lookup -> lookup.set(currency.getStartValue()));
+        this.editBalance(currency, balance -> balance.set(currency, currency.getStartValue()));
     }
 
     public boolean hasEnough(@NotNull Currency currency, double amount) {
@@ -96,20 +80,20 @@ public class CoinsUser extends AbstractUser {
     }
 
     public void addBalance(@NotNull Currency currency, double amount) {
-        this.editBalance(currency, lookup -> lookup.add(amount));
+        this.editBalance(currency, balance -> balance.add(currency, amount));
     }
 
     public void removeBalance(@NotNull Currency currency, double amount) {
-        this.editBalance(currency, lookup -> lookup.remove(amount));
+        this.editBalance(currency, lookup -> lookup.remove(currency, amount));
     }
 
     public void setBalance(@NotNull Currency currency, double amount) {
-        this.editBalance(currency, lookup -> lookup.set(amount));
+        this.editBalance(currency, lookup -> lookup.set(currency, amount));
     }
 
     @NotNull
     public Map<String, CurrencySettings> getSettingsMap() {
-        return settingsMap;
+        return this.settingsMap;
     }
 
     @NotNull
