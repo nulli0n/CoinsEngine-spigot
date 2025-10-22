@@ -15,6 +15,7 @@ import su.nightexpress.coinsengine.tops.menu.TopMenu;
 import su.nightexpress.nightcore.manager.AbstractManager;
 import su.nightexpress.nightcore.util.Lists;
 import su.nightexpress.nightcore.util.NumberUtil;
+import su.nightexpress.nightcore.util.Version;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,11 @@ public class TopManager extends AbstractManager<CoinsEnginePlugin> {
     @Override
     protected void onLoad() {
         if (Config.TOPS_USE_GUI.get()) {
-            this.topMenu = this.addMenu(new TopMenu(this.plugin, this), Config.DIR_MENU, "leaderboard.yml");
+            if (Version.isAtLeast(Version.MC_1_21_4)) {
+                this.topMenu = this.addMenu(new TopMenu(this.plugin, this), Config.DIR_MENU, "leaderboard.yml");
+            } else {
+                this.plugin.error("Couldn't enabling top menu because your server's Minecraft version is not supported.");
+            }
         }
 
         this.addListener(new TopsListener(this.plugin, this));

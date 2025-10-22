@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class UserBalance {
@@ -13,7 +13,7 @@ public class UserBalance {
     private final Map<String, Double> balanceMap;
 
     public UserBalance() {
-        this(new HashMap<>());
+        this(new ConcurrentHashMap<>());
     }
 
     public UserBalance(@NotNull Map<String, Double> balanceMap) {
