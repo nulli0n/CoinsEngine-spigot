@@ -82,8 +82,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
         return this.getName();
     }
 
-
-
     @Override
     public boolean createPlayerAccount(OfflinePlayer player) {
         return false;
@@ -103,8 +101,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
     public boolean createPlayerAccount(String playerName) {
         return false;
     }
-
-
 
     @Override
     public double getBalance(OfflinePlayer player, String world) {
@@ -132,8 +128,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
         return user == null ? 0D : user.getBalance(this);
     }
 
-
-
     @Override
     public boolean hasAccount(OfflinePlayer player, String worldName) {
         return this.hasAccount(player);
@@ -153,8 +147,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
     public boolean hasAccount(String playerName) {
         return this.plugin.getDataHandler().isUserExists(playerName);
     }
-
-
 
     @Override
     public boolean has(OfflinePlayer player, String worldName, double amount) {
@@ -181,8 +173,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
     private boolean has(@Nullable CoinsUser user, double amount) {
         return user != null && user.hasEnough(this, amount);
     }
-
-
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
@@ -217,8 +207,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
 
         return new EconomyResponse(amount, user.getBalance(this), type, null);
     }
-
-
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
@@ -262,8 +250,6 @@ public class EconomyCurrency extends AbstractCurrency implements Economy {
     private OperationContext operationContext() {
         return OperationContext.custom("Vault Eco - " + this.name).silentFor(NotificationTarget.EXECUTOR, NotificationTarget.USER, NotificationTarget.CONSOLE_LOGGER);
     }
-
-
 
     @Override
     public EconomyResponse createBank(String name, String player) {

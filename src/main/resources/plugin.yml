@@ -1,5 +1,6 @@
 main: su.nightexpress.coinsengine.CoinsEnginePlugin
 version: '${project.version}'
+api-version: 1.20
 name: CoinsEngine
 author: NightExpress
 desciption: A lightweight and modern plugin for virtual currencies and server economy.
@@ -10,4 +11,3 @@ softdepend:
   - PlayerPoints
   - DeluxeCoinflip
 load: STARTUP
-api-version: 1.20

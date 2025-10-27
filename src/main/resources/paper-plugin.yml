@@ -1,10 +1,11 @@
 main: su.nightexpress.coinsengine.CoinsEnginePlugin
 version: '${project.version}'
+api-version: 1.21
+folia-supported: true
 name: CoinsEngine
 author: NightExpress
 desciption: Unlimited virtual currencies and server economy.
 load: STARTUP
-api-version: 1.21
 dependencies:
   server:
     nightcore:

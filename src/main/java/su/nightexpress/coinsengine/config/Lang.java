@@ -38,8 +38,6 @@ public class Lang implements LangContainer {
     public static final MessageLocale COMMAND_SYNTAX_INVALID_CURRENCY = LangEntry.builder("Command.Syntax.InvalidCurrency").chatMessage(
         GRAY.wrap(SOFT_RED.wrap(GENERIC_INPUT) + " is not a valid currency!"));
 
-
-
     public static final MessageLocale CURRENCY_OPERATION_DISABLED = LangEntry.builder("Currency.Operation.Disabled").chatMessage(
         SOFT_RED.wrap("Currency operations are temporarily disabled.")
     );
@@ -49,8 +47,6 @@ public class Lang implements LangContainer {
 
     public static final MessageLocale CURRENCY_OPERATION_RESET_NOTIFY = LangEntry.builder("Currency.Operation.Reset.Notify").chatMessage(
         GRAY.wrap("Your balance has been reset to " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
-
-
 
     public static final MessageLocale MIGRATION_START_BLOCKED = LangEntry.builder("Migration.Start.Blocked").chatMessage(
         SOFT_RED.wrap("Could not start migration due to background tasks already running!"));
@@ -82,8 +78,6 @@ public class Lang implements LangContainer {
         GREEN.wrap(UNDERLINED.wrap("All currency operations are enabled again.")),
         DARK_GRAY.wrap(STRIKETHROUGH.wrap("-".repeat(32)))
     );
-
-
 
     public static final MessageLocale RESET_ALL_START_BLOCKED = LangEntry.builder("ResetAll.Start.Blocked").chatMessage(
         SOFT_RED.wrap("Could not start balance reset due to background tasks already running!"));
@@ -145,18 +139,15 @@ public class Lang implements LangContainer {
         GRAY.wrap("Created new currency: " + GREEN.wrap(CURRENCY_NAME) + " (ID: " + WHITE.wrap(CURRENCY_ID) + ")")
     );
 
-
     public static final MessageLocale COMMAND_CURRENCY_GIVE_DONE = LangEntry.builder("Command.Currency.Give.Done").chatMessage(
         GRAY.wrap("Added " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
     public static final MessageLocale COMMAND_CURRENCY_GIVE_NOTIFY = LangEntry.builder("Command.Currency.Give.Notify").chatMessage(
         GRAY.wrap(SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " has been added to your account!"));
 
-
     public static final MessageLocale COMMAND_CURRENCY_GIVE_ALL_DONE = LangEntry.builder("Command.Currency.GiveAll.Done").chatMessage(
         GRAY.wrap("Added " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " to " + SOFT_YELLOW.wrap("All Online") + " players.")
     );
-
 
     public static final MessageLocale COMMAND_CURRENCY_TAKE_DONE = LangEntry.builder("Command.Currency.Take.Done").chatMessage(
         GRAY.wrap("Taken " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance. New balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
@@ -164,13 +155,11 @@ public class Lang implements LangContainer {
     public static final MessageLocale COMMAND_CURRENCY_TAKE_NOTIFY = LangEntry.builder("Command.Currency.Take.Notify").chatMessage(
         GRAY.wrap(SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " has been taken from your account!"));
 
-
     public static final MessageLocale COMMAND_CURRENCY_SET_DONE = LangEntry.builder("Command.Currency.Set.Done").chatMessage(
         GRAY.wrap("Set " + SOFT_YELLOW.wrap(PLAYER_NAME) + "'s " + SOFT_YELLOW.wrap(CURRENCY_NAME) + " balance to " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
     public static final MessageLocale COMMAND_CURRENCY_SET_NOTIFY = LangEntry.builder("Command.Currency.Set.Notify").chatMessage(
         GRAY.wrap("Your " + SOFT_YELLOW.wrap(CURRENCY_NAME) + " balance has been set to " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + "."));
-
 
     public static final MessageLocale CURRENCY_SEND_ERROR_NOT_ENOUGH = LangEntry.builder("Command.Currency.Send.Error.NotEnough").chatMessage(
         GRAY.wrap("You don't have enough " + SOFT_RED.wrap(CURRENCY_NAME) + "!"));
@@ -186,7 +175,6 @@ public class Lang implements LangContainer {
 
     public static final MessageLocale CURRENCY_SEND_DONE_NOTIFY = LangEntry.builder("Command.Currency.Send.Done.Notify").chatMessage(
         GRAY.wrap("You received " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + " from " + SOFT_YELLOW.wrap(PLAYER_NAME) + "!"));
-
 
     public static final MessageLocale COMMAND_CURRENCY_PAYMENTS_TOGGLE = LangEntry.builder("Command.Currency.Payments.Toggle").chatMessage(
         GRAY.wrap(SOFT_YELLOW.wrap(CURRENCY_NAME) + " payments acception: " + SOFT_YELLOW.wrap(GENERIC_STATE) + "."));
@@ -234,13 +222,11 @@ public class Lang implements LangContainer {
         SHOW_TEXT.with(GRAY.wrap("There are no more pages.")).wrap(GRAY.wrap("[←]"))
     );
 
-
     public static final MessageLocale CURRENCY_BALANCE_DISPLAY_OWN = LangEntry.builder("Currency.Balance.Display.Own").chatMessage(
         GRAY.wrap("Balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
 
     public static final MessageLocale CURRENCY_BALANCE_DISPLAY_OTHERS = LangEntry.builder("Currency.Balance.Display.Others").chatMessage(
         GRAY.wrap(SOFT_YELLOW.wrap(PLAYER_NAME) + "'s balance: " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + "."));
-
 
     public static final MessageLocale CURRENCY_WALLET_OWN = LangEntry.builder("Currency.Wallet.Own").message(
         MessageData.CHAT_NO_PREFIX,
@@ -264,7 +250,6 @@ public class Lang implements LangContainer {
         YELLOW.wrap("•") + " " + WHITE.wrap(CURRENCY_NAME + ":") + " " + GREEN.wrap(GENERIC_BALANCE)
     );
 
-
     public static final MessageLocale CURRENCY_EXCHANGE_ERROR_DISABLED = LangEntry.builder("Currency.Exchange.Error.Disabled").chatMessage(
         GRAY.wrap(SOFT_RED.wrap(CURRENCY_NAME) + " can not be exchanged!"));
 
@@ -283,10 +268,8 @@ public class Lang implements LangContainer {
     public static final MessageLocale CURRENCY_EXCHANGE_SUCCESS = LangEntry.builder("Currency.Exchange.Success").chatMessage(
         GRAY.wrap("You exchanged " + SOFT_YELLOW.wrap(GENERIC_BALANCE) + " for " + SOFT_YELLOW.wrap(GENERIC_AMOUNT) + "!"));
 
-
     public static final TextLocale ECONOMY_ERROR_INVALID_PLAYER     = LangEntry.builder("VaultEconomy.Error.InvalidPlayer").text("Player not found.");
     public static final TextLocale ECONOMY_ERROR_INSUFFICIENT_FUNDS = LangEntry.builder("VaultEconomy.Error.InsufficientFunds").text("Insufficient Funds!");
-
 
     public static final TextLocale OTHER_NO_TOP_ENTRY = LangEntry.builder("Other.NoTopEntry").text("<none>");
 }

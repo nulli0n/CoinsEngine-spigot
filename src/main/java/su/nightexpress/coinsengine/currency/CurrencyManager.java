@@ -272,7 +272,7 @@ public class CurrencyManager extends AbstractManager<CoinsEnginePlugin> {
             return;
         }
 
-        this.plugin.runTaskAsync(task -> {
+        this.plugin.runTaskAsync(() -> {
             this.disableOperations();
             if (currency == null) {
                 Collection<Currency> currencies = this.registry.getCurrencies();

@@ -90,8 +90,6 @@ public class CoinsEngineAPI {
         getCurrencyManager().unregisterCurrency(currency);
     }
 
-
-
     public static double getBalance(@NotNull UUID playerId, @NotNull String currencyName) {
         Currency currency = getCurrency(currencyName);
 
@@ -107,8 +105,6 @@ public class CoinsEngineAPI {
     public static double getBalance(@NotNull Player player, @NotNull Currency currency) {
         return getUserData(player).getBalance(currency);
     }
-
-
 
     public static boolean addBalance(@NotNull UUID playerId, @NotNull String currencyName, double amount) {
         Currency currency = getCurrency(currencyName);
@@ -187,7 +183,6 @@ public class CoinsEngineAPI {
     private static OperationContext operationContext() {
         return OperationContext.custom("API").silentFor(NotificationTarget.USER, NotificationTarget.EXECUTOR, NotificationTarget.CONSOLE_LOGGER);
     }
-
 
     @NotNull
     public static CoinsUser getUserData(@NotNull Player player) {
